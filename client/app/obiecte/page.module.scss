@@ -1,0 +1,44 @@
+.obiecte {
+  display: flex;
+  justify-content: center;
+  height: 100vh;
+  padding-top: 78px;
+}
+.container {
+  width: clamp(300px, 95%, 1200px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 2%, 30px);
+}
+.adcontainer {
+  width: 100%;
+  aspect-ratio: 12/3;
+  max-height: 150px;
+  position: relative;
+}
+.buttonbox {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(100px, 45%, 400px);
+  height: 40px;
+  background-color: var(--white);
+  color: var(--blue);
+  border: 1px solid var(--blue);
+  font-size: clamp(16px, 2vw, 19px);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.button.active {
+  background-color: var(--blue);
+  color: white;
+  border: none;
+}
