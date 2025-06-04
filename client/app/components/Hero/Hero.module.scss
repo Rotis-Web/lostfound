@@ -53,8 +53,8 @@
   align-items: center;
   gap: 7px;
   border-radius: 5px;
-  border: 1px solid #2c3e604f;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2c3e6093;
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
   position: relative;
   span {
     font-size: 2.5em;
@@ -66,6 +66,7 @@
     font-size: 1.2em;
     font-weight: 600;
     color: var(--blue);
+    opacity: 0.8;
   }
   .image {
     width: 35%;
@@ -108,7 +109,7 @@
     flex-direction: column;
     align-items: none;
     justify-content: none;
-    gap: 50px;
+    gap: 20px;
   }
   .text {
     width: 100%;
