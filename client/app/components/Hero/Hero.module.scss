@@ -8,6 +8,7 @@
   margin-top: clamp(90px, 7%, 110px);
 }
 .adcontainer {
+  margin: 0 0 30px 0;
   width: 100%;
   height: 120px;
   position: relative;
@@ -57,12 +58,8 @@
   align-items: center;
   gap: 7px;
   border-radius: 5px;
-  // box-shadow: #2c3e6025 0px 2px 4px 0px, #2c3e6025 0px 2px 16px 0px;
-  box-shadow: 4px 4px 8px 1px rgba(44, 62, 96, 0.25),
-    8px 8px 16px 1px rgba(44, 62, 96, 0.15),
-    0px 0px 0px 1px rgba(44, 62, 96, 0.05);
+  box-shadow: #2c3e604d 0px 6px 12px 0px;
   position: relative;
-  margin-bottom: 20px;
   span {
     font-size: 2.5em;
     font-weight: 700;

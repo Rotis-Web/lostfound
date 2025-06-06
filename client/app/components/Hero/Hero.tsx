@@ -32,6 +32,9 @@ export default function Hero() {
           </div>
         </div>
         <div className={styles.input}>
+          <div className={styles.adcontainer}>
+            <Image src="/images/publicitate.png" alt="Publicitate" fill />
+          </div>
           <input type="text" placeholder="Ce anume cauti?" />
           <input type="text" placeholder="Alege locatia..." />
           <input type="text" placeholder="Alege perioada..." />
