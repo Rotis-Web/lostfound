@@ -22,7 +22,6 @@
   overflow-x: auto;
   overflow-y: hidden;
 }
-
 .category {
   flex: 0 0 auto;
   display: flex;
@@ -52,11 +51,17 @@
     font-size: 1.1em;
     font-weight: 400;
     color: var(--blue);
-    opacity: 0.9;
+    opacity: 0.8;
   }
 }
 .category:hover .image {
   transform: scale(1.05);
+}
+.category:hover .imagecontainer {
+  border: 1px solid var(--blue);
+}
+.category:hover .text {
+  opacity: 1;
 }
 
 @media screen and (max-width: 1200px) {
