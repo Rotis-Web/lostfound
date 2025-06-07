@@ -5,51 +5,51 @@ export default function Categories() {
   const categories = [
     {
       name: "Animale",
-      image: "/icons/pets.png",
+      image: "/icons/pets.svg",
     },
     {
       name: "Bijuterii",
-      image: "/icons/jewelry.png",
+      image: "/icons/jewelry.svg",
     },
     {
       name: "Documente",
-      image: "/icons/id.png ",
+      image: "/icons/id.svg",
     },
     {
       name: "Jucării",
-      image: "/icons/toys.png",
+      image: "/icons/toys.svg",
     },
     {
       name: "Chei",
-      image: "/icons/keys.png",
+      image: "/icons/keys.svg",
     },
     {
       name: "Electronice",
-      image: "/icons/electronics.png",
+      image: "/icons/electronics.svg",
     },
     {
       name: "Carduri",
-      image: "/icons/cards.png",
+      image: "/icons/cards.svg",
     },
     {
       name: "Portofele",
-      image: "/icons/wallet.png",
+      image: "/icons/wallet.svg",
     },
     {
       name: "Haine",
-      image: "/icons/clothes.png",
+      image: "/icons/clothes.svg",
     },
     // {
     //   name: "Ochelari",
-    //   image: "/icons/glasses.png",
+    //   image: "/icons/glasses.svg",
     // },
     // {
     //   name: "Ceasuri",
-    //   image: "/icons/watch.png",
+    //   image: "/icons/watch.svg",
     // },
     {
       name: "Altele",
-      image: "/icons/other.png",
+      image: "/icons/other.svg",
     },
   ];
   return (
