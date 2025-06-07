@@ -1,21 +1,35 @@
 import { z } from "zod";
 
-export const emailSchema = z.string().trim().email().min(1).max(255);
-export const passwordSchema = z.string().trim().min(6).max(255);
-
-export const registerSchema = z
-  .object({
-    name: z.string().trim().min(1).max(255),
-    email: emailSchema,
-    password: passwordSchema,
-    confirmPassword: passwordSchema,
-  })
-  .refine((val) => val.password === val.confirmPassword, {
-    message: "Password does not match",
-    path: ["confirmPassword"],
-  });
+export const registerSchema = z.object({
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .max(255, "Email must be at most 255 characters")
+    .email("Invalid email address"),
+  password: z
+    .string()
+    .trim()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters")
+    .max(255, "Password must be at most 255 characters"),
+});
 
 export const loginSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email is required")
+    .max(255, "Email must be at most 255 characters")
+    .email("Invalid email address"),
+  password: z
+    .string()
+    .trim()
+    .min(1, "Password is required")
+    .min(6, "Password must be at least 6 characters")
+    .max(255, "Password must be at most 255 characters"),
 });
+
+export type RegisterInput = z.infer<typeof registerSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;

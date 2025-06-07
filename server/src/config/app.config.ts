@@ -1,4 +1,7 @@
 import { getEnv } from "../utils/get-env";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const appConfig = () => ({
   NODE_ENV: getEnv("NODE_ENV", "development"),

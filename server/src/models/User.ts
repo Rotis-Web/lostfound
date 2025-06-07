@@ -12,6 +12,7 @@ export interface UserDocument extends Document {
   favoritePosts?: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
+  validatePassword: (password: string) => Promise<boolean>;
 }
 
 const userSchema = new Schema<UserDocument>(
