@@ -1,5 +1,6 @@
 import styles from "./Header.module.scss";
 import Image from "next/image";
+import { ProfileImage } from "../ProfileImage/ProfileImage";
 
 export default function Header() {
   return (
@@ -21,13 +22,7 @@ export default function Header() {
       </div>
       <div className={styles.box}>
         <button className={styles.button}>Raportează</button>
-        <Image
-          src="/icons/user_profile.svg"
-          alt="User Profile Icon"
-          width={30}
-          height={30}
-          style={{ opacity: 0.75 }}
-        />
+        <ProfileImage />
       </div>
     </header>
   );

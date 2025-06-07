@@ -34,12 +34,7 @@ export async function register(req: Request, res: Response): Promise<void> {
 
     res.status(201).json({
       accessToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user,
     });
   } catch (err) {
     console.error(err);
@@ -84,12 +79,7 @@ export async function login(req: Request, res: Response): Promise<void> {
 
     res.json({
       accessToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user,
     });
   } catch (err) {
     console.error(err);

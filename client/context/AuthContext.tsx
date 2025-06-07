@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -31,18 +32,22 @@ interface AuthProviderProps {
 interface AuthContextType {
   user: User | null;
   accessToken: string | null;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const accessToken = useRef<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   const login = async (email: string, password: string) => {
+    setLoading(true);
     const res = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -50,22 +55,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       credentials: "include",
     });
     const data = await res.json();
+    setLoading(false);
 
     if (!res.ok) {
-      if (data.code === "VALIDATION_ERROR" && data.errors) {
-        const messages = data.errors
-          .map((e: { message: string }) => e.message)
-          .join(", ");
-        throw new Error(messages);
-      }
-      throw new Error(data.message || "Login failed");
+      const errorObj = {
+        message: data.message || "Login failed",
+        code: data.code || "UNKNOWN_ERROR",
+        errors: data.errors || null,
+        field: data.errors?.[0]?.field || null,
+      };
+      throw errorObj;
     }
 
-    setAccessToken(data.accessToken);
+    accessToken.current = data.accessToken;
     setUser(data.user);
   };
 
   const register = async (name: string, email: string, password: string) => {
+    setLoading(true);
     const res = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -73,24 +80,28 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       credentials: "include",
     });
     const data = await res.json();
+    setLoading(false);
 
     if (!res.ok) {
-      if (data.code === "VALIDATION_ERROR" && data.errors) {
-        const messages = data.errors
-          .map((e: { message: string }) => e.message)
-          .join(", ");
-        throw new Error(messages);
-      }
-      throw new Error(data.message || "Register failed");
+      const errorObj = {
+        message: data.message || "Registration failed",
+        code: data.code || "UNKNOWN_ERROR",
+        errors: data.errors || null,
+        field: data.errors?.[0]?.field || null,
+      };
+      throw errorObj;
     }
 
-    setAccessToken(data.accessToken);
+    accessToken.current = data.accessToken;
     setUser(data.user);
   };
 
   const logout = useCallback(async () => {
-    await fetch(`${API_URL}/auth/logout`, { method: "POST" });
-    setAccessToken(null);
+    await fetch(`${API_URL}/auth/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+    accessToken.current = null;
     setUser(null);
     router.push("/");
   }, [router]);
@@ -102,12 +113,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         credentials: "include",
       });
 
-      if (!res.ok) {
-        return null;
-      }
+      if (!res.ok) return null;
 
       const data = await res.json();
-
+      accessToken.current = data.accessToken;
       return data.accessToken;
     } catch (error) {
       console.error("Failed to refresh token", error);
@@ -133,14 +142,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (newToken) {
           return fetchProfile(newToken, false);
         } else {
+          accessToken.current = null;
           setUser(null);
-          setAccessToken(null);
           return;
         }
       }
+
       if (res.status === 404) {
+        accessToken.current = null;
         setUser(null);
-        setAccessToken(null);
         return;
       }
 
@@ -148,8 +158,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (res.ok) {
         setUser(data.user);
       } else {
+        accessToken.current = null;
         setUser(null);
-        setAccessToken(null);
         throw new Error(data.message || "Failed to fetch profile");
       }
     },
@@ -163,18 +173,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const token = await refreshToken();
         if (token) {
-          setAccessToken(token);
           await fetchProfile(token);
         }
       } catch (error) {
         console.error("Auth init failed:", error);
         setUser(null);
-        setAccessToken(null);
+        accessToken.current = null;
+      } finally {
+        setLoading(false);
       }
 
       interval = setInterval(async () => {
         const token = await refreshToken();
-        if (token) setAccessToken(token);
+        if (token) accessToken.current = token;
       }, 14 * 60 * 1000);
     };
 
@@ -185,7 +196,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, accessToken, login, logout, register }}
+      value={{
+        user,
+        accessToken: accessToken.current,
+        login,
+        register,
+        logout,
+        loading,
+      }}
     >
       {children}
     </AuthContext.Provider>
