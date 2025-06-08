@@ -5,6 +5,7 @@ export interface UserDocument extends Document {
   name: string;
   email: string;
   password: string;
+  lostfoundID: string;
   role: "user" | "admin";
   profileImage?: string;
   bio?: string;
@@ -26,6 +27,7 @@ const userSchema = new Schema<UserDocument>(
       trim: true,
     },
     password: { type: String, required: true },
+    lostfoundID: { type: String, unique: true },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     profileImage: { type: String },
     bio: {
@@ -60,6 +62,31 @@ userSchema.pre("save", function (next) {
   if (!user.profileImage) {
     const encodedName = encodeURIComponent(user.name.trim());
     user.profileImage = `https://ui-avatars.com/api/?name=${encodedName}&background=random&bold=true`;
+  }
+  next();
+});
+
+function generateUserId(length = 5) {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let id = "";
+  for (let i = 0; i < length; i++) {
+    id += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return `#${id}`;
+}
+
+userSchema.pre("save", async function (next) {
+  if (this.isNew && !this.lostfoundID) {
+    let unique = false;
+    while (!unique) {
+      const id = generateUserId();
+      const existing = await mongoose.models.User.findOne({ lostfoundID: id });
+      if (!existing) {
+        this.lostfoundID = id;
+        unique = true;
+      }
+    }
   }
   next();
 });

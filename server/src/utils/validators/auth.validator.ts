@@ -5,7 +5,7 @@ export const registerSchema = z.object({
     .string()
     .pipe(z.string().min(1, "Numele este obligatoriu"))
     .pipe(z.string().min(3, "Numele trebuie sa aibă cel puțin 3 caractere"))
-    .pipe(z.string().max(255, "Numele trebuie sa aibă cel mult 255 caractere")),
+    .pipe(z.string().max(30, "Numele trebuie sa aibă cel mult 30 caractere")),
   email: z
     .string()
     .trim()

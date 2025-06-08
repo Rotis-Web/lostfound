@@ -38,7 +38,7 @@ export default function Hero() {
           <input type="text" placeholder="Ce anume cauti?" />
           <input type="text" placeholder="Alege locatia..." />
           <input type="text" placeholder="Alege perioada..." />
-          <button type="submit">Vezi 1021 raportări</button>
+          <button type="submit">Vezi 1021 postări</button>
         </div>
       </div>
     </section>
