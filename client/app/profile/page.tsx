@@ -39,8 +39,8 @@ export default function ProfilePage() {
       router.push("/");
       setTimeout(() => {
         logout();
-      }, 200);
-      toast.success("Te-ai deconectat cu succes");
+      }, 300);
+      toast.success("Te-ai deconectat cu succes!");
     } catch (err) {
       console.log(err);
     }
@@ -191,7 +191,7 @@ export default function ProfilePage() {
               }}
             >
               <Image
-                src="/images/empty_user_posts.png"
+                src="/images/empty_user_posts.webp"
                 alt="Empty User Posts Image"
                 style={{ opacity: 0.5 }}
                 fill
