@@ -4,9 +4,9 @@ import Categories from "./components/Categories/Categories";
 
 export default function Home() {
   return (
-    <div className={styles.home}>
+    <main className={styles.home}>
       <Hero />
       <Categories />
-    </div>
+    </main>
   );
 }

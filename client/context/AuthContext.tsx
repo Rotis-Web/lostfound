@@ -18,6 +18,7 @@ interface User {
   email: string;
   name: string;
   role: string;
+  lostfoundID: string;
   profileImage: string;
   bio: string;
   badges: string[];
