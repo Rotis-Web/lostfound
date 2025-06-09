@@ -235,7 +235,22 @@ export default function ProfilePage() {
             </button>
           </div>
           {activePage === "postari" && (
-            <div>Aici vor aparea postarile dumneavoastra</div>
+            <div
+              style={{
+                width: "100%",
+                aspectRatio: "12/4",
+                position: "relative",
+                opacity: "0.7",
+              }}
+            >
+              <Image
+                src="/images/empty_user_posts.webp"
+                alt="Empty User Posts"
+                fill
+                sizes="100%"
+                priority
+              />
+            </div>
           )}
           {activePage === "setari" && (
             <div className={styles.settings_container}>
