@@ -1,0 +1,9 @@
+.Toastify__toast-container {
+  max-width: 70vw;
+}
+@media (max-width: 600px) {
+  .Toastify__toast-container {
+    left: 62% !important;
+    transform: translateX(-50%);
+  }
+}

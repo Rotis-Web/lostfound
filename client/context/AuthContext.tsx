@@ -37,6 +37,11 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  changePassword: (
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -167,6 +172,39 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     [refreshToken]
   );
 
+  const changePassword = async (
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string
+  ) => {
+    if (!accessToken.current) {
+      throw new Error("Not authenticated");
+    }
+
+    const res = await fetch(`${API_URL}/user/change-password`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken.current}`,
+      },
+      body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const errorObj = {
+        message: data.message || "Password change failed",
+        code: data.code || "UNKNOWN_ERROR",
+        errors: data.errors || null,
+        field: data.errors?.[0]?.field || null,
+      };
+      throw errorObj;
+    }
+
+    return data;
+  };
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -203,6 +241,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         login,
         register,
         logout,
+        changePassword,
         loading,
       }}
     >

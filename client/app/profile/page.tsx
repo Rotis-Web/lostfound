@@ -5,13 +5,34 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "react-toastify";
+
+type PasswordErrors = {
+  oldPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+  general?: string;
+};
+
+type AuthError = {
+  code?: string;
+  message?: string;
+  field?: string;
+  errors?: { field: string; message: string }[];
+};
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth();
+  const { user, logout, changePassword } = useAuth();
   const [activePage, setActivePage] = useState("postari");
   const [passwordChangeActive, setPasswordChangeActive] = useState(false);
   const [deleteAccountActive, setDeleteAccountActive] = useState(false);
   const router = useRouter();
+
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<PasswordErrors>({});
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const handleLogout = () => {
     try {
@@ -19,6 +40,7 @@ export default function ProfilePage() {
       setTimeout(() => {
         logout();
       }, 200);
+      toast.success("Te-ai deconectat cu succes");
     } catch (err) {
       console.log(err);
     }
@@ -31,6 +53,43 @@ export default function ProfilePage() {
       navigator.clipboard.writeText(user.lostfoundID);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordErrors({});
+    setPasswordLoading(true);
+
+    try {
+      await changePassword(oldPassword, newPassword, confirmPassword);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+
+      toast.success("Parola a fost schimbată cu succes!");
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "message" in err) {
+        const error = err as AuthError;
+
+        if (error.code === "VALIDATION_ERROR" && Array.isArray(error.errors)) {
+          const fieldErrors: PasswordErrors = {};
+          error.errors.forEach(({ field, message }) => {
+            fieldErrors[field as keyof PasswordErrors] = message;
+          });
+          setPasswordErrors(fieldErrors);
+        } else if (error.field && error.message) {
+          setPasswordErrors({ [error.field]: error.message });
+        } else {
+          setPasswordErrors({
+            general: error.message || "A apărut o eroare neașteptată",
+          });
+        }
+      } else {
+        setPasswordErrors({ general: "Eroare necunoscută" });
+      }
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -121,7 +180,25 @@ export default function ProfilePage() {
             </button>
           </div>
           {activePage === "postari" && (
-            <div>Aici vor aparea postarile dumneavoastra</div>
+            <div
+              style={{
+                fontSize: "1em",
+                fontWeight: "600",
+                color: "var(--blue)",
+                width: "100%",
+                aspectRatio: "12/4",
+                position: "relative",
+              }}
+            >
+              <Image
+                src="/images/empty_user_posts.png"
+                alt="Empty User Posts Image"
+                style={{ opacity: 0.5 }}
+                fill
+                sizes="100%"
+                priority
+              />
+            </div>
           )}
           {activePage === "setari" && (
             <div className={styles.settings_container}>
@@ -144,12 +221,126 @@ export default function ProfilePage() {
                     passwordChangeActive ? styles.active : ""
                   }`}
                 >
-                  <input type="password" placeholder="Parolă veche" />
-                  <input type="password" placeholder="Parolă nouă" />
-                  <input type="password" placeholder="Confirmă parola" />
-                  <button>Salvează</button>
+                  <form onSubmit={handlePasswordChange} className={styles.form}>
+                    <div className={styles.inputbox}>
+                      <input
+                        type="password"
+                        placeholder="Parolă veche"
+                        value={oldPassword}
+                        onChange={(e) => {
+                          setOldPassword(e.target.value);
+                          setPasswordErrors({
+                            ...passwordErrors,
+                            oldPassword: undefined,
+                            general: undefined,
+                          });
+                        }}
+                        className={
+                          passwordErrors.oldPassword ? styles.error : ""
+                        }
+                      />
+                      {passwordErrors.oldPassword && (
+                        <span className={styles.errormessage}>
+                          {passwordErrors.oldPassword}
+                        </span>
+                      )}
+                    </div>
+                    <div className={styles.inputbox}>
+                      <input
+                        type="password"
+                        placeholder="Parolă nouă"
+                        value={newPassword}
+                        onChange={(e) => {
+                          setNewPassword(e.target.value);
+                          setPasswordErrors({
+                            ...passwordErrors,
+                            newPassword: undefined,
+                            general: undefined,
+                          });
+                        }}
+                        className={
+                          passwordErrors.newPassword ? styles.error : ""
+                        }
+                      />
+                      {passwordErrors.newPassword && (
+                        <span className={styles.errormessage}>
+                          {passwordErrors.newPassword}
+                        </span>
+                      )}
+                    </div>
+                    <div className={styles.inputbox}>
+                      <input
+                        type="password"
+                        placeholder="Confirmă parola"
+                        value={confirmPassword}
+                        onChange={(e) => {
+                          setConfirmPassword(e.target.value);
+                          setPasswordErrors({
+                            ...passwordErrors,
+                            confirmPassword: undefined,
+                            general: undefined,
+                          });
+                        }}
+                        className={
+                          passwordErrors.confirmPassword ? styles.error : ""
+                        }
+                      />
+                      {passwordErrors.confirmPassword && (
+                        <span className={styles.errormessage}>
+                          {passwordErrors.confirmPassword}
+                        </span>
+                      )}
+                    </div>
+                    {passwordErrors.general && (
+                      <div className={styles.errorgeneral}>
+                        <Image
+                          src="/icons/error.svg"
+                          alt="Error Icon"
+                          width={15}
+                          height={15}
+                        />
+                        <span>{passwordErrors.general}</span>
+                      </div>
+                    )}
+                    <button type="submit" disabled={passwordLoading}>
+                      {passwordLoading ? "Se salvează..." : "Salvează"}
+                    </button>
+                  </form>
                 </div>
               </div>
+              <div className={styles.settings}>
+                <div className={styles.settingstext}>
+                  Termeni și condiții
+                  <Image
+                    src="/icons/arrow-right.svg"
+                    alt="Arrow Right Icon"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              </div>
+              <div className={styles.settings}>
+                <div className={styles.settingstext}>
+                  Securitatea datelor
+                  <Image
+                    src="/icons/arrow-right.svg"
+                    alt="Arrow Right Icon"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              </div>
+              <div className={styles.settings}>
+                <div className={styles.settingstext}>
+                  Setări cookies
+                  <Image
+                    src="/icons/arrow-right.svg"
+                    alt="Arrow Right Icon"
+                    width={20}
+                    height={20}
+                  />
+                </div>
+              </div>{" "}
               <div
                 className={styles.settings}
                 style={{

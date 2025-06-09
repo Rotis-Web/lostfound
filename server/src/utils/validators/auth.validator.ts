@@ -38,3 +38,31 @@ export const loginSchema = z.object({
     .pipe(z.string().min(6, "Parola trebuie sa aibă cel puțin 6 caractere"))
     .pipe(z.string().max(255, "Parola trebuie sa aibă cel mult 255 caractere")),
 });
+
+export const changePasswordSchema = z
+  .object({
+    oldPassword: z
+      .string()
+      .trim()
+      .pipe(z.string().min(1, "Parola veche este obligatorie")),
+    newPassword: z
+      .string()
+      .trim()
+      .pipe(z.string().min(1, "Parola nouă este obligatorie"))
+      .pipe(
+        z.string().min(6, "Parola nouă trebuie sa aibă cel puțin 6 caractere")
+      )
+      .pipe(
+        z
+          .string()
+          .max(255, "Parola nouă trebuie sa aibă cel mult 255 caractere")
+      ),
+    confirmPassword: z
+      .string()
+      .trim()
+      .pipe(z.string().min(1, "Confirmarea parolei este obligatorie")),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Parolele nu se potrivesc",
+    path: ["confirmPassword"],
+  });

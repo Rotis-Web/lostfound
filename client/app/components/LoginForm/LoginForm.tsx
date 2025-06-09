@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 type FieldErrors = {
   email?: string;
@@ -37,6 +38,7 @@ export default function LoginForm() {
     try {
       await login(email, password);
       router.push("/");
+      toast.success("Te-ai logat cu succes!");
     } catch (err: unknown) {
       if (typeof err === "object" && err !== null && "message" in err) {
         const error = err as AuthError;

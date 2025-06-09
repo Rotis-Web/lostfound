@@ -210,12 +210,13 @@
     font-size: 0.9em;
   }
   button {
+    width: 100%;
     cursor: pointer;
     background: var(--blue);
     border: none;
     border-radius: 5px;
     font-size: 0.9em;
-    padding: 8px;
+    padding: 9px;
     font-weight: 500;
     color: var(--white);
     opacity: 0.8;
@@ -224,6 +225,44 @@
       opacity: 1;
     }
   }
+}
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  position: relative;
+}
+.inputbox {
+  width: 100%;
+  position: relative;
+  .error {
+    border: 1px solid rgba(255, 0, 0, 0.3);
+  }
+  .errormessage {
+    position: absolute;
+    top: -16;
+    left: 10;
+    color: rgba(255, 0, 0, 0.7);
+    font-size: 0.7em;
+    font-weight: 600;
+    text-wrap: nowrap;
+    margin: 5px 0 0 0;
+    padding: 0 5px;
+    background: white;
+  }
+}
+.errorgeneral {
+  width: 100%;
+  font-size: 0.8em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  color: rgba(255, 0, 0, 0.7);
 }
 .settingsform.active {
   display: flex;
