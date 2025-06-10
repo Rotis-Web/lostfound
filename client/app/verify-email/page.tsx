@@ -45,7 +45,7 @@ const VerifyPage = () => {
     };
 
     verify();
-  }, [searchParams, router]);
+  }, [searchParams, router, verifyEmail]);
 
   return (
     <div className={styles.container}>

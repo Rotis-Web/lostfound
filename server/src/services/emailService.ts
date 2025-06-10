@@ -59,8 +59,8 @@ class EmailService {
             .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
             .content { padding: 30px 20px; }
             .title{font-weight:700;color:#ffd700;}
-            .span{color:#2c3e60; }
-            .buttoncontainer{width:100%;display:flex;justify-content:center;}
+            .span{ color:#2c3e60; font-size:25px }
+            .buttoncontainer{ width:100%; display:flex; justify-content:center; }
             .button { 
               display: inline-block; 
               background-color: #ffd700; 

@@ -15,11 +15,11 @@ export function ProfileImage() {
       <Image
         src={profileImage}
         alt="User Profile Icon"
-        width={33}
-        height={33}
+        width={37}
+        height={37}
         style={{
           borderRadius: "50%",
-          ...(user ? {} : { opacity: 0.7 }),
+          ...(user ? {} : { opacity: 0.85 }),
         }}
         priority
       />
