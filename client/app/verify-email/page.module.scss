@@ -1,0 +1,23 @@
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+.box {
+  width: clamp(300px, 90%, 1300px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2em;
+  p {
+    font-size: 1.2em;
+    font-weight: 400;
+    color: var(--blue);
+    opacity: 0.8;
+    text-align: center;
+    width: 25ch;
+    line-height: 1.8;
+  }
+}

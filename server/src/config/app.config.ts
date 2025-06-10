@@ -14,6 +14,12 @@ const appConfig = () => ({
     SECRET: getEnv("JWT_SECRET"),
     REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET"),
   },
+  SMTP_HOST: getEnv("SMTP_HOST"),
+  SMTP_PORT: getEnv("SMTP_PORT"),
+  SMTP_USER: getEnv("SMTP_USER"),
+  SMTP_PASS: getEnv("SMTP_PASS"),
+  FROM_EMAIL: getEnv("FROM_EMAIL"),
+  FROM_NAME: getEnv("FROM_NAME"),
 });
 
 export const config = appConfig();

@@ -1,0 +1,82 @@
+.success {
+  width: 100vw;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+.container {
+  width: clamp(300px, 90%, 1300px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1.2em;
+  h1 {
+    width: clamp(200px, 70%, 500px);
+    font-size: 2.9em;
+    font-weight: 800;
+    color: var(--blue);
+    margin-bottom: 5px;
+  }
+  p {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--blue);
+    opacity: 0.8;
+  }
+  a {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--blue);
+  }
+  ul {
+    padding: 0 0 0 20px;
+    font-size: 1em;
+    font-weight: 400;
+    color: var(--blue);
+    opacity: 0.8;
+    li {
+      margin: 10px 0;
+    }
+    a {
+      font-size: 1em;
+      font-weight: 400;
+      color: var(--yellow);
+      text-decoration: underline;
+    }
+  }
+}
+.p1 {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+}
+.image {
+  width: 15%;
+  aspect-ratio: 1/1;
+  display: block;
+  background: url("/gifs/mail_animation.gif");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media screen and (max-width: 1200px) {
+  .success {
+    margin-top: 90px;
+  }
+  .container {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 2em;
+    h1 {
+      font-size: 2.2em;
+      width: clamp(200px, 90%, 500px);
+    }
+  }
+  .image {
+    width: clamp(100px, 50%, 200px);
+  }
+}

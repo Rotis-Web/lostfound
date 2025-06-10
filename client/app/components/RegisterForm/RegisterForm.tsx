@@ -6,7 +6,6 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { toast } from "react-toastify";
 
 type FieldErrors = {
   name?: string;
@@ -47,8 +46,8 @@ export default function RegisterForm() {
 
     try {
       await register(name, email, password);
-      router.push("/");
-      toast.success("Bun venit pe Lost & Found!");
+      sessionStorage.setItem("registeredEmail", email);
+      router.push("/register/success");
     } catch (err: unknown) {
       if (typeof err === "object" && err !== null && "message" in err) {
         const error = err as AuthError;

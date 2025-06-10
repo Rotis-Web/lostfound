@@ -11,7 +11,13 @@ export default function Hero() {
       <div className={styles.maincontainer}>
         <div className={styles.text}>
           <div className={styles.slogan}>
-            <Image src="/images/slogan.webp" alt="Logo Icon" fill priority />
+            <Image
+              src="/images/slogan.webp"
+              alt="Logo Icon"
+              fill
+              sizes="100%"
+              priority
+            />
           </div>
           <h2>
             Cea mai mare comunitate din România dedicată animalelor și

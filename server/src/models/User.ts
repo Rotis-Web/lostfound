@@ -1,5 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 export interface UserDocument extends Document {
   name: string;
@@ -11,9 +12,13 @@ export interface UserDocument extends Document {
   bio?: string;
   badges?: string[];
   favoritePosts?: mongoose.Types.ObjectId[];
+  isEmailVerified: boolean;
+  emailVerificationToken?: string;
+  emailVerificationExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   validatePassword: (password: string) => Promise<boolean>;
+  generateEmailVerificationToken: () => string;
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -47,6 +52,9 @@ const userSchema = new Schema<UserDocument>(
         ref: "Post",
       },
     ],
+    isEmailVerified: { type: Boolean, default: false },
+    emailVerificationToken: { type: String },
+    emailVerificationExpires: { type: Date },
   },
   { timestamps: true }
 );
@@ -93,6 +101,16 @@ userSchema.methods.validatePassword = function (
   password: string
 ) {
   return bcrypt.compare(password, this.password);
+};
+
+userSchema.methods.generateEmailVerificationToken = function () {
+  const token = crypto.randomBytes(32).toString("hex");
+  this.emailVerificationToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  this.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  return token;
 };
 
 export default mongoose.model<UserDocument>("User", userSchema);

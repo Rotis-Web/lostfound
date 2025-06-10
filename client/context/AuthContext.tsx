@@ -23,6 +23,7 @@ interface User {
   bio: string;
   badges: string[];
   favoritePosts: string[];
+  isEmailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -47,6 +48,7 @@ interface AuthContextType {
     confirmationText: string,
     dataSecurityConfirmed: boolean
   ) => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -103,9 +105,32 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       throw errorObj;
     }
 
+    return data.message;
+  };
+
+  const verifyEmail = useCallback(async (token: string) => {
+    setLoading(true);
+    const res = await fetch(`${API_URL}/auth/verify-email`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      const errorObj = {
+        message: data.message || "Email verification failed",
+        code: data.code || "UNKNOWN_ERROR",
+      };
+      throw errorObj;
+    }
+
     accessToken.current = data.accessToken;
     setUser(data.user);
-  };
+    return data;
+  }, []);
 
   const logout = useCallback(async () => {
     await fetch(`${API_URL}/auth/logout`, {
@@ -288,6 +313,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         logout,
         changePassword,
         deleteAccount,
+        verifyEmail,
         loading,
       }}
     >
