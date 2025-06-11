@@ -65,7 +65,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className={styles.container}>
+    <section className={styles.container}>
       <div className={styles.login_form}>
         <h1>Bine ați venit!</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -170,6 +170,6 @@ export default function LoginForm() {
           priority
         />
       </div>
-    </div>
+    </section>
   );
 }

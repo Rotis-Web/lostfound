@@ -14,7 +14,7 @@ export default function RegisterSuccess() {
 
   return (
     <main className={styles.success}>
-      <div className={styles.container}>
+      <section className={styles.container}>
         <div className={styles.p1}>
           <h1>Mulțumim pentru înregistrare!</h1>
 
@@ -32,7 +32,7 @@ export default function RegisterSuccess() {
           </ul>
         </div>
         <div className={styles.image}></div>
-      </div>
+      </section>
     </main>
   );
 }

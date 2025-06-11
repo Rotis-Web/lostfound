@@ -48,7 +48,7 @@ const VerifyPage = () => {
   }, [searchParams, router, verifyEmail]);
 
   return (
-    <div className={styles.container}>
+    <main className={styles.container}>
       {status === "verifying" && (
         <div className={styles.box}>
           {" "}
@@ -88,7 +88,7 @@ const VerifyPage = () => {
           <p className="text-red-600">{message}</p>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 

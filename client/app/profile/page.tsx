@@ -146,7 +146,7 @@ export default function ProfilePage() {
 
   return (
     <main className={styles.profile}>
-      <div className={styles.container}>
+      <section className={styles.container}>
         <div className={styles.background}></div>
         <div className={styles.content}>
           <div className={styles.content_items}>
@@ -523,7 +523,7 @@ export default function ProfilePage() {
             </div>
           )}
         </div>
-      </div>
+      </section>
     </main>
   );
 }

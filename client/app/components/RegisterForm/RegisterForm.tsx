@@ -74,7 +74,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className={styles.container}>
+    <section className={styles.container}>
       <div className={styles.register_form}>
         <h1>Creare cont</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -225,6 +225,6 @@ export default function RegisterForm() {
           priority
         />
       </div>
-    </div>
+    </section>
   );
 }
