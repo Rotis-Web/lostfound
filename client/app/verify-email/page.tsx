@@ -1,4 +1,3 @@
-// app/verify/page.tsx
 "use client";
 
 import styles from "./page.module.scss";
@@ -6,6 +5,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
+
+interface VerifyErrors {
+  message: string;
+}
 
 const VerifyPage = () => {
   const { verifyEmail } = useAuth();
@@ -38,9 +41,11 @@ const VerifyPage = () => {
           "Email-ul a fost verificat cu succes! Vei fi redirecționat..."
         );
         setTimeout(() => router.push("/"), 2500);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const error = err as VerifyErrors;
+
         setStatus("error");
-        setMessage(err.message || "Verificarea a eșuat.");
+        setMessage(error.message || "Verificarea a eșuat.");
       }
     };
 

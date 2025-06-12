@@ -108,7 +108,9 @@ export default function LoginForm() {
             )}
           </div>
           <div className={styles.forgot_password_div}>
-            <p className={styles.forgot_password}>Ai uitat parola?</p>
+            <Link href="/forgot-password">
+              <p className={styles.forgot_password}>Ai uitat parola?</p>
+            </Link>
             <div className={styles.errorgeneral}>
               {errors.general && (
                 <>

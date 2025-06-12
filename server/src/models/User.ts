@@ -15,10 +15,13 @@ export interface UserDocument extends Document {
   isEmailVerified: boolean;
   emailVerificationToken?: string;
   emailVerificationExpires?: Date;
+  passwordResetToken?: string;
+  passwordResetExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
   validatePassword: (password: string) => Promise<boolean>;
   generateEmailVerificationToken: () => string;
+  generatePasswordResetToken: () => string;
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -55,6 +58,8 @@ const userSchema = new Schema<UserDocument>(
     isEmailVerified: { type: Boolean, default: false },
     emailVerificationToken: { type: String },
     emailVerificationExpires: { type: Date },
+    passwordResetToken: { type: String },
+    passwordResetExpires: { type: Date },
   },
   { timestamps: true }
 );
@@ -110,6 +115,16 @@ userSchema.methods.generateEmailVerificationToken = function () {
     .update(token)
     .digest("hex");
   this.emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  return token;
+};
+
+userSchema.methods.generatePasswordResetToken = function () {
+  const token = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(token)
+    .digest("hex");
+  this.passwordResetExpires = new Date(Date.now() + 10 * 60 * 1000);
   return token;
 };
 

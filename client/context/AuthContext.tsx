@@ -49,6 +49,12 @@ interface AuthContextType {
     dataSecurityConfirmed: boolean
   ) => Promise<void>;
   verifyEmail: (token: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<string>;
+  resetPassword: (
+    token: string,
+    password: string,
+    confirmPassword: string
+  ) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -275,6 +281,57 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return data;
   };
 
+  const forgotPassword = useCallback(async (email: string) => {
+    setLoading(true);
+    const res = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+      credentials: "include",
+    });
+    const data = await res.json();
+    setLoading(false);
+
+    if (!res.ok) {
+      const errorObj = {
+        message: data.message || "Resetarea parolei a eșuat",
+        code: data.code || "UNKNOWN_ERROR",
+        errors: data.errors || null,
+        field: data.errors?.[0]?.field || null,
+      };
+      throw errorObj;
+    }
+
+    return data.message;
+  }, []);
+
+  const resetPassword = useCallback(
+    async (token: string, password: string, confirmPassword: string) => {
+      setLoading(true);
+      const res = await fetch(`${API_URL}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password, confirmPassword }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      setLoading(false);
+
+      if (!res.ok) {
+        const errorObj = {
+          message: data.message || "Resetarea parolei a eșuat",
+          code: data.code || "UNKNOWN_ERROR",
+          errors: data.errors || null,
+          field: data.errors?.[0]?.field || null,
+        };
+        throw errorObj;
+      }
+
+      return data.message;
+    },
+    []
+  );
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -314,6 +371,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         changePassword,
         deleteAccount,
         verifyEmail,
+        forgotPassword,
+        resetPassword,
         loading,
       }}
     >

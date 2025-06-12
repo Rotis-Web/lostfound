@@ -8,6 +8,7 @@ import {
   generateRefreshToken,
 } from "../utils/generateToken";
 import emailService from "../services/emailService";
+import { error } from "console";
 
 export async function register(req: Request, res: Response): Promise<void> {
   try {
@@ -196,6 +197,114 @@ export async function verifyEmail(req: Request, res: Response): Promise<void> {
       message: "Email verificat cu succes!",
       accessToken,
       user: safeUser,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Internal server error",
+    });
+  }
+}
+
+export async function forgotPassword(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.json({
+        code: "RESET_EMAIL_SENT",
+        message:
+          "Dacă email-ul există în sistem, vei primi instrucțiunile de resetare",
+      });
+      return;
+    }
+
+    const resetToken = user.generatePasswordResetToken();
+    await user.save();
+
+    try {
+      await emailService.sendPasswordResetEmail(email, user.name, resetToken);
+    } catch (emailError) {
+      console.error("Failed to send reset email:", emailError);
+    }
+
+    res.json({
+      code: "RESET_EMAIL_SENT",
+      message:
+        "Dacă email-ul există în sistem, vei primi instrucțiunile de resetare",
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Internal server error",
+    });
+  }
+}
+
+export async function resetPassword(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const { token, password } = req.body;
+
+    if (!token) {
+      res.status(400).json({
+        code: "MISSING_DATA",
+        message: "Token-ul de resetare lipsește",
+        errors: {
+          field: "token",
+          message: "Token-ul de resetare lipsește",
+        },
+      });
+      return;
+    }
+
+    if (!password) {
+      res.status(400).json({
+        code: "MISSING_DATA",
+        message: "Parola este obligatorie",
+        errors: {
+          field: "password",
+          message: "Parola este obligatorie",
+        },
+      });
+      return;
+    }
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await User.findOne({
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: new Date() },
+    });
+
+    if (!user) {
+      res.status(400).json({
+        code: "INVALID_TOKEN",
+        message: "Token de resetare invalid sau expirat",
+        errors: {
+          field: "token",
+          message: "Token de resetare invalid sau expirat",
+        },
+      });
+      return;
+    }
+
+    user.password = password;
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+    await user.save();
+
+    res.json({
+      code: "PASSWORD_RESET_SUCCESS",
+      message: "Parola a fost resetată cu succes",
     });
   } catch (err) {
     console.error(err);

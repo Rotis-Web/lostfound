@@ -1,0 +1,49 @@
+.forgotpassword {
+  width: 100vw;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding-top: 100px;
+}
+.container {
+  width: clamp(300px, 90%, 1300px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5em;
+  h1 {
+    width: clamp(200px, 90%, 500px);
+    font-size: 2.5em;
+    font-weight: 800;
+    color: var(--blue);
+  }
+  p {
+    font-size: 1.2em;
+    font-weight: 400;
+    color: var(--blue);
+    opacity: 0.8;
+    line-height: 1.8;
+  }
+  input {
+    width: clamp(200px, 90%, 500px);
+    padding: 13px;
+    border: 1px solid #2c3e604f;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    color: var(--black);
+    font-weight: 500;
+    font-size: 1.1em;
+  }
+  button {
+    padding: 12px 15px;
+    border: none;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    color: var(--black);
+    font-weight: 500;
+    font-size: 1.1em;
+    background: var(--yellow);
+    color: white;
+    cursor: pointer;
+  }
+}

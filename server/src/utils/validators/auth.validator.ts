@@ -86,3 +86,28 @@ export const deleteAccountSchema = z.object({
       "Trebuie să confirmați că ați citit Politica de Securitate a Datelor",
   }),
 });
+
+export const emailSchema = z.object({
+  email: z.string().email("Adresa de email nu este validă"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Token este obligatoriu"),
+    password: z
+      .string()
+      .trim()
+      .pipe(z.string().min(1, "Parola este obligatorie"))
+      .pipe(z.string().min(6, "Parola trebuie sa aibă cel puțin 6 caractere"))
+      .pipe(
+        z.string().max(255, "Parola trebuie sa aibă cel mult 255 caractere")
+      ),
+    confirmPassword: z
+      .string()
+      .trim()
+      .pipe(z.string().min(1, "Confirmarea parolei este obligatorie")),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Parolele nu se potrivesc",
+    path: ["confirmPassword"],
+  });
