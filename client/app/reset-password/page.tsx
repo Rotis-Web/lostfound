@@ -142,7 +142,7 @@ export default function ResetPasswordPage() {
 
           {errors.general && (
             <div className={styles.errorgeneral}>
-              <span>{errors.general}</span>
+              <span>&#x26A0; {errors.general}</span>
             </div>
           )}
 
