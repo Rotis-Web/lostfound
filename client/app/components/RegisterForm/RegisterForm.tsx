@@ -39,7 +39,7 @@ export default function RegisterForm() {
     setLoading(true);
 
     if (password !== confirmPassword) {
-      setErrors({ confirmPassword: "Parolele nu coincid" });
+      setErrors({ confirmPassword: "Parolele nu se potrivesc" });
       setLoading(false);
       return;
     }
