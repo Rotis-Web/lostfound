@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 type FieldErrors = {
   password?: string;
@@ -82,6 +83,12 @@ export default function ResetPasswordPage() {
         <h1>Resetare parolă</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/password.svg"
+              alt="Password icon"
+              width={25}
+              height={25}
+            />
             <input
               type="password"
               placeholder="Parola nouă"
@@ -104,6 +111,12 @@ export default function ResetPasswordPage() {
           </div>
 
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/password.svg"
+              alt="Password icon"
+              width={25}
+              height={25}
+            />
             <input
               type="password"
               placeholder="Confirmă parola"

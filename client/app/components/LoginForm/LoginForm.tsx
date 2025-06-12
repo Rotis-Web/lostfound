@@ -70,6 +70,12 @@ export default function LoginForm() {
         <h1>Bine ați venit!</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/email.svg"
+              alt="Email icon"
+              width={25}
+              height={25}
+            />
             <input
               type="text"
               value={email}
@@ -87,6 +93,12 @@ export default function LoginForm() {
             )}
           </div>
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/password.svg"
+              alt="Password icon"
+              width={25}
+              height={25}
+            />
             <input
               type="password"
               value={password}

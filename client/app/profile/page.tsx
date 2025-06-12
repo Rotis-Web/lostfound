@@ -273,7 +273,7 @@ export default function ProfilePage() {
                     <div className={styles.inputbox}>
                       <input
                         type="password"
-                        placeholder="Parolă veche"
+                        placeholder="Parola veche"
                         value={oldPassword}
                         onChange={(e) => {
                           setOldPassword(e.target.value);
@@ -296,7 +296,7 @@ export default function ProfilePage() {
                     <div className={styles.inputbox}>
                       <input
                         type="password"
-                        placeholder="Parolă nouă"
+                        placeholder="Parola nouă"
                         value={newPassword}
                         onChange={(e) => {
                           setNewPassword(e.target.value);

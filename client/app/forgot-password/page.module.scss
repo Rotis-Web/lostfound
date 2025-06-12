@@ -24,16 +24,6 @@
     opacity: 0.8;
     line-height: 1.8;
   }
-  input {
-    width: clamp(200px, 90%, 500px);
-    padding: 13px;
-    border: 1px solid #2c3e604f;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-    color: var(--black);
-    font-weight: 500;
-    font-size: 1.1em;
-  }
   button {
     padding: 12px 15px;
     border: none;
@@ -45,5 +35,28 @@
     background: var(--yellow);
     color: white;
     cursor: pointer;
+  }
+  .inputbox {
+    width: clamp(200px, 90%, 500px);
+    position: relative;
+    img {
+      position: absolute;
+      top: 12px;
+      left: 7px;
+      opacity: 0.8;
+    }
+    input {
+      width: 100%;
+      padding: 13px 0 13px 40px;
+      border: 1px solid #2c3e604f;
+      box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+      color: var(--black);
+      font-weight: 500;
+      font-size: 1.1em;
+    }
+    input::placeholder {
+      color: var(--blue);
+    }
   }
 }

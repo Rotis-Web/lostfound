@@ -79,6 +79,12 @@ export default function RegisterForm() {
         <h1>Creare cont</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/name.svg"
+              alt="Name icon"
+              width={25}
+              height={25}
+            />
             <input
               type="text"
               value={name}
@@ -97,6 +103,12 @@ export default function RegisterForm() {
           </div>
 
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/email.svg"
+              alt="Email icon"
+              width={25}
+              height={25}
+            />
             <input
               type="text"
               value={email}
@@ -115,6 +127,12 @@ export default function RegisterForm() {
           </div>
 
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/password.svg"
+              alt="Password icon"
+              width={25}
+              height={25}
+            />
             <input
               type="password"
               value={password}
@@ -137,6 +155,12 @@ export default function RegisterForm() {
           </div>
 
           <div className={styles.inputbox}>
+            <Image
+              src="/icons/password.svg"
+              alt="Password icon"
+              width={25}
+              height={25}
+            />
             <input
               type="password"
               value={confirmPassword}

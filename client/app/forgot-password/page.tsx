@@ -4,6 +4,7 @@ import styles from "./page.module.scss";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
+import Image from "next/image";
 
 type ForgotPasswordErrors = {
   code?: string;
@@ -40,12 +41,20 @@ export default function ForgotPassword() {
           Vă rugăm sa introduceți adresa de email asociată contului mai jos. Vă
           vom trimite un link pentru a reseta parola.
         </p>
-        <input
-          type="text"
-          placeholder="Introduceți adresa de email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className={styles.inputbox}>
+          <Image
+            src="/icons/email.svg"
+            alt="Email icon"
+            width={25}
+            height={25}
+          />
+          <input
+            type="text"
+            placeholder="Introduceți adresa de email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
         <button onClick={handleEmailSubmit}>
           {loading ? "Se trimite..." : "Trimite"}
         </button>
