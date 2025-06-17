@@ -138,7 +138,7 @@ export default function LoginForm() {
             </div>
           </div>
           <button type="submit" disabled={loading}>
-            {loading ? "Loading..." : "Intră în cont"}
+            {loading ? "Se încarcă..." : "Intră în cont"}
           </button>
         </form>
         <div className={styles.login_options}>

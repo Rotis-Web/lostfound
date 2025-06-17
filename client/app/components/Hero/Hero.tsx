@@ -1,6 +1,7 @@
 import styles from "./Hero.module.scss";
 import Image from "next/image";
 import Counter from "../Counter/Counter";
+import SearchInput from "../SearchInput/SearchInput";
 
 export default function Hero() {
   return (
@@ -41,10 +42,7 @@ export default function Hero() {
           <div className={styles.adcontainer}>
             <Image src="/images/publicitate.png" alt="Publicitate" fill />
           </div>
-          <input type="text" placeholder="Ce anume cauti?" />
-          <input type="text" placeholder="Alege locatia..." />
-          <input type="text" placeholder="Alege perioada..." />
-          <button type="submit">Vezi 1021 postări</button>
+          <SearchInput />
         </div>
       </div>
     </section>
