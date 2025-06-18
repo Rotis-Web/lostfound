@@ -9,10 +9,11 @@ export default function SearchInput() {
   const [distanceOpen, setDistanceOpen] = useState(false);
   const distanceOptions = [1, 2, 5, 10];
 
-  const [periodSelected, setPeriodSelected] = useState(1);
+  const [periodSelected, setPeriodSelected] = useState<number | null>(null);
   const [periodOpen, setPeriodOpen] = useState(false);
-  const periodOptions = [1, 2, 6, 12];
+  const periodOptions = [null, 1, 2, 6, 12];
   const periods = [
+    { id: null, name: "Orice perioadă" },
     { id: 1, name: "Ultima lună" },
     { id: 2, name: "Ultimele 2 luni" },
     { id: 6, name: "Ultimele 6 luni" },
@@ -78,15 +79,15 @@ export default function SearchInput() {
               setDistanceOpen(false);
             }}
           >
-            <div className={styles.selected} style={{ padding: "10px 15px" }}>
+            <div className={styles.selected}>
               <p>{periods.find((p) => p.id === periodSelected)?.name}</p>
               <span>{periodOpen ? "▲" : "▼"}</span>
             </div>
             {periodOpen && (
               <ul className={styles.options}>
                 {periodOptions
-                  .filter((opt: number) => opt !== periodSelected)
-                  .map((opt: number) => (
+                  .filter((opt: number | null) => opt !== periodSelected)
+                  .map((opt: number | null) => (
                     <li
                       key={opt}
                       onClick={() => {
