@@ -3,12 +3,19 @@
 import styles from "./CreatePostForm.module.scss";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import Link from "next/link";
 import Loader from "../Loader/Loader";
 import { categories } from "../Categories/Categories";
+import dynamic from "next/dynamic";
+const MapInput = dynamic(() => import("../MapInput/MapInput"), { ssr: false });
+
+interface LocationData {
+  name: string;
+  lat: number;
+  lng: number;
+  radius: number;
+}
 
 export default function CreatePostForm() {
   const { user, loading } = useAuth();
@@ -21,11 +28,16 @@ export default function CreatePostForm() {
   const [content, setContent] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState<string>("");
+  const [reward, setReward] = useState<string>("");
   const [lastSeen, setLastSeen] = useState<string>("");
   const [images, setImages] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [location, setLocation] = useState<LocationData | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleLocationChange = (locationData: LocationData | null) => {
+    setLocation(locationData);
+  };
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === " " || e.key === "Enter") {
@@ -77,6 +89,11 @@ export default function CreatePostForm() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+              {name && (
+                <button onClick={() => setName("")} className={styles.clear}>
+                  ✕
+                </button>
+              )}
             </div>
             <div className={styles.inputbox}>
               <p>
@@ -87,7 +104,12 @@ export default function CreatePostForm() {
                 placeholder="Introduceți adresa de email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-              />
+              />{" "}
+              {email && (
+                <button onClick={() => setEmail("")} className={styles.clear}>
+                  ✕
+                </button>
+              )}
             </div>
             <div className={styles.inputbox}>
               <p>
@@ -99,6 +121,11 @@ export default function CreatePostForm() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+              {phone && (
+                <button onClick={() => setPhone("")} className={styles.clear}>
+                  ✕
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -132,12 +159,17 @@ export default function CreatePostForm() {
               </p>
               <input
                 type="text"
-                placeholder="Introduceț titlul postării ( ex: Câine pierdut ) "
+                placeholder="Introduceți titlul postării ( ex: Câine pierdut ) "
                 value={title}
                 onChange={(e) => {
                   setTitle(e.target.value);
                 }}
               />
+              {title && (
+                <button onClick={() => setTitle("")} className={styles.clear}>
+                  ✕
+                </button>
+              )}
             </div>
             <div className={styles.inputbox}>
               <p>Descrierea postării</p>
@@ -169,6 +201,24 @@ export default function CreatePostForm() {
                   </span>
                 ))}
               </div>
+            </div>
+            <div className={styles.inputbox}>
+              <p>
+                Recompensă<span className={styles.info}> ( opțional )</span>
+              </p>
+              <input
+                type="text"
+                placeholder="Introduceți recompensa ( ex: 100 RON )"
+                value={reward}
+                onChange={(e) => {
+                  setReward(e.target.value);
+                }}
+              />
+              {title && (
+                <button onClick={() => setTitle("")} className={styles.clear}>
+                  ✕
+                </button>
+              )}
             </div>
             <div className={styles.dateinputbox}>
               <p>
@@ -306,6 +356,7 @@ export default function CreatePostForm() {
                 ))}
               </div>
             </div>
+            <MapInput onLocationChange={handleLocationChange} />
           </div>
         </div>
       </div>

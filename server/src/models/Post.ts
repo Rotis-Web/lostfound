@@ -18,6 +18,7 @@ interface PostDocument extends Document {
     isActive: boolean;
     expiresAt?: Date;
   };
+  reward?: number;
   comments: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
@@ -54,6 +55,7 @@ const postSchema = new Schema<PostDocument>(
       },
     },
     circleRadius: { type: Number, required: true, min: 0 },
+    reward: { type: Number },
     promoted: {
       isActive: { type: Boolean, default: false, index: true },
       expiresAt: { type: Date },

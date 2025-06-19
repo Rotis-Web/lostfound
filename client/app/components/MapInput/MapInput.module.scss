@@ -1,0 +1,146 @@
+.mapinput {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.searchbox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.infotext {
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--blue);
+}
+.searchwrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+.locationinput {
+  flex: 1;
+  height: 40px;
+  width: 75%;
+  padding: 13px 30px 13px 13px;
+  border: 1px solid #2c3e604f;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
+  color: var(--blue, #2c3e60);
+  font-size: 1em;
+}
+.locationinput::placeholder {
+  color: var(--blue, #2c3e60);
+  font-size: 1em;
+  opacity: 0.7;
+}
+.clear {
+  position: absolute;
+  right: 125px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--blue, #2c3e60);
+  cursor: pointer;
+  font-size: 1em;
+  z-index: 1;
+}
+.radiusselect {
+  position: relative;
+  width: 100px;
+}
+.radiusbutton {
+  width: 100%;
+  height: 40px;
+  background: var(--blue, #2c3e60);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 13px 0 10px;
+  font-size: 0.9em;
+  p {
+    width: 100%;
+    text-align: center;
+  }
+  span {
+    font-size: 0.8em;
+  }
+}
+.radiusoptions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+
+  overflow-y: auto;
+  z-index: 1000;
+}
+.radiusoption {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+.radiusoption:hover {
+  background: #f5f5f5;
+}
+.radiusoption:last-child {
+  border-bottom: none;
+}
+.suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 116px;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 2000;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.suggestion {
+  padding: 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  color: var(--blue, #2c3e60);
+}
+.suggestion:hover {
+  background: #f5f5f5;
+}
+.suggestion:last-child {
+  border-bottom: none;
+}
+.map {
+  height: 400px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.map :global(.leaflet-container) {
+  height: 100%;
+  width: 100%;
+}
+.selectedlocation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid #e9ecef;
+  font-size: 0.9em;
+  color: var(--blue, #2c3e60);
+}

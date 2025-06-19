@@ -1,0 +1,349 @@
+"use client";
+
+import styles from "./MapInput.module.scss";
+import { useRef, useState, useEffect, useCallback } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  Circle,
+} from "react-leaflet";
+import L, { LatLngBounds } from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+const romaniaBounds: LatLngBounds = L.latLngBounds([43.5, 20.2], [48.3, 29.7]);
+
+const customIcon = L.icon({
+  iconUrl: "/icons/marker.svg",
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
+
+type Suggestion = {
+  display_name: string;
+  lat: string;
+  lon: string;
+};
+
+interface LocationData {
+  name: string;
+  lat: number;
+  lng: number;
+  radius: number;
+}
+
+interface MapLocationInputProps {
+  onLocationChange: (location: LocationData | null) => void;
+}
+
+function ClickableMap({
+  onClick,
+}: {
+  onClick: (lat: number, lng: number) => void;
+}) {
+  useMapEvents({
+    click(e) {
+      const { lat, lng } = e.latlng;
+      if (romaniaBounds.contains(e.latlng)) {
+        onClick(lat, lng);
+      }
+    },
+  });
+  return null;
+}
+
+export default function MapInput({ onLocationChange }: MapLocationInputProps) {
+  const [locationQuery, setLocationQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [markerPosition, setMarkerPosition] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
+  const [selectedRadius, setSelectedRadius] = useState(0);
+  const [radiusOpen, setRadiusOpen] = useState(false);
+  const [hasSelected, setHasSelected] = useState(false);
+  const [locationName, setLocationName] = useState("");
+
+  const radiusOptions = [0, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10];
+  const mapRef = useRef<L.Map>(null);
+
+  const fetchSuggestions = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?` +
+          new URLSearchParams({
+            format: "json",
+            countrycodes: "ro",
+            "accept-language": "ro",
+            addressdetails: "1",
+            dedupe: "1",
+            limit: "10",
+            autocomplete: "1",
+            q: locationQuery,
+          })
+      );
+      const data = await res.json();
+      setSuggestions(data);
+    } catch (err) {
+      console.error("Failed to fetch location suggestions:", err);
+    }
+  }, [locationQuery]);
+
+  const fetchLocationName = useCallback(async (lat: number, lng: number) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?` +
+          new URLSearchParams({
+            format: "json",
+            lat: lat.toString(),
+            lon: lng.toString(),
+            "accept-language": "ro",
+            addressdetails: "1",
+          })
+      );
+      const data = await res.json();
+      return data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    } catch (err) {
+      console.error("Failed to fetch location name:", err);
+      return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (hasSelected) return;
+
+    const delayDebounce = setTimeout(() => {
+      if (locationQuery.length > 1) {
+        fetchSuggestions();
+      } else {
+        setSuggestions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [locationQuery, fetchSuggestions, hasSelected]);
+
+  useEffect(() => {
+    if (markerPosition && locationName) {
+      const locationData: LocationData = {
+        name: locationName,
+        lat: markerPosition.lat,
+        lng: markerPosition.lng,
+        radius: selectedRadius,
+      };
+      onLocationChange(locationData);
+    } else {
+      onLocationChange(null);
+    }
+  }, [markerPosition, locationName, selectedRadius, onLocationChange]);
+
+  const handleMapClick = async (lat: number, lng: number) => {
+    setMarkerPosition({ lat, lng });
+    const name = await fetchLocationName(lat, lng);
+    setLocationName(name);
+    setLocationQuery(name);
+    setHasSelected(true);
+    setSuggestions([]);
+  };
+
+  const handleSuggestionClick = (suggestion: Suggestion) => {
+    const lat = parseFloat(suggestion.lat);
+    const lng = parseFloat(suggestion.lon);
+
+    setMarkerPosition({ lat, lng });
+    setLocationName(suggestion.display_name);
+    setLocationQuery(suggestion.display_name);
+    setHasSelected(true);
+    setSuggestions([]);
+
+    if (mapRef.current) {
+      mapRef.current.setView([lat, lng], 12);
+    }
+  };
+
+  const clearLocation = () => {
+    setLocationQuery("");
+    setMarkerPosition(null);
+    setLocationName("");
+    setHasSelected(false);
+    setSuggestions([]);
+  };
+
+  function highlightMatch(text: string, query: string) {
+    if (!query) return text;
+
+    const normalizeChar = (char: string) => {
+      const map: Record<string, string> = {
+        ș: "s",
+        Ș: "S",
+        ț: "t",
+        Ț: "T",
+        ă: "a",
+        Ă: "A",
+        â: "a",
+        Â: "A",
+        î: "i",
+        Î: "I",
+      };
+      return map[char] || char;
+    };
+
+    const normalizeString = (str: string) =>
+      str.split("").map(normalizeChar).join("").toLowerCase();
+
+    const normalizedText = normalizeString(text);
+    const normalizedQuery = normalizeString(query);
+
+    const matchIndex = normalizedText.indexOf(normalizedQuery);
+    if (matchIndex === -1) return text;
+
+    let actualStart = -1;
+    let actualEnd = -1;
+    for (let i = 0, n = 0; i < text.length; i++) {
+      const norm = normalizeChar(text[i]).toLowerCase();
+      if (n === matchIndex) actualStart = i;
+      if (n === matchIndex + normalizedQuery.length - 1) {
+        actualEnd = i + 1;
+        break;
+      }
+      if (norm) n++;
+    }
+
+    if (actualStart === -1 || actualEnd === -1) return text;
+
+    return (
+      <>
+        {text.slice(0, actualStart)}
+        <span style={{ color: "rgb(255, 215, 0)" }}>
+          {text.slice(actualStart, actualEnd)}
+        </span>
+        {text.slice(actualEnd)}
+      </>
+    );
+  }
+
+  return (
+    <div className={styles.mapinput}>
+      <div className={styles.searchbox}>
+        <p className={styles.infotext}>
+          Locație <span style={{ color: "rgb(255, 215, 0)" }}> *</span>
+        </p>
+        <div className={styles.searchwrapper}>
+          <input
+            type="text"
+            className={styles.locationinput}
+            placeholder="Căutați o locație în România sau faceți clic pe hartă"
+            value={locationQuery}
+            onChange={(e) => {
+              setLocationQuery(e.target.value);
+              setHasSelected(false);
+            }}
+          />
+          {locationQuery && (
+            <button
+              className={styles.clear}
+              onClick={clearLocation}
+              type="button"
+            >
+              ✕
+            </button>
+          )}
+          <div className={styles.radiusselect}>
+            <button
+              className={styles.radiusbutton}
+              onClick={() => setRadiusOpen(!radiusOpen)}
+              type="button"
+            >
+              <p>
+                {selectedRadius >= 1
+                  ? `+ ${selectedRadius} km`
+                  : `+ ${selectedRadius * 1000} m`}
+              </p>
+              <span>{radiusOpen ? "▲" : "▼"}</span>
+            </button>
+            {radiusOpen && (
+              <div className={styles.radiusoptions}>
+                {radiusOptions
+                  .filter((opt) => opt !== selectedRadius)
+                  .map((opt) => (
+                    <div
+                      key={opt}
+                      className={styles.radiusoption}
+                      onClick={() => {
+                        setSelectedRadius(opt);
+                        setRadiusOpen(false);
+                      }}
+                    >
+                      {opt >= 1 ? `+ ${opt} km` : `+ ${opt * 1000} m`}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+          {suggestions.length > 0 && (
+            <div className={styles.suggestions}>
+              {suggestions.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className={styles.suggestion}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {highlightMatch(suggestion.display_name, locationQuery)}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.map}>
+        <MapContainer
+          ref={mapRef}
+          center={[45.9432, 24.9668]}
+          zoom={6}
+          minZoom={6}
+          maxZoom={18}
+          maxBounds={romaniaBounds}
+          maxBoundsViscosity={1.0}
+        >
+          <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/">CARTO</a>'
+          />
+          <ClickableMap onClick={handleMapClick} />
+          {markerPosition && (
+            <>
+              <Marker
+                position={[markerPosition.lat, markerPosition.lng]}
+                icon={customIcon}
+              />
+              <Circle
+                center={[markerPosition.lat, markerPosition.lng]}
+                radius={selectedRadius * 1000}
+                pathOptions={{
+                  color: "rgb(255, 215, 0)",
+                  fillColor: "rgb(255, 215, 0)",
+                  fillOpacity: 0.1,
+                  weight: 2,
+                }}
+              />
+            </>
+          )}
+        </MapContainer>
+      </div>
+
+      {markerPosition && locationName && (
+        <div className={styles.selectedlocation}>
+          <strong>Locația selectată:</strong>
+          {locationName}
+          <br />
+          <small>
+            Coordonate: {markerPosition.lat.toFixed(5)},{" "}
+            {markerPosition.lng.toFixed(5)} | Raza: {selectedRadius} km
+          </small>
+        </div>
+      )}
+    </div>
+  );
+}

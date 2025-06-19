@@ -150,7 +150,7 @@ export default function SearchInput() {
             onClick={() => setQuery("")}
             style={{ right: "15px" }}
           >
-            &#x2716;
+            ✕
           </span>
         )}
       </div>
@@ -168,7 +168,7 @@ export default function SearchInput() {
             onClick={() => setLocationQuery("")}
             style={{ right: "120px" }}
           >
-            &#x2716;
+            ✕
           </span>
         )}
         <label className={styles.hidden} htmlFor="location">

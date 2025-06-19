@@ -29,6 +29,7 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
+  position: relative;
   p {
     font-size: 1em;
     font-weight: 500;
@@ -39,7 +40,7 @@
     color: var(--blue);
     font-size: 1em;
     width: 100%;
-    padding: 13px;
+    padding: 13px 30px 13px 13px;
     border: 1px solid #2c3e604f;
     box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
   }
@@ -263,6 +264,18 @@
     color: var(--blue);
   }
 }
+.clear {
+  position: absolute;
+  right: 9px;
+  top: 37px;
+  background: none;
+  border: none;
+  color: var(--blue, #2c3e60);
+  cursor: pointer;
+  font-size: 1em;
+  z-index: 1;
+}
+
 @media screen and (max-width: 1200px) {
   .userdata {
     width: 100%;
