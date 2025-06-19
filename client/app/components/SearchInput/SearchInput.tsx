@@ -11,6 +11,8 @@ type Suggestion = {
 };
 
 export default function SearchInput() {
+  const [query, setQuery] = useState("");
+
   const [locationQuery, setLocationQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [selectedCoords, setSelectedCoords] = useState<{
@@ -21,7 +23,7 @@ export default function SearchInput() {
 
   const [distanceSelected, setDistanceSelected] = useState(1);
   const [distanceOpen, setDistanceOpen] = useState(false);
-  const distanceOptions = [1, 2, 5, 10];
+  const distanceOptions = [1, 2, 5, 10, 20, 30, 50];
 
   const [periodSelected, setPeriodSelected] = useState<number | null>(null);
   const [periodOpen, setPeriodOpen] = useState(false);
@@ -45,12 +47,12 @@ export default function SearchInput() {
             addressdetails: "1",
             dedupe: "1",
             limit: "10",
+            autocomplete: "1",
             q: locationQuery,
           })
       );
       const data = await res.json();
       setSuggestions(data);
-      console.log("Suggestions fetched:", data);
     } catch (err) {
       console.error("Failed to fetch location suggestions:", err);
     }
@@ -124,29 +126,73 @@ export default function SearchInput() {
   }
 
   return (
-    <div className={styles.container}>
-      <input type="text" placeholder="Ce anume cauți?" />
+    <section
+      className={styles.container}
+      aria-label="Formular de căutare anunțuri"
+    >
+      <div className={styles.inputbox}>
+        <label className={styles.hidden} htmlFor="query">
+          Ce anume cauți?
+        </label>
+        <input
+          type="text"
+          name="query"
+          id="query"
+          placeholder="Ce anume cauți?"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          style={{ paddingRight: "38px" }}
+          aria-label="Ce anume cauți?"
+        />
+        {query && (
+          <span
+            className={styles.clear}
+            onClick={() => setQuery("")}
+            style={{ right: "15px" }}
+          >
+            &#x2716;
+          </span>
+        )}
+      </div>
       <div className={styles.inputbox}>
         <Image
           src="/icons/location_pin.svg"
-          alt="Location Pin Icon"
+          alt="Pictogramă locație pentru câmpul de localitate"
           width={25}
           height={25}
+          className={styles.icon}
         />
+        {locationQuery && (
+          <span
+            className={styles.clear}
+            onClick={() => setLocationQuery("")}
+            style={{ right: "120px" }}
+          >
+            &#x2716;
+          </span>
+        )}
+        <label className={styles.hidden} htmlFor="location">
+          În ce loc cauți?
+        </label>
         <input
           type="text"
+          name="location"
+          id="location"
           placeholder="În ce loc cauți?"
           value={locationQuery}
           onChange={(e) => {
             setLocationQuery(e.target.value);
             setHasSelected(false);
           }}
-          style={{ paddingRight: "120px" }}
+          style={{ paddingRight: "140px", paddingLeft: "42px" }}
+          aria-label="În ce loc cauți?"
         />
         <ul
           className={`${styles.suggestionlist} ${
             suggestions.length ? "" : styles.hidden
           }`}
+          role="listbox"
+          aria-live="polite"
         >
           {suggestions.map((s, i) => (
             <li
@@ -206,11 +252,23 @@ export default function SearchInput() {
       <div className={styles.inputbox}>
         <Image
           src="/icons/calendar.svg"
-          alt="Calendar Icon"
+          alt="Pictogramă calendar pentru selectarea perioadei"
           width={25}
           height={25}
+          className={styles.icon}
         />
-        <input type="text" placeholder="Perioada" disabled={true} />
+        <label className={styles.hidden} htmlFor="period">
+          În ce perioadă cauți?
+        </label>
+        <input
+          type="text"
+          name="period"
+          id="period"
+          placeholder="Perioada"
+          disabled={true}
+          style={{ paddingLeft: "42px" }}
+          aria-label="În ce perioadă cauți?"
+        />
         <div className={styles.select_wrapper} style={{ width: "50%" }}>
           <div
             className={styles.select}
@@ -243,7 +301,9 @@ export default function SearchInput() {
           </div>
         </div>
       </div>
-      <button type="submit">Vezi 1021 postări</button>
-    </div>
+      <button type="submit" aria-label="Caută în anunțuri">
+        Vezi 1021 postări
+      </button>
+    </section>
   );
 }
