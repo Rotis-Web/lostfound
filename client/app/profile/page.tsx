@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
+import Loader from "../components/Loader/Loader";
 
 type PasswordErrors = {
   oldPassword?: string;
@@ -29,7 +30,7 @@ type AuthError = {
 };
 
 export default function ProfilePage() {
-  const { user, logout, changePassword, deleteAccount } = useAuth();
+  const { user, logout, changePassword, deleteAccount, loading } = useAuth();
   const [activePage, setActivePage] = useState("postari");
   const [passwordChangeActive, setPasswordChangeActive] = useState(false);
   const [deleteAccountActive, setDeleteAccountActive] = useState(false);
@@ -143,6 +144,8 @@ export default function ProfilePage() {
       setDeleteAccountLoading(false);
     }
   };
+
+  if (loading) return <Loader />;
 
   return (
     <main className={styles.profile}>

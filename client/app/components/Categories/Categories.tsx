@@ -1,57 +1,56 @@
 import styles from "./Categories.module.scss";
 import Image from "next/image";
-
+export const categories = [
+  {
+    name: "Animale",
+    image: "/icons/pets.svg",
+  },
+  {
+    name: "Bijuterii",
+    image: "/icons/jewelry.svg",
+  },
+  {
+    name: "Documente",
+    image: "/icons/id.svg",
+  },
+  {
+    name: "Jucării",
+    image: "/icons/toys.svg",
+  },
+  {
+    name: "Chei",
+    image: "/icons/keys.svg",
+  },
+  {
+    name: "Electronice",
+    image: "/icons/electronics.svg",
+  },
+  {
+    name: "Carduri",
+    image: "/icons/cards.svg",
+  },
+  {
+    name: "Portofele",
+    image: "/icons/wallet.svg",
+  },
+  {
+    name: "Haine",
+    image: "/icons/clothes.svg",
+  },
+  // {
+  //   name: "Ochelari",
+  //   image: "/icons/glasses.svg",
+  // },
+  // {
+  //   name: "Ceasuri",
+  //   image: "/icons/watch.svg",
+  // },
+  {
+    name: "Altele",
+    image: "/icons/other.svg",
+  },
+];
 export default function Categories() {
-  const categories = [
-    {
-      name: "Animale",
-      image: "/icons/pets.svg",
-    },
-    {
-      name: "Bijuterii",
-      image: "/icons/jewelry.svg",
-    },
-    {
-      name: "Documente",
-      image: "/icons/id.svg",
-    },
-    {
-      name: "Jucării",
-      image: "/icons/toys.svg",
-    },
-    {
-      name: "Chei",
-      image: "/icons/keys.svg",
-    },
-    {
-      name: "Electronice",
-      image: "/icons/electronics.svg",
-    },
-    {
-      name: "Carduri",
-      image: "/icons/cards.svg",
-    },
-    {
-      name: "Portofele",
-      image: "/icons/wallet.svg",
-    },
-    {
-      name: "Haine",
-      image: "/icons/clothes.svg",
-    },
-    // {
-    //   name: "Ochelari",
-    //   image: "/icons/glasses.svg",
-    // },
-    // {
-    //   name: "Ceasuri",
-    //   image: "/icons/watch.svg",
-    // },
-    {
-      name: "Altele",
-      image: "/icons/other.svg",
-    },
-  ];
   return (
     <section className={styles.categories}>
       <h1>Categorii</h1>
