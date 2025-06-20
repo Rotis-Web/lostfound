@@ -135,7 +135,10 @@ export default function CreatePostForm() {
         <div className={styles.postdataform}>
           <div className={styles.postdatabox}>
             <div className={styles.status}>
-              <h3>Stare</h3>
+              <h3>
+                Stare
+                <span className={styles.required}> *</span>
+              </h3>
               <div className={styles.statusbuttons}>
                 <button
                   className={`${status === "pierdut" && styles.active}`}
@@ -222,7 +225,7 @@ export default function CreatePostForm() {
             </div>
             <div className={styles.dateinputbox}>
               <p>
-                {status === "pierdut" ? "Ultima dată văzut" : "Data găsirii"}
+                {status === "pierdut" ? "Ultima dată văzut/ă" : "Data găsirii"}
               </p>
               <input
                 type="date"

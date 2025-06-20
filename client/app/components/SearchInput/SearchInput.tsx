@@ -166,7 +166,7 @@ export default function SearchInput() {
           <span
             className={styles.clear}
             onClick={() => setLocationQuery("")}
-            style={{ right: "120px" }}
+            style={{ right: "125px" }}
           >
             ✕
           </span>
@@ -184,7 +184,7 @@ export default function SearchInput() {
             setLocationQuery(e.target.value);
             setHasSelected(false);
           }}
-          style={{ paddingRight: "140px", paddingLeft: "42px" }}
+          style={{ paddingRight: "145px", paddingLeft: "42px" }}
           aria-label="În ce loc cauți?"
         />
         <ul

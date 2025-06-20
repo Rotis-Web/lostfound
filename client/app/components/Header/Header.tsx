@@ -24,9 +24,11 @@ export default function Header() {
         </Link>
       </div>
       <div className={styles.box}>
-        <button className={styles.button}>
-          <span>+ </span> Postează
-        </button>
+        <Link href="/create-post">
+          <button className={styles.button}>
+            <span>+ </span> Postează
+          </button>
+        </Link>
         <ProfileImage />
       </div>
     </header>
