@@ -3,6 +3,7 @@
 import styles from "./SearchInput.module.scss";
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 type Suggestion = {
   display_name: string;
@@ -39,19 +40,21 @@ export default function SearchInput() {
   const fetchSuggestions = useCallback(async () => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?` +
-          new URLSearchParams({
-            format: "json",
-            countrycodes: "ro",
-            "accept-language": "ro",
-            addressdetails: "1",
-            dedupe: "1",
-            limit: "10",
-            autocomplete: "1",
-            q: locationQuery,
-          })
+        `${process.env.NEXT_PUBLIC_API_URL}/geo/search?q=${encodeURIComponent(
+          locationQuery
+        )}&limit=10`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || `Eroare ${res.status}`);
+        return;
+      }
       setSuggestions(data);
     } catch (err) {
       console.error("Failed to fetch location suggestions:", err);

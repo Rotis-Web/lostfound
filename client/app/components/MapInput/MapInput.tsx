@@ -11,6 +11,7 @@ import {
 } from "react-leaflet";
 import L, { LatLngBounds } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { toast } from "react-toastify";
 
 const romaniaBounds: LatLngBounds = L.latLngBounds([43.5, 20.2], [48.3, 29.7]);
 
@@ -71,19 +72,21 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
   const fetchSuggestions = useCallback(async () => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?` +
-          new URLSearchParams({
-            format: "json",
-            countrycodes: "ro",
-            "accept-language": "ro",
-            addressdetails: "1",
-            dedupe: "1",
-            limit: "10",
-            autocomplete: "1",
-            q: locationQuery,
-          })
+        `${process.env.NEXT_PUBLIC_API_URL}/geo/search?q=${encodeURIComponent(
+          locationQuery
+        )}&limit=10`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || `Eroare ${res.status}`);
+        return;
+      }
       setSuggestions(data);
     } catch (err) {
       console.error("Failed to fetch location suggestions:", err);
@@ -93,16 +96,20 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
   const fetchLocationName = useCallback(async (lat: number, lng: number) => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?` +
-          new URLSearchParams({
-            format: "json",
-            lat: lat.toString(),
-            lon: lng.toString(),
-            "accept-language": "ro",
-            addressdetails: "1",
-          })
+        `${process.env.NEXT_PUBLIC_API_URL}/geo/reverse?lat=${lat}&lon=${lng}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
       const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || `Eroare ${res.status}`);
+        return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+      }
+
       return data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
     } catch (err) {
       console.error("Failed to fetch location name:", err);
@@ -114,7 +121,7 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
     if (hasSelected) return;
 
     const delayDebounce = setTimeout(() => {
-      if (locationQuery.length > 1) {
+      if (locationQuery.length > 2) {
         fetchSuggestions();
       } else {
         setSuggestions([]);

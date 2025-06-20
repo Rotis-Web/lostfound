@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./CreatePostForm.module.scss";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
@@ -35,9 +35,13 @@ export default function CreatePostForm() {
   const [location, setLocation] = useState<LocationData | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const handleLocationChange = (locationData: LocationData | null) => {
-    setLocation(locationData);
-  };
+
+  const handleLocationChange = useCallback(
+    (locationData: LocationData | null) => {
+      setLocation(locationData);
+    },
+    []
+  );
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === " " || e.key === "Enter") {

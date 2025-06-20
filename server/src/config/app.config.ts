@@ -10,6 +10,7 @@ const appConfig = () => ({
   PORT: getEnv("PORT", "8000"),
   BASE_PATH: getEnv("BASE_PATH", "/api/v1"),
   MONGO_URI: getEnv("MONGO_URI"),
+  REDIS_URL: getEnv("REDIS_URL"),
   JWT: {
     SECRET: getEnv("JWT_SECRET"),
     REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET"),
