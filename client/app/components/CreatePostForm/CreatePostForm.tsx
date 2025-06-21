@@ -208,11 +208,13 @@ export default function CreatePostForm() {
                 placeholder="Introduceți recompensa ( ex: 100 RON )"
                 value={reward}
                 onChange={(e) => {
-                  setReward(e.target.value);
+                  const onlyNumbers = e.target.value.replace(/\D/g, "");
+                  setReward(onlyNumbers);
                 }}
               />
-              {title && (
-                <button onClick={() => setTitle("")} className={styles.clear}>
+              {reward && <span className={styles.ronlabel}>RON</span>}
+              {reward && (
+                <button onClick={() => setReward("")} className={styles.clear}>
                   ✕
                 </button>
               )}

@@ -75,6 +75,14 @@
     color: var(--blue);
     opacity: 0.7;
   }
+  .ronlabel {
+    position: absolute;
+    right: 40px;
+    top: 38px;
+    color: var(--blue);
+    font-weight: 500;
+    pointer-events: none;
+  }
 }
 .required {
   color: var(--yellow);
