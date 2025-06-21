@@ -8,6 +8,7 @@ import morgan from "morgan";
 import authRoutes from "./routes/auth.routes";
 import userRoutes from "./routes/user.routes";
 import geoRoutes from "./routes/geo.routes";
+import postRoutes from "./routes/post.routes";
 dotenv.config();
 
 const app = express();
@@ -23,5 +24,6 @@ app.use(cookieParser());
 app.use(`${config.BASE_PATH}/auth`, authRoutes);
 app.use(`${config.BASE_PATH}/user`, userRoutes);
 app.use(`${config.BASE_PATH}/geo`, geoRoutes);
+app.use(`${config.BASE_PATH}/post`, postRoutes);
 
 export default app;

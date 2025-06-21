@@ -21,6 +21,9 @@ const appConfig = () => ({
   SMTP_PASS: getEnv("SMTP_PASS"),
   FROM_EMAIL: getEnv("FROM_EMAIL"),
   FROM_NAME: getEnv("FROM_NAME"),
+  CLOUDINARY_CLOUD_NAME: getEnv("CLOUDINARY_CLOUD_NAME"),
+  CLOUDINARY_API_KEY: getEnv("CLOUDINARY_API_KEY"),
+  CLOUDINARY_API_SECRET: getEnv("CLOUDINARY_API_SECRET"),
 });
 
 export const config = appConfig();

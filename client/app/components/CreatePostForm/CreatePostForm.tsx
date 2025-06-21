@@ -169,9 +169,9 @@ export default function CreatePostForm() {
               )}
             </div>
             <div className={styles.inputbox}>
-              <p>Descrierea postării</p>
+              <p>Conținutul postării</p>
               <textarea
-                placeholder="Introduceți descrierea postării ( ex: Câinele răspunde la numele Rocky și este foarte prietenos )"
+                placeholder="Introduceți conținutul postării ( ex: Câinele răspunde la numele Rocky și este foarte prietenos )"
                 value={content}
                 onChange={(e) => {
                   setContent(e.target.value);

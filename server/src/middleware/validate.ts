@@ -12,7 +12,6 @@ export const validate = (schema: ZodSchema): RequestHandler => {
         field,
         message: messages?.[0] || "Invalid value",
       }));
-
       res.status(400).json({
         code: "VALIDATION_ERROR",
         errors,

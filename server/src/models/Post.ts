@@ -8,6 +8,7 @@ interface PostDocument extends Document {
   tags?: string[];
   images: string[];
   status: "found" | "lost" | "solved";
+  name: string;
   email: string;
   phone: string;
   lastSeen?: Date;
@@ -27,20 +28,20 @@ interface PostDocument extends Document {
 const postSchema = new Schema<PostDocument>(
   {
     author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    lostfoundID: { type: String, unique: true, required: true },
+    lostfoundID: { type: String, unique: true, required: false },
     title: { type: String, required: true },
-    content: { type: String, required: true },
+    content: { type: String },
     tags: [{ type: String }],
     images: [{ type: String, required: true }],
     status: {
       type: String,
       enum: ["found", "lost", "solved"],
       required: true,
-      index: true,
     },
+    name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
-    lastSeen: { type: Date, default: Date.now, index: true },
+    lastSeen: { type: Date, index: true },
     location: { type: String, required: true },
     locationCoordinates: {
       type: { type: String, enum: ["Point"], required: true },
@@ -57,7 +58,7 @@ const postSchema = new Schema<PostDocument>(
     circleRadius: { type: Number, required: true, min: 0 },
     reward: { type: Number },
     promoted: {
-      isActive: { type: Boolean, default: false, index: true },
+      isActive: { type: Boolean, default: false },
       expiresAt: { type: Date },
     },
     comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
