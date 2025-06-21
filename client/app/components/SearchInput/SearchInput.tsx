@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./SearchInput.module.scss";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 
@@ -36,6 +36,38 @@ export default function SearchInput() {
     { id: 6, name: "Ultimele 6 luni" },
     { id: 12, name: "Ultimele 12 luni" },
   ];
+
+  const distanceSelectRef = useRef<HTMLDivElement>(null);
+  const periodSelectRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (
+      distanceSelectRef.current &&
+      !distanceSelectRef.current.contains(event.target as Node)
+    ) {
+      setDistanceOpen(false);
+    }
+    if (
+      periodSelectRef.current &&
+      !periodSelectRef.current.contains(event.target as Node)
+    ) {
+      setPeriodOpen(false);
+    }
+    if (
+      searchRef.current &&
+      !searchRef.current.contains(event.target as Node)
+    ) {
+      setSuggestions([]);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
 
   const fetchSuggestions = useCallback(async () => {
     try {
@@ -157,7 +189,7 @@ export default function SearchInput() {
           </span>
         )}
       </div>
-      <div className={styles.inputbox}>
+      <div className={styles.inputbox} ref={searchRef}>
         <Image
           src="/icons/location_pin.svg"
           alt="Pictogramă locație pentru câmpul de localitate"
@@ -169,7 +201,7 @@ export default function SearchInput() {
           <span
             className={styles.clear}
             onClick={() => setLocationQuery("")}
-            style={{ right: "125px" }}
+            style={{ right: "115px" }}
           >
             ✕
           </span>
@@ -187,7 +219,7 @@ export default function SearchInput() {
             setLocationQuery(e.target.value);
             setHasSelected(false);
           }}
-          style={{ paddingRight: "145px", paddingLeft: "42px" }}
+          style={{ paddingRight: "138px", paddingLeft: "42px" }}
           aria-label="În ce loc cauți?"
         />
         <ul
@@ -220,7 +252,7 @@ export default function SearchInput() {
             <p>lon: {selectedCoords.lon}</p>
           </div>
         )} */}
-        <div className={styles.select_wrapper}>
+        <div className={styles.select_wrapper} ref={distanceSelectRef}>
           <div
             className={styles.select}
             onClick={() => {
@@ -234,19 +266,20 @@ export default function SearchInput() {
             </div>
             {distanceOpen && (
               <ul className={styles.options}>
-                {distanceOptions
-                  .filter((opt) => opt !== distanceSelected)
-                  .map((opt) => (
-                    <li
-                      key={opt}
-                      onClick={() => {
-                        setDistanceSelected(opt);
-                        setDistanceOpen(false);
-                      }}
-                    >
-                      + {opt} km
-                    </li>
-                  ))}
+                {distanceOptions.map((opt) => (
+                  <li
+                    key={opt}
+                    onClick={() => {
+                      setDistanceSelected(opt);
+                      setDistanceOpen(false);
+                    }}
+                    className={`${
+                      opt === distanceSelected ? styles.selectedoption : ""
+                    }`}
+                  >
+                    + {opt} km
+                  </li>
+                ))}
               </ul>
             )}
           </div>
@@ -272,7 +305,11 @@ export default function SearchInput() {
           style={{ paddingLeft: "42px" }}
           aria-label="În ce perioadă cauți?"
         />
-        <div className={styles.select_wrapper} style={{ width: "50%" }}>
+        <div
+          className={styles.select_wrapper}
+          style={{ width: "50%" }}
+          ref={periodSelectRef}
+        >
           <div
             className={styles.select}
             onClick={() => {
@@ -286,19 +323,20 @@ export default function SearchInput() {
             </div>
             {periodOpen && (
               <ul className={styles.options}>
-                {periodOptions
-                  .filter((opt: number | null) => opt !== periodSelected)
-                  .map((opt: number | null) => (
-                    <li
-                      key={opt}
-                      onClick={() => {
-                        setPeriodSelected(opt);
-                        setPeriodOpen(false);
-                      }}
-                    >
-                      {periods.find((p) => p.id === opt)?.name}
-                    </li>
-                  ))}
+                {periodOptions.map((opt: number | null) => (
+                  <li
+                    key={opt}
+                    onClick={() => {
+                      setPeriodSelected(opt);
+                      setPeriodOpen(false);
+                    }}
+                    className={`${
+                      opt === periodSelected ? styles.selectedoption : ""
+                    }`}
+                  >
+                    {periods.find((p) => p.id === opt)?.name}
+                  </li>
+                ))}
               </ul>
             )}
           </div>

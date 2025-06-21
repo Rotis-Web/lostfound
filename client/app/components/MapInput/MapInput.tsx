@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "./MapInput.module.scss";
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -68,6 +68,29 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
 
   const radiusOptions = [0, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10];
   const mapRef = useRef<L.Map>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const radiusSelectRef = useRef<HTMLDivElement>(null);
+
+  const handleOutsideClick = (event: MouseEvent) => {
+    if (
+      radiusSelectRef.current &&
+      !radiusSelectRef.current.contains(event.target as Node)
+    ) {
+      setRadiusOpen(false);
+    }
+    if (
+      searchRef.current &&
+      !searchRef.current.contains(event.target as Node)
+    ) {
+      setSuggestions([]);
+    }
+  };
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, []);
 
   const fetchSuggestions = useCallback(async () => {
     try {
@@ -256,7 +279,7 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
               ✕
             </button>
           )}
-          <div className={styles.radiusselect}>
+          <div className={styles.radiusselect} ref={radiusSelectRef}>
             <button
               className={styles.radiusbutton}
               onClick={() => setRadiusOpen(!radiusOpen)}
@@ -271,25 +294,25 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
             </button>
             {radiusOpen && (
               <div className={styles.radiusoptions}>
-                {radiusOptions
-                  .filter((opt) => opt !== selectedRadius)
-                  .map((opt) => (
-                    <div
-                      key={opt}
-                      className={styles.radiusoption}
-                      onClick={() => {
-                        setSelectedRadius(opt);
-                        setRadiusOpen(false);
-                      }}
-                    >
-                      {opt >= 1 ? `+ ${opt} km` : `+ ${opt * 1000} m`}
-                    </div>
-                  ))}
+                {radiusOptions.map((opt) => (
+                  <div
+                    key={opt}
+                    className={`${styles.radiusoption} ${
+                      opt === selectedRadius ? styles.selected : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedRadius(opt);
+                      setRadiusOpen(false);
+                    }}
+                  >
+                    {opt >= 1 ? `+ ${opt} km` : `+ ${opt * 1000} m`}
+                  </div>
+                ))}
               </div>
             )}
           </div>
           {suggestions.length > 0 && (
-            <div className={styles.suggestions}>
+            <div className={styles.suggestions} ref={searchRef}>
               {suggestions.map((suggestion, index) => (
                 <div
                   key={index}

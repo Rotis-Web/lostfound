@@ -8,6 +8,8 @@ import Image from "next/image";
 import Loader from "../Loader/Loader";
 import { categories } from "../Categories/Categories";
 import dynamic from "next/dynamic";
+import PhoneInput from "../PhoneInput/PhoneInput";
+
 const MapInput = dynamic(() => import("../MapInput/MapInput"), { ssr: false });
 
 interface LocationData {
@@ -67,6 +69,9 @@ export default function CreatePostForm() {
   const removeTag = (index: number) => {
     setTags((prev) => prev.filter((_, i) => i !== index));
   };
+  const handlePhoneChange = (phone: string | null) => {
+    setPhone(phone || "");
+  };
 
   useEffect(() => {
     if (user) {
@@ -115,22 +120,7 @@ export default function CreatePostForm() {
                 </button>
               )}
             </div>
-            <div className={styles.inputbox}>
-              <p>
-                Numărul de telefon<span className={styles.required}> *</span>
-              </p>
-              <input
-                type="text"
-                placeholder="Introduceți numărul de telefon"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
-              {phone && (
-                <button onClick={() => setPhone("")} className={styles.clear}>
-                  ✕
-                </button>
-              )}
-            </div>
+            <PhoneInput onPhoneChange={handlePhoneChange} />
           </div>
         </div>
       )}
