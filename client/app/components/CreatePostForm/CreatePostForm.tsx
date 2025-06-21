@@ -86,7 +86,7 @@ export default function CreatePostForm() {
     <section className={styles.container}>
       {user && (
         <div className={styles.userdata}>
-          <h2>Datele dumneavoastră</h2>
+          <h2>Date de contact</h2>
           <div className={styles.userdataform}>
             <div className={styles.inputbox}>
               <p>
@@ -356,6 +356,17 @@ export default function CreatePostForm() {
               </div>
             </div>
             <MapInput onLocationChange={handleLocationChange} />
+            <div className={styles.submitbox}>
+              <button type="submit" className={styles.submitbutton}>
+                <p>Finalizează postarea</p>
+                <Image
+                  src="/icons/arrow-right-orange.svg"
+                  alt="Pictogramă săgeată dreapa"
+                  width={25}
+                  height={25}
+                />
+              </button>
+            </div>
           </div>
         </div>
       </div>

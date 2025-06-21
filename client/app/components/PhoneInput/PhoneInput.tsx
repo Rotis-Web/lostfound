@@ -123,7 +123,8 @@ export default function PhoneInput({ onPhoneChange }: PhoneInputProps) {
     <div className={styles.phoneinput}>
       <div className={styles.inputbox}>
         <p className={styles.infotext}>
-          Telefon <span style={{ color: "rgb(255, 215, 0)" }}> *</span>
+          Numărul de telefon
+          <span style={{ color: "rgb(255, 215, 0)" }}> *</span>
         </p>
         <div className={styles.inputwrapper}>
           <div className={styles.countryselect} ref={countryDropdownRef}>

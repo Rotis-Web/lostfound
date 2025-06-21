@@ -289,6 +289,38 @@
     color: #ff4444;
   }
 }
+.submitbox {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  button {
+    padding: 24px 17px;
+    height: 40px;
+    font-size: 1em;
+    background-color: #f57a4e;
+    color: white;
+    border: 1px solid #f57a4e;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease-in-out;
+    p {
+      font-size: 1.1em;
+      font-weight: 600;
+    }
+    img {
+      background: var(--white);
+      border-radius: 5px;
+      margin-left: 10px;
+    }
+  }
+  button:hover {
+    background-color: #ff4d4d;
+  }
+}
 
 @media screen and (max-width: 1200px) {
   .userdata {
@@ -320,5 +352,8 @@
   .postdatabox {
     width: 100%;
     gap: 1.7em;
+  }
+  .submitbox {
+    justify-content: center;
   }
 }

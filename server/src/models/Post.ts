@@ -10,7 +10,7 @@ interface PostDocument extends Document {
   status: "found" | "lost" | "solved";
   email: string;
   phone: string;
-  lastSeen: Date;
+  lastSeen?: Date;
   location: string;
   locationCoordinates: { type: "Point"; coordinates: [number, number] };
   circleRadius: number;
@@ -40,7 +40,7 @@ const postSchema = new Schema<PostDocument>(
     },
     email: { type: String, required: true },
     phone: { type: String, required: true },
-    lastSeen: { type: Date, default: Date.now, required: true, index: true },
+    lastSeen: { type: Date, default: Date.now, index: true },
     location: { type: String, required: true },
     locationCoordinates: {
       type: { type: String, enum: ["Point"], required: true },
