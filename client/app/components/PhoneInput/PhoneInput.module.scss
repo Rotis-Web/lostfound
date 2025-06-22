@@ -13,6 +13,9 @@
   font-size: 1em;
   font-weight: 500;
   color: var(--blue);
+  .error {
+    color: #ff4444;
+  }
 }
 .inputwrapper {
   position: relative;
@@ -23,6 +26,9 @@
   border-radius: 5px;
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.3);
   overflow: visible;
+  .error {
+    border: 1px solid #ff4444;
+  }
 }
 .countryselect {
   position: relative;
@@ -123,6 +129,7 @@
   flex: 1;
 }
 .phonenumberinput {
+  border-radius: 0 5px 5px 0;
   width: 100%;
   height: 40px;
   padding: 13px 30px 13px 13px;
@@ -137,6 +144,16 @@
     font-size: 1em;
     opacity: 0.7;
   }
+}
+.error::placeholder {
+  color: #ff4444;
+}
+
+.info {
+  font-size: 0.8em;
+  color: var(--blue);
+  opacity: 0.7;
+  margin-left: 5px;
 }
 .clear {
   position: absolute;

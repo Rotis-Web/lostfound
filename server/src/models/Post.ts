@@ -11,6 +11,7 @@ interface PostDocument extends Document {
   name: string;
   email: string;
   phone: string;
+  category: string;
   lastSeen?: Date;
   location: string;
   locationCoordinates: { type: "Point"; coordinates: [number, number] };
@@ -41,6 +42,7 @@ const postSchema = new Schema<PostDocument>(
     name: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
+    category: { type: String, required: true },
     lastSeen: { type: Date, index: true },
     location: { type: String, required: true },
     locationCoordinates: {

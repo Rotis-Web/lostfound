@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 interface User {
+  _id: string;
   id: string;
   email: string;
   name: string;

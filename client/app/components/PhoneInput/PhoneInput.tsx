@@ -10,6 +10,18 @@ type CountryCode = {
   flag: string;
 };
 
+type FieldErrors = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  title?: string;
+  content?: string;
+  category?: string;
+  images?: string;
+  location?: string;
+  general?: string;
+};
+
 const countryCodes: CountryCode[] = [
   { code: "RO", prefix: "+40", country: "România", flag: "🇷🇴" },
   { code: "MD", prefix: "+373", country: "Republica Moldova", flag: "🇲🇩" },
@@ -53,11 +65,15 @@ const countryCodes: CountryCode[] = [
 
 interface PhoneInputProps {
   onPhoneChange: (phone: string | null) => void;
-  placeholder?: string;
-  required?: boolean;
+  errors?: string;
+  clearError: (field: keyof FieldErrors) => void;
 }
 
-export default function PhoneInput({ onPhoneChange }: PhoneInputProps) {
+export default function PhoneInput({
+  onPhoneChange,
+  errors,
+  clearError,
+}: PhoneInputProps) {
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(
     countryCodes[0]
   );
@@ -91,17 +107,12 @@ export default function PhoneInput({ onPhoneChange }: PhoneInputProps) {
     } else {
       onPhoneChange(null);
     }
-  }, [selectedCountry, phoneNumber, onPhoneChange]);
+  }, [selectedCountry, phoneNumber, onPhoneChange, clearError]);
 
   const handleCountrySelect = (country: CountryCode) => {
     setSelectedCountry(country);
     setCountryDropdownOpen(false);
     setFilteredCountries(countryCodes);
-  };
-
-  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^\d\s\-\(\)]/g, "");
-    setPhoneNumber(value);
   };
 
   const filterCountries = (searchTerm: string) => {
@@ -125,6 +136,12 @@ export default function PhoneInput({ onPhoneChange }: PhoneInputProps) {
         <p className={styles.infotext}>
           Numărul de telefon
           <span style={{ color: "rgb(255, 215, 0)" }}> *</span>
+          <span
+            className={`${errors ? styles.error : ""} ${errors && styles.info}`}
+            style={{ marginLeft: "10px", opacity: 1 }}
+          >
+            {errors}
+          </span>
         </p>
         <div className={styles.inputwrapper}>
           <div className={styles.countryselect} ref={countryDropdownRef}>
@@ -175,15 +192,23 @@ export default function PhoneInput({ onPhoneChange }: PhoneInputProps) {
           <div className={styles.phoneinputwrapper}>
             <input
               type="tel"
-              className={styles.phonenumberinput}
+              className={`${styles.phonenumberinput} ${
+                errors ? styles.error : ""
+              }`}
               placeholder="Introduceți numărul de telefon"
               value={phoneNumber}
-              onChange={handlePhoneNumberChange}
+              onChange={(e) => {
+                setPhoneNumber(e.target.value);
+                clearError("phone");
+              }}
             />
             {phoneNumber && (
               <button
                 className={styles.clear}
-                onClick={() => setPhoneNumber("")}
+                onClick={() => {
+                  setPhoneNumber("");
+                  onPhoneChange(null);
+                }}
                 type="button"
               >
                 ✕

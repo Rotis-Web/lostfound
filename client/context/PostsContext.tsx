@@ -1,65 +1,169 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useCallback,
+  useState,
+  ReactNode,
+} from "react";
+import { useAuth } from "./AuthContext";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-interface Post {
-  _id: string;
+interface CreatePostData {
   author: string;
-  lostfoundID: string;
   title: string;
   content: string;
   tags?: string[];
-  images: string[];
   status: "found" | "lost" | "solved";
   name: string;
   email: string;
   phone: string;
+  category: string;
   lastSeen?: Date;
   location: string;
   locationCoordinates: { type: "Point"; coordinates: [number, number] };
   circleRadius: number;
-  promoted: {
-    isActive: boolean;
-    expiresAt?: Date;
-  };
   reward?: number;
-  comments: string[];
-  createdAt: Date;
-  updatedAt: Date;
-  __v: number;
+  images: File[];
+}
+
+interface CreatePostResponse {
+  code: string;
+  message: string;
+  post: {
+    _id: string;
+    author: string;
+    lostfoundID: string;
+    title: string;
+    content: string;
+    tags?: string[];
+    images: string[];
+    status: "found" | "lost" | "solved";
+    name: string;
+    email: string;
+    phone: string;
+    category: string;
+    lastSeen?: Date;
+    location: string;
+    locationCoordinates: { type: "Point"; coordinates: [number, number] };
+    circleRadius: number;
+    promoted: {
+      isActive: boolean;
+      expiresAt?: Date;
+    };
+    reward?: number;
+    comments: string[];
+    createdAt: Date;
+    updatedAt: Date;
+    __v: number;
+  };
+  uploadedImages: number;
 }
 
 interface PostsProviderProps {
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-interface PostsProviderType {}
+interface PostsContextType {
+  createPost: (postData: CreatePostData) => Promise<CreatePostResponse>;
+  loading: boolean;
+}
 
-const PostsContext = createContext<PostsProviderType>({} as PostsProviderType);
+const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
-const PostsProvider = ({ children }: PostsProviderProps) => {
-  
-    const createPost =async (data: any) => {
+export const PostsProvider = ({ children }: PostsProviderProps) => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const { accessToken: token } = useAuth();
+
+  const createPost = useCallback(
+    async (postData: CreatePostData): Promise<CreatePostResponse> => {
+      setLoading(true);
+
       try {
-        const response = await fetch(`${API_URL}/posts`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+        const formData = new FormData();
+
+        formData.append("author", postData.author);
+        formData.append("title", postData.title);
+        formData.append("content", postData.content);
+        formData.append("status", postData.status);
+        formData.append("name", postData.name);
+        formData.append("email", postData.email);
+        formData.append("phone", postData.phone);
+        formData.append("category", postData.category);
+        formData.append("location", postData.location);
+        formData.append(
+          "locationCoordinates",
+          JSON.stringify(postData.locationCoordinates)
+        );
+        formData.append("circleRadius", postData.circleRadius.toString());
+
+        if (postData.tags) {
+          formData.append("tags", JSON.stringify(postData.tags));
+        }
+        if (postData.lastSeen) {
+          formData.append("lastSeen", postData.lastSeen.toISOString());
+        }
+        if (postData.reward) {
+          formData.append("reward", postData.reward.toString());
+        }
+
+        postData.images.forEach((image: File) => {
+          formData.append("images", image);
         });
-        const result = await response.json();
-        return result;
-      } catch (error) {
+
+        const res = await fetch(`${API_URL}/post/create`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        const responseData = await res.json();
+        setLoading(false);
+
+        if (!res.ok) {
+          const errorObj = {
+            message:
+              responseData.message ||
+              responseData.error ||
+              "Post creation failed",
+            code: responseData.code || "UNKNOWN_ERROR",
+            errors: responseData.errors || null,
+            field: responseData.errors?.[0]?.field || null,
+          };
+          throw errorObj;
+        }
+
+        return responseData;
+      } catch (error: unknown) {
+        setLoading(false);
         console.error("Error creating post:", error);
         throw error;
       }
-    };
+    },
+    [token]
+  );
 
   return (
-    <PostsContext.Provider value={{ createPost }}>
+    <PostsContext.Provider
+      value={{
+        createPost,
+        loading,
+      }}
+    >
       {children}
     </PostsContext.Provider>
   );
+};
+
+export const usePosts = (): PostsContextType => {
+  const context = useContext(PostsContext);
+  if (!context) {
+    throw new Error("usePosts must be used within a PostsProvider");
+  }
+  return context;
+};

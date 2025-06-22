@@ -9,6 +9,7 @@ import Loader from "../Loader/Loader";
 import { categories } from "../Categories/Categories";
 import dynamic from "next/dynamic";
 import PhoneInput from "../PhoneInput/PhoneInput";
+import { usePosts } from "@/context/PostsContext";
 
 const MapInput = dynamic(() => import("../MapInput/MapInput"), { ssr: false });
 
@@ -19,8 +20,28 @@ interface LocationData {
   radius: number;
 }
 
+type FieldErrors = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  title?: string;
+  content?: string;
+  category?: string;
+  images?: string;
+  location?: string;
+  general?: string;
+};
+
+type PostError = {
+  code?: string;
+  message?: string;
+  field?: string;
+  errors?: { field: string; message: string }[];
+};
+
 export default function CreatePostForm() {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const { createPost, loading: postLoading } = usePosts();
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -35,14 +56,19 @@ export default function CreatePostForm() {
   const [images, setImages] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [location, setLocation] = useState<LocationData | null>(null);
+  const [errors, setErrors] = useState<FieldErrors>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLocationChange = useCallback(
     (locationData: LocationData | null) => {
       setLocation(locationData);
+      if (locationData && errors.location) {
+        setErrors((prev) => ({ ...prev, location: undefined }));
+      }
     },
-    []
+    [errors.location]
   );
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -69,8 +95,133 @@ export default function CreatePostForm() {
   const removeTag = (index: number) => {
     setTags((prev) => prev.filter((_, i) => i !== index));
   };
-  const handlePhoneChange = (phone: string | null) => {
-    setPhone(phone || "");
+
+  const clearError = (field: keyof FieldErrors) => {
+    if (errors[field] || errors.general) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]: undefined,
+        general: undefined,
+      }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FieldErrors = {};
+
+    if (!name.trim()) {
+      newErrors.name = "Numele complet este obligatoriu";
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Adresa de email este obligatorie";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = "Adresa de email nu este validă";
+    }
+
+    const phoneRegex = /^\+\d{1,4}\s\d{4,}$/;
+    if (!phone || phone.trim() === "") {
+      newErrors.phone = "Numărul de telefon este obligatoriu";
+    } else if (!phoneRegex.test(phone)) {
+      newErrors.phone = "Numărul de telefon nu este valid";
+    }
+    if (!title.trim()) {
+      newErrors.title = "Titlul postării este obligatoriu";
+    }
+
+    if (!selectedCategory) {
+      newErrors.category = "Categoria este obligatorie";
+    }
+
+    if (images.length === 0) {
+      newErrors.images = "Cel puțin o imagine este obligatorie";
+    }
+
+    if (!location) {
+      newErrors.location = "Locația este obligatorie";
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrors({});
+
+    if (!validateForm()) {
+      toast.error("Vă rugăm să completați toate câmpurile obligatorii");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Date lipsă pentru crearea postării");
+      return;
+    }
+
+    if (!location) {
+      setErrors((prev) => ({ ...prev, location: "Locația este obligatorie" }));
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const postData = {
+        author: user._id || "",
+        title,
+        content,
+        tags: tags.length > 0 ? tags : undefined,
+        status: status === "pierdut" ? ("lost" as const) : ("found" as const),
+        name,
+        email,
+        phone,
+        category: selectedCategory,
+        lastSeen: lastSeen ? new Date(lastSeen) : undefined,
+        location: location.name,
+        locationCoordinates: {
+          type: "Point" as const,
+          coordinates: [location.lng, location.lat] as [number, number],
+        },
+        circleRadius: location.radius * 1000,
+        reward: reward ? Number(reward) : undefined,
+        images,
+      };
+
+      // Call the createPost function from context
+      await createPost(postData);
+
+      // Success
+      toast.success("Postarea a fost creată cu succes!");
+
+      // Reset form or redirect
+      // router.push('/posts/' + result.post._id); // if you want to redirect
+    } catch (err: unknown) {
+      if (typeof err === "object" && err !== null && "message" in err) {
+        const error = err as PostError;
+
+        if (error.code === "VALIDATION_ERROR" && Array.isArray(error.errors)) {
+          const fieldErrors: FieldErrors = {};
+          error.errors.forEach(({ field, message }) => {
+            fieldErrors[field as keyof FieldErrors] = message;
+          });
+          setErrors(fieldErrors);
+        } else if (error.field && error.message) {
+          setErrors({ [error.field]: error.message });
+        } else {
+          setErrors({
+            general: error.message || "A apărut o eroare neașteptată",
+          });
+          toast.error(error.message || "A apărut o eroare neașteptată");
+        }
+      } else {
+        setErrors({ general: "Eroare necunoscută" });
+        toast.error("Eroare necunoscută");
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   useEffect(() => {
@@ -80,296 +231,419 @@ export default function CreatePostForm() {
     }
   }, [user]);
 
-  if (loading) return <Loader />;
+  if (authLoading) return <Loader />;
 
   return (
     <section className={styles.container}>
-      {user && (
-        <div className={styles.userdata}>
-          <h2>Date de contact</h2>
-          <div className={styles.userdataform}>
-            <div className={styles.inputbox}>
-              <p>
-                Numele complet<span className={styles.required}> *</span>
-              </p>
-              <input
-                type="text"
-                placeholder="Introduceți numele complet"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-              {name && (
-                <button onClick={() => setName("")} className={styles.clear}>
-                  ✕
-                </button>
-              )}
-            </div>
-            <div className={styles.inputbox}>
-              <p>
-                Adresa de email<span className={styles.required}> *</span>
-              </p>
-              <input
-                type="text"
-                placeholder="Introduceți adresa de email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />{" "}
-              {email && (
-                <button onClick={() => setEmail("")} className={styles.clear}>
-                  ✕
-                </button>
-              )}
-            </div>
-            <PhoneInput onPhoneChange={handlePhoneChange} />
-          </div>
-        </div>
-      )}
-      <div className={styles.postdata}>
-        <h2>Datele postării</h2>
-        <div className={styles.postdataform}>
-          <div className={styles.postdatabox}>
-            <div className={styles.status}>
-              <h3>
-                Stare
-                <span className={styles.required}> *</span>
-              </h3>
-              <div className={styles.statusbuttons}>
-                <button
-                  className={`${status === "pierdut" && styles.active}`}
-                  onClick={() => setStatus("pierdut")}
-                  style={{ borderRadius: "5px 0 0 5px" }}
-                >
-                  Pierdut
-                </button>
-                <button
-                  className={`${status === "gasit" && styles.active}`}
-                  onClick={() => setStatus("gasit")}
-                  style={{ borderRadius: "0 5px 5px 0" }}
-                >
-                  Găsit
-                </button>
-              </div>
-            </div>
-            <div className={styles.inputbox}>
-              <p>
-                Titlul postării<span className={styles.required}> *</span>
-              </p>
-              <input
-                type="text"
-                placeholder="Introduceți titlul postării ( ex: Câine pierdut ) "
-                value={title}
-                onChange={(e) => {
-                  setTitle(e.target.value);
-                }}
-              />
-              {title && (
-                <button onClick={() => setTitle("")} className={styles.clear}>
-                  ✕
-                </button>
-              )}
-            </div>
-            <div className={styles.inputbox}>
-              <p>Conținutul postării</p>
-              <textarea
-                placeholder="Introduceți conținutul postării ( ex: Câinele răspunde la numele Rocky și este foarte prietenos )"
-                value={content}
-                onChange={(e) => {
-                  setContent(e.target.value);
-                }}
-              />
-            </div>
-            <div className={styles.inputbox}>
-              <p>
-                Cuvinte cheie
-                <span className={styles.info}>( maximum 20 )</span>
-              </p>
-              <div className={styles.taginputwrapper}>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {user && (
+          <div className={styles.userdata}>
+            <h2>Date de contact</h2>
+            <div className={styles.userdataform}>
+              <div className={styles.inputbox}>
+                <p>
+                  Numele complet<span className={styles.required}> *</span>{" "}
+                  <span
+                    className={`${errors.name ? styles.error : ""} ${
+                      errors.name && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.name}
+                  </span>
+                </p>
                 <input
                   type="text"
-                  placeholder="Introduceți cuvinte cheie separate prin spații"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleTagKeyDown}
-                />
-                {tags.map((tag, index) => (
-                  <span key={index} className={styles.tag}>
-                    {tag}
-                    <button onClick={() => removeTag(index)}>&#x2716;</button>
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className={styles.inputbox}>
-              <p>
-                Recompensă<span className={styles.info}> ( opțional )</span>
-              </p>
-              <input
-                type="text"
-                placeholder="Introduceți recompensa ( ex: 100 RON )"
-                value={reward}
-                onChange={(e) => {
-                  const onlyNumbers = e.target.value.replace(/\D/g, "");
-                  setReward(onlyNumbers);
-                }}
-              />
-              {reward && <span className={styles.ronlabel}>RON</span>}
-              {reward && (
-                <button onClick={() => setReward("")} className={styles.clear}>
-                  ✕
-                </button>
-              )}
-            </div>
-            <div className={styles.dateinputbox}>
-              <p>
-                {status === "pierdut" ? "Ultima dată văzut/ă" : "Data găsirii"}
-              </p>
-              <input
-                type="date"
-                value={lastSeen}
-                onChange={(e) => setLastSeen(e.target.value)}
-                max={new Date().toISOString().split("T")[0]}
-                className={styles.dateinput}
-              />
-            </div>
-            <div className={styles.inputbox}>
-              <p>
-                Imagini
-                <span className={styles.required}> *</span>
-                <span className={styles.info}>
-                  ( maximum 5, fiecare de cel mult 5MB )
-                </span>
-              </p>
-              <div className={styles.imageuploadbox}>
-                <button
-                  className={styles.uploadbutton}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Adaugă imagini <span>+</span>
-                </button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  ref={fileInputRef}
-                  style={{ display: "none" }}
+                  placeholder="Introduceți numele complet"
+                  value={name}
                   onChange={(e) => {
-                    const files = Array.from(e.target.files || []);
-                    const newValidImages: File[] = [];
-                    for (const file of files) {
-                      if (file.size > 5 * 1024 * 1024) {
-                        toast.error(
-                          `Imaginea "${file.name}" este mai mare de 5MB.`
-                        );
-                        continue;
-                      }
-                      if (images.length + newValidImages.length >= 5) {
-                        toast.error("Puteți adăuga maximum 5 imagini.");
-                        break;
-                      }
-                      newValidImages.push(file);
-                    }
-                    if (newValidImages.length > 0) {
-                      setImages((prev) => [...prev, ...newValidImages]);
-                    }
-                    e.target.value = "";
+                    setName(e.target.value);
+                    clearError("name");
                   }}
+                  className={errors.name ? styles.error : ""}
                 />
+                {name && (
+                  <button
+                    type="button"
+                    onClick={() => setName("")}
+                    className={styles.clear}
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
-              <div className={styles.imagepreviewwrapper}>
-                {images.map((image, index) => {
-                  const objectUrl = URL.createObjectURL(image);
-                  return (
-                    <div key={index} className={styles.imagepreview}>
-                      <Image
-                        src={objectUrl}
-                        alt={`preview-${index}`}
-                        width={100}
-                        height={100}
-                        style={{ objectFit: "cover", borderRadius: "5px" }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setImages((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          )
-                        }
-                        className={styles.deletebutton}
-                      >
-                        &#x2716;
-                      </button>
-                    </div>
-                  );
-                })}
+              <div className={styles.inputbox}>
+                <p>
+                  Adresa de email<span className={styles.required}> *</span>{" "}
+                  <span
+                    className={`${errors.email ? styles.error : ""} ${
+                      errors.email && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.email}
+                  </span>
+                </p>
+                <input
+                  type="text"
+                  placeholder="Introduceți adresa de email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    clearError("email");
+                  }}
+                  className={errors.email ? styles.error : ""}
+                />
+                {email && (
+                  <button
+                    type="button"
+                    onClick={() => setEmail("")}
+                    className={styles.clear}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className={styles.phonebox}>
+                <PhoneInput
+                  onPhoneChange={(phone) => setPhone(phone || "")}
+                  clearError={clearError}
+                  errors={errors.phone}
+                />
               </div>
             </div>
           </div>
-          <div className={styles.postdatabox}>
-            <div className={styles.inputbox}>
-              <p>
-                Categorie
-                <span className={styles.required}> *</span>
-              </p>
-              <div className={styles.categoriescontainer}>
-                {categories.map((category) => (
-                  <div
-                    className={styles.category}
-                    key={category.name}
-                    onClick={() => setSelectedCategory(category.name)}
+        )}
+        <div className={styles.postdata}>
+          <h2>Datele postării</h2>
+          <div className={styles.postdataform}>
+            <div className={styles.postdatabox}>
+              <div className={styles.status}>
+                <h3>
+                  Stare
+                  <span className={styles.required}> *</span>
+                </h3>
+                <div className={styles.statusbuttons}>
+                  <button
+                    type="button"
+                    className={`${status === "pierdut" && styles.active}`}
+                    onClick={() => setStatus("pierdut")}
+                    style={{ borderRadius: "5px 0 0 5px" }}
                   >
+                    Pierdut
+                  </button>
+                  <button
+                    type="button"
+                    className={`${status === "gasit" && styles.active}`}
+                    onClick={() => setStatus("gasit")}
+                    style={{ borderRadius: "0 5px 5px 0" }}
+                  >
+                    Găsit
+                  </button>
+                </div>
+              </div>
+              <div className={styles.inputbox}>
+                <p>
+                  Titlul postării<span className={styles.required}> *</span>{" "}
+                  <span
+                    className={`${errors.title ? styles.error : ""} ${
+                      errors.title && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.title}
+                  </span>
+                </p>
+                <input
+                  type="text"
+                  placeholder="Introduceți titlul postării ( ex: Câine pierdut ) "
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    clearError("title");
+                  }}
+                  className={errors.title ? styles.error : ""}
+                />
+                {title && (
+                  <button
+                    type="button"
+                    onClick={() => setTitle("")}
+                    className={styles.clear}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className={styles.inputbox}>
+                <p>
+                  Conținutul postării{" "}
+                  <span
+                    className={`${errors.content ? styles.error : ""} ${
+                      errors.content && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.content}
+                  </span>
+                </p>
+                <textarea
+                  placeholder="Introduceți conținutul postării ( ex: Câinele răspunde la numele Rocky și este foarte prietenos )"
+                  value={content}
+                  onChange={(e) => {
+                    setContent(e.target.value);
+                    clearError("content");
+                  }}
+                  className={errors.content ? styles.error : ""}
+                />
+              </div>
+              <div className={styles.inputbox}>
+                <p>
+                  Cuvinte cheie
+                  <span className={styles.info}>( maximum 20 )</span>
+                </p>
+                <div className={styles.taginputwrapper}>
+                  <input
+                    type="text"
+                    placeholder="Introduceți cuvinte cheie separate prin spații"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleTagKeyDown}
+                  />
+                  {tags.map((tag, index) => (
+                    <span key={index} className={styles.tag}>
+                      {tag}
+                      <button type="button" onClick={() => removeTag(index)}>
+                        &#x2716;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className={styles.inputbox}>
+                <p>
+                  Recompensă<span className={styles.info}> ( opțional )</span>
+                </p>
+                <input
+                  type="text"
+                  placeholder="Introduceți recompensa ( ex: 100 RON )"
+                  value={reward}
+                  onChange={(e) => {
+                    const onlyNumbers = e.target.value.replace(/\D/g, "");
+                    setReward(onlyNumbers);
+                  }}
+                />
+                {reward && <span className={styles.ronlabel}>RON</span>}
+                {reward && (
+                  <button
+                    type="button"
+                    onClick={() => setReward("")}
+                    className={styles.clear}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <div className={styles.dateinputbox}>
+                <p>
+                  {status === "pierdut"
+                    ? "Ultima dată văzut/ă"
+                    : "Data găsirii"}
+                </p>
+                <input
+                  type="date"
+                  value={lastSeen}
+                  onChange={(e) => setLastSeen(e.target.value)}
+                  max={new Date().toISOString().split("T")[0]}
+                  className={styles.dateinput}
+                />
+              </div>
+              <div className={styles.inputbox}>
+                <p>
+                  Imagini
+                  <span className={styles.required}> *</span>
+                  <span className={styles.info}>
+                    ( maximum 5, fiecare de cel mult 5MB )
+                  </span>{" "}
+                  <br />
+                  <span
+                    className={`${errors.images ? styles.error : ""} ${
+                      errors.images && styles.info
+                    }`}
+                    style={{ margin: 0, opacity: 1 }}
+                  >
+                    {errors.images}
+                  </span>
+                </p>
+                <div className={styles.imageuploadbox}>
+                  <button
+                    type="button"
+                    className={styles.uploadbutton}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Adaugă imagini <span>+</span>
+                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      const newValidImages: File[] = [];
+                      for (const file of files) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          toast.error(
+                            `Imaginea "${file.name}" este mai mare de 5MB.`
+                          );
+                          continue;
+                        }
+                        if (images.length + newValidImages.length >= 5) {
+                          toast.error("Puteți adăuga maximum 5 imagini.");
+                          break;
+                        }
+                        newValidImages.push(file);
+                      }
+                      if (newValidImages.length > 0) {
+                        setImages((prev) => [...prev, ...newValidImages]);
+                        clearError("images");
+                      }
+                      e.target.value = "";
+                    }}
+                  />
+                </div>
+                <div className={styles.imagepreviewwrapper}>
+                  {images.map((image, index) => {
+                    const objectUrl = URL.createObjectURL(image);
+                    return (
+                      <div key={index} className={styles.imagepreview}>
+                        <Image
+                          src={objectUrl}
+                          alt={`preview-${index}`}
+                          width={100}
+                          height={100}
+                          style={{ objectFit: "cover", borderRadius: "5px" }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setImages((prev) =>
+                              prev.filter((_, i) => i !== index)
+                            )
+                          }
+                          className={styles.deletebutton}
+                        >
+                          &#x2716;
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+            <div className={styles.postdatabox}>
+              <div className={styles.inputbox}>
+                <p>
+                  Categorie
+                  <span className={styles.required}> *</span>
+                  <span
+                    className={`${errors.category ? styles.error : ""} ${
+                      errors.category && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.category}
+                  </span>
+                </p>
+                <div className={styles.categoriescontainer}>
+                  {categories.map((category) => (
                     <div
-                      className={styles.imagecontainer}
-                      style={{
-                        backgroundColor:
-                          category.name === selectedCategory
-                            ? "rgba(255, 215, 0, 0.3)"
-                            : "white",
-                        border:
-                          category.name === selectedCategory
-                            ? "2px solid rgb(255, 215, 0)"
-                            : "",
+                      className={styles.category}
+                      key={category.name}
+                      onClick={() => {
+                        setSelectedCategory(category.name);
+                        clearError("category");
                       }}
                     >
-                      <div className={styles.image}>
-                        <Image
-                          src={category.image}
-                          alt={category.name}
-                          fill
-                          sizes="100%"
-                        />
-                      </div>
-                    </div>
-                    <div className={styles.text}>
-                      <p
+                      <div
+                        className={styles.imagecontainer}
                         style={{
-                          color:
+                          backgroundColor:
                             category.name === selectedCategory
-                              ? "rgb(255, 215, 0)"
+                              ? "rgba(255, 215, 0, 0.3)"
+                              : "white",
+                          border:
+                            category.name === selectedCategory
+                              ? "2px solid rgb(255, 215, 0)"
                               : "",
                         }}
                       >
-                        {category.name}
-                      </p>
+                        <div className={styles.image}>
+                          <Image
+                            src={category.image}
+                            alt={category.name}
+                            fill
+                            sizes="100%"
+                          />
+                        </div>
+                      </div>
+                      <div className={styles.text}>
+                        <p
+                          style={{
+                            color:
+                              category.name === selectedCategory
+                                ? "rgb(255, 215, 0)"
+                                : "",
+                          }}
+                        >
+                          {category.name}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-            <MapInput onLocationChange={handleLocationChange} />
-            <div className={styles.submitbox}>
-              <button type="submit" className={styles.submitbutton}>
-                <p>Finalizează postarea</p>
-                <Image
-                  src="/icons/arrow-right-orange.svg"
-                  alt="Pictogramă săgeată dreapa"
-                  width={25}
-                  height={25}
+              <div>
+                <MapInput
+                  onLocationChange={handleLocationChange}
+                  errors={errors.location}
+                  clearError={clearError}
                 />
-              </button>
+              </div>
+              <div className={styles.submitbox}>
+                <button
+                  type="submit"
+                  className={styles.submitbutton}
+                  disabled={submitting || postLoading}
+                >
+                  <p>
+                    {submitting || postLoading
+                      ? "Se procesează..."
+                      : "Finalizează postarea"}
+                  </p>
+                  <Image
+                    src="/icons/arrow-right-orange.svg"
+                    alt="Pictogramă săgeată dreapa"
+                    width={25}
+                    height={25}
+                  />
+                </button>{" "}
+                {errors.general && (
+                  <div className={styles.errorgeneral}>
+                    <Image
+                      src="/icons/error.svg"
+                      alt="Error Icon"
+                      width={15}
+                      height={15}
+                    />
+                    <span>{errors.general}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </form>
     </section>
   );
 }

@@ -13,6 +13,18 @@ import L, { LatLngBounds } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { toast } from "react-toastify";
 
+type FieldErrors = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  title?: string;
+  content?: string;
+  category?: string;
+  images?: string;
+  location?: string;
+  general?: string;
+};
+
 const romaniaBounds: LatLngBounds = L.latLngBounds([43.5, 20.2], [48.3, 29.7]);
 
 const customIcon = L.icon({
@@ -36,6 +48,8 @@ interface LocationData {
 
 interface MapLocationInputProps {
   onLocationChange: (location: LocationData | null) => void;
+  errors?: string;
+  clearError: (field: keyof FieldErrors) => void;
 }
 
 function ClickableMap({
@@ -54,7 +68,11 @@ function ClickableMap({
   return null;
 }
 
-export default function MapInput({ onLocationChange }: MapLocationInputProps) {
+export default function MapInput({
+  onLocationChange,
+  errors,
+  clearError,
+}: MapLocationInputProps) {
   const [locationQuery, setLocationQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [markerPosition, setMarkerPosition] = useState<{
@@ -258,16 +276,25 @@ export default function MapInput({ onLocationChange }: MapLocationInputProps) {
       <div className={styles.searchbox}>
         <p className={styles.infotext}>
           Locație <span style={{ color: "rgb(255, 215, 0)" }}> *</span>
+          <span
+            className={`${errors ? styles.error : ""} ${errors && styles.info}`}
+            style={{ marginLeft: "10px", opacity: 1 }}
+          >
+            {errors}
+          </span>
         </p>
         <div className={styles.searchwrapper}>
           <input
             type="text"
-            className={styles.locationinput}
+            className={`${styles.locationinput} ${
+              errors ? styles.inputerror : ""
+            }`}
             placeholder="Căutați o locație în România sau faceți clic pe hartă"
             value={locationQuery}
             onChange={(e) => {
               setLocationQuery(e.target.value);
               setHasSelected(false);
+              clearError("location");
             }}
           />
           {locationQuery && (

@@ -73,13 +73,23 @@ export const createPostSchema = z.object({
           "Numărul de telefon conține caractere nevalide"
         )
     ),
-
+  category: z
+    .string()
+    .trim()
+    .pipe(z.string().min(1, "Categoria este obligatorie"))
+    .pipe(z.string().min(3, "Categoria trebuie să aibă cel puțin 3 caractere"))
+    .pipe(
+      z.string().max(40, "Categoria trebuie să aibă cel mult 40 caractere")
+    ),
   lastSeen: z
     .string()
     .optional()
-    .transform((val) => (val ? new Date(val) : new Date()))
-    .refine((date) => !isNaN(date.getTime()), "Data nu este validă")
-    .refine((date) => date <= new Date(), "Data nu poate fi în viitor"),
+    .refine((val) => !val || !isNaN(new Date(val).getTime()), {
+      message: "Data nu este validă",
+    })
+    .refine((val) => !val || new Date(val) <= new Date(), {
+      message: "Data nu poate fi în viitor",
+    }),
 
   location: z
     .string()
@@ -127,11 +137,13 @@ export const createPostSchema = z.object({
     }
     return val;
   }, z.number().min(0, "Raza cercului trebuie să fie pozitivă").max(10000, "Raza cercului nu poate depăși 10km").int("Raza cercului trebuie să fie un număr întreg")),
-  reward: z
-    .number()
-    .min(0, "Recompensa trebuie să fie pozitivă")
-    .max(100000, "Recompensa nu poate depăși 100,000")
-    .optional(),
+  reward: z.preprocess((val) => {
+    if (typeof val === "string") {
+      const parsed = Number(val);
+      return isNaN(parsed) ? undefined : parsed;
+    }
+    return val;
+  }, z.number().min(0, "Recompensa trebuie să fie pozitivă").max(100000, "Recompensa nu poate depăși 100,000").optional()),
 });
 
 // export const updatePostSchema = createPostSchema
