@@ -71,14 +71,12 @@ interface PostsProviderProps {
 interface PostsContextType {
   createPost: (postData: CreatePostData) => Promise<CreatePostResponse>;
   loading: boolean;
-  createdPost: Post | null;
 }
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
 
 export const PostsProvider = ({ children }: PostsProviderProps) => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [createdPost, setCreatedPost] = useState<Post | null>(null);
   const { accessToken: token } = useAuth();
 
   const createPost = useCallback(
@@ -142,7 +140,6 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
           throw errorObj;
         }
 
-        setCreatedPost(responseData.post);
         return responseData;
       } catch (error: unknown) {
         setLoading(false);
@@ -158,7 +155,6 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
       value={{
         createPost,
         loading,
-        createdPost,
       }}
     >
       {children}

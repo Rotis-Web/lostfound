@@ -26,6 +26,8 @@ type FieldErrors = {
   phone?: string;
   title?: string;
   content?: string;
+  reward?: string;
+  tags?: string;
   category?: string;
   images?: string;
   location?: string;
@@ -41,7 +43,7 @@ type PostError = {
 
 export default function CreatePostForm() {
   const { user, loading: authLoading } = useAuth();
-  const { createPost, loading: postLoading, createdPost } = usePosts();
+  const { createPost, loading: postLoading } = usePosts();
 
   const [name, setName] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -189,14 +191,15 @@ export default function CreatePostForm() {
         images,
       };
 
-      // Call the createPost function from context
-      await createPost(postData);
-
-      // Success
+      const result = await createPost(postData);
+      sessionStorage.setItem(
+        "createdPostID",
+        JSON.stringify(result.post.lostfoundID)
+      );
       toast.success("Postarea a fost creată cu succes!");
 
       // Reset form or redirect
-      // router.push('/posts/' + result.post._id); // if you want to redirect
+      // router.push('/posts/' + result.post._id);
     } catch (err: unknown) {
       if (typeof err === "object" && err !== null && "message" in err) {
         const error = err as PostError;
@@ -239,12 +242,6 @@ export default function CreatePostForm() {
         {user && (
           <div className={styles.userdata}>
             <h2>Date de contact</h2>
-            {createdPost && (
-              <p style={{ color: "red", backgroundColor: "yellow" }}>
-                {createdPost.name} {createdPost.email} {createdPost.phone}{" "}
-                {createdPost._id}
-              </p>
-            )}
             <div className={styles.userdataform}>
               <div className={styles.inputbox}>
                 <p>
@@ -428,6 +425,14 @@ export default function CreatePostForm() {
               <div className={styles.inputbox}>
                 <p>
                   Recompensă<span className={styles.info}> ( opțional )</span>
+                  <span
+                    className={`${errors.reward ? styles.error : ""} ${
+                      errors.reward && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.reward}
+                  </span>
                 </p>
                 <input
                   type="text"
@@ -436,7 +441,9 @@ export default function CreatePostForm() {
                   onChange={(e) => {
                     const onlyNumbers = e.target.value.replace(/\D/g, "");
                     setReward(onlyNumbers);
+                    clearError("reward");
                   }}
+                  className={errors.reward ? styles.error : ""}
                 />
                 {reward && <span className={styles.ronlabel}>RON</span>}
                 {reward && (
@@ -453,12 +460,23 @@ export default function CreatePostForm() {
                 <p>
                   {status === "pierdut"
                     ? "Ultima dată văzut/ă"
-                    : "Data găsirii"}
+                    : "Data găsirii"}{" "}
+                  <span
+                    className={`${errors.tags ? styles.error : ""} ${
+                      errors.tags && styles.info
+                    }`}
+                    style={{ marginLeft: "10px", opacity: 1 }}
+                  >
+                    {errors.tags}
+                  </span>
                 </p>
                 <input
                   type="date"
                   value={lastSeen}
-                  onChange={(e) => setLastSeen(e.target.value)}
+                  onChange={(e) => {
+                    setLastSeen(e.target.value);
+                    clearError("tags");
+                  }}
                   max={new Date().toISOString().split("T")[0]}
                   className={styles.dateinput}
                 />
