@@ -198,7 +198,8 @@ export default function PhoneInput({
               placeholder="Introduceți numărul de telefon"
               value={phoneNumber}
               onChange={(e) => {
-                setPhoneNumber(e.target.value);
+                const onlyNumbers = e.target.value.replace(/\D/g, "");
+                setPhoneNumber(onlyNumbers);
                 clearError("phone");
               }}
             />
