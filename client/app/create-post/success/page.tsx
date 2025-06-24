@@ -26,7 +26,7 @@ export default function SuccessPage() {
         </div>
         <h1>Postarea a fost creată cu succes!</h1>
         <p>
-          Pentru orice intrebare, vă rugăm să ne contactați la adresa de email{" "}
+          Pentru orice întrebare, vă rugăm să ne contactați la adresa de email{" "}
           <a href="mailto:suport@lostfound.ro"> suport@lostfound.ro</a>
         </p>
       </section>

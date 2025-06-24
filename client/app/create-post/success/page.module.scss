@@ -20,7 +20,7 @@
     width: 17ch;
   }
   p {
-    font-size: 21px;
+    font-size: 19px;
     font-weight: 500;
     color: var(--blue);
     opacity: 0.8;
@@ -35,10 +35,10 @@
 }
 .image {
   position: relative;
-  width: clamp(100px, 35%, 150px);
+  width: clamp(100px, 35%, 120px);
   aspect-ratio: 1/1;
   object-fit: cover;
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
 }
 
 @media only screen and (max-width: 600px) {
