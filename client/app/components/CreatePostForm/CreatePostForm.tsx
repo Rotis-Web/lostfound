@@ -256,8 +256,14 @@ export default function CreatePostForm() {
                     {errors.name}
                   </span>
                 </p>
+                <label htmlFor="name" className={styles.hidden}>
+                  Nume complet
+                </label>
                 <input
                   type="text"
+                  name="name"
+                  id="name"
+                  autoComplete="name"
                   placeholder="Introduceți numele complet"
                   value={name}
                   onChange={(e) => {
@@ -265,6 +271,7 @@ export default function CreatePostForm() {
                     clearError("name");
                   }}
                   className={errors.name ? styles.error : ""}
+                  aria-required="true"
                 />
                 {name && (
                   <button
@@ -288,8 +295,14 @@ export default function CreatePostForm() {
                     {errors.email}
                   </span>
                 </p>
+                <label htmlFor="email" className={styles.hidden}>
+                  Adresa de email
+                </label>
                 <input
                   type="text"
+                  name="email"
+                  id="email"
+                  autoComplete="email"
                   placeholder="Introduceți adresa de email"
                   value={email}
                   onChange={(e) => {
@@ -297,6 +310,7 @@ export default function CreatePostForm() {
                     clearError("email");
                   }}
                   className={errors.email ? styles.error : ""}
+                  aria-required="true"
                 />
                 {email && (
                   <button
@@ -358,8 +372,13 @@ export default function CreatePostForm() {
                     {errors.title}
                   </span>
                 </p>
+                <label htmlFor="title" className={styles.hidden}>
+                  Titlul postării
+                </label>
                 <input
                   type="text"
+                  name="title"
+                  id="title"
                   placeholder="Introduceți titlul postării ( ex: Câine pierdut ) "
                   value={title}
                   onChange={(e) => {
@@ -367,6 +386,7 @@ export default function CreatePostForm() {
                     clearError("title");
                   }}
                   className={errors.title ? styles.error : ""}
+                  aria-required="true"
                 />
                 {title && (
                   <button
@@ -390,7 +410,12 @@ export default function CreatePostForm() {
                     {errors.content}
                   </span>
                 </p>
+                <label htmlFor="content" className={styles.hidden}>
+                  Conținutul postării
+                </label>
                 <textarea
+                  name="content"
+                  id="content"
                   placeholder="Introduceți conținutul postării ( ex: Câinele răspunde la numele Rocky și este foarte prietenos )"
                   value={content}
                   onChange={(e) => {
@@ -398,6 +423,7 @@ export default function CreatePostForm() {
                     clearError("content");
                   }}
                   className={errors.content ? styles.error : ""}
+                  aria-required="true"
                 />
               </div>
               <div className={styles.inputbox}>
@@ -406,12 +432,18 @@ export default function CreatePostForm() {
                   <span className={styles.info}>( maximum 20 )</span>
                 </p>
                 <div className={styles.taginputwrapper}>
+                  <label htmlFor="tags" className={styles.hidden}>
+                    Cuvinte cheie
+                  </label>
                   <input
                     type="text"
+                    name="tags"
+                    id="tags"
                     placeholder="Introduceți cuvinte cheie separate prin spații"
                     value={tagInput}
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleTagKeyDown}
+                    aria-required="true"
                   />
                   {tags.map((tag, index) => (
                     <span key={index} className={styles.tag}>
@@ -435,8 +467,13 @@ export default function CreatePostForm() {
                     {errors.reward}
                   </span>
                 </p>
+                <label htmlFor="reward" className={styles.hidden}>
+                  Recompensă
+                </label>
                 <input
                   type="text"
+                  name="reward"
+                  id="reward"
                   placeholder="Introduceți recompensa ( ex: 100 RON )"
                   value={reward}
                   onChange={(e) => {
@@ -445,6 +482,7 @@ export default function CreatePostForm() {
                     clearError("reward");
                   }}
                   className={errors.reward ? styles.error : ""}
+                  aria-required="true"
                 />
                 {reward && <span className={styles.ronlabel}>RON</span>}
                 {reward && (
@@ -471,8 +509,13 @@ export default function CreatePostForm() {
                     {errors.tags}
                   </span>
                 </p>
+                <label htmlFor="lastSeen" className={styles.hidden}>
+                  Data
+                </label>
                 <input
                   type="date"
+                  name="lastSeen"
+                  id="lastSeen"
                   value={lastSeen}
                   onChange={(e) => {
                     setLastSeen(e.target.value);
@@ -480,6 +523,7 @@ export default function CreatePostForm() {
                   }}
                   max={new Date().toISOString().split("T")[0]}
                   className={styles.dateinput}
+                  aria-required="true"
                 />
               </div>
               <div className={styles.inputbox}>
@@ -507,9 +551,14 @@ export default function CreatePostForm() {
                   >
                     Adaugă imagini <span>+</span>
                   </button>
+                  <label htmlFor="images" className={styles.hidden}>
+                    Imagini
+                  </label>
                   <input
                     type="file"
                     accept="image/*"
+                    id="images"
+                    name="images"
                     multiple
                     ref={fileInputRef}
                     style={{ display: "none" }}
@@ -535,6 +584,7 @@ export default function CreatePostForm() {
                       }
                       e.target.value = "";
                     }}
+                    aria-required="true"
                   />
                 </div>
                 <div className={styles.imagepreviewwrapper}>

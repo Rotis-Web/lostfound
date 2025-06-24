@@ -284,8 +284,13 @@ export default function MapInput({
           </span>
         </p>
         <div className={styles.searchwrapper}>
+          <label htmlFor="location" className={styles.hidden}>
+            Locație
+          </label>
           <input
             type="text"
+            name="location"
+            id="location"
             className={`${styles.locationinput} ${
               errors ? styles.inputerror : ""
             }`}
@@ -296,6 +301,7 @@ export default function MapInput({
               setHasSelected(false);
               clearError("location");
             }}
+            aria-required="true"
           />
           {locationQuery && (
             <button

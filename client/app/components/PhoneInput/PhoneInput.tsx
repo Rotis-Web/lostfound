@@ -190,8 +190,14 @@ export default function PhoneInput({
             )}
           </div>
           <div className={styles.phoneinputwrapper}>
+            <label htmlFor="phone" className={styles.hidden}>
+              Număr de telefon
+            </label>
             <input
               type="tel"
+              name="phone"
+              id="phone"
+              autoComplete="tel"
               className={`${styles.phonenumberinput} ${
                 errors ? styles.error : ""
               }`}
@@ -202,6 +208,7 @@ export default function PhoneInput({
                 setPhoneNumber(onlyNumbers);
                 clearError("phone");
               }}
+              aria-required="true"
             />
             {phoneNumber && (
               <button

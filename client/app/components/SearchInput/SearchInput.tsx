@@ -288,7 +288,7 @@ export default function SearchInput() {
           className={styles.icon}
         />
         <label className={styles.hidden} htmlFor="period">
-          În ce perioadă cauți?
+          Perioada
         </label>
         <input
           type="text"
@@ -297,7 +297,7 @@ export default function SearchInput() {
           placeholder="Perioada"
           disabled={true}
           style={{ paddingLeft: "42px" }}
-          aria-label="În ce perioadă cauți?"
+          aria-label="Perioada"
         />
         <div
           className={styles.select_wrapper}

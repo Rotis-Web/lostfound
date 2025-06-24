@@ -344,6 +344,17 @@
   color: #ff4444;
   font-size: 1em;
 }
+.hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 @media screen and (max-width: 1200px) {
   .userdata {
