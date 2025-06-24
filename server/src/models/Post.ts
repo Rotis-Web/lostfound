@@ -22,6 +22,7 @@ interface PostDocument extends Document {
   };
   reward?: number;
   comments: mongoose.Types.ObjectId[];
+  views: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,6 +64,7 @@ const postSchema = new Schema<PostDocument>(
       isActive: { type: Boolean, default: false },
       expiresAt: { type: Date },
     },
+    views: { type: Number, default: 0 },
     comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
   },
   { timestamps: true }

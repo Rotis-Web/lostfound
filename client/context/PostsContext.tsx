@@ -33,6 +33,7 @@ interface Post {
     expiresAt?: Date;
   };
   reward?: number;
+  views: number;
   comments: string[];
   createdAt: Date;
   updatedAt: Date;
