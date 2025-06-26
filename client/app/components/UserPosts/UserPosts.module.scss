@@ -93,6 +93,7 @@
     opacity: 0.8;
     text-overflow: ellipsis;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -168,6 +169,7 @@
     opacity: 0.8;
     text-overflow: ellipsis;
     display: -webkit-box;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
@@ -175,7 +177,7 @@
   }
 }
 
-@media screen and (max-width: 1200px) {
+@media screen and (max-width: 700px) {
   .post {
     flex-direction: column;
   }

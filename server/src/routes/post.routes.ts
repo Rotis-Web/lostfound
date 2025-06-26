@@ -1,6 +1,10 @@
 import express from "express";
 import multer from "multer";
-import { createPost, getUserPosts } from "../controllers/postController";
+import {
+  createPost,
+  getUserPosts,
+  deletePost,
+} from "../controllers/postController";
 import { validate } from "../middleware/validate";
 import { createPostSchema } from "../utils/validators/post.validator";
 import rateLimit from "express-rate-limit";
@@ -22,6 +26,16 @@ const createPostLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({ sendCommand, prefix: "rl_create_post:" }),
+});
+
+const deletePostLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 10,
+  message: {
+    code: "TOO_MANY_DELETE_ATTEMPTS",
+    message: "Prea multe încercări de ștergere. Încearcă mai târziu.",
+  },
+  store: new RedisStore({ sendCommand, prefix: "rl_delete_post:" }),
 });
 
 const postGeneralLimiter = rateLimit({
@@ -79,5 +93,6 @@ router.post(
   createPost
 );
 router.get("/user-posts", authenticate, postGeneralLimiter, getUserPosts);
+router.delete("/delete/:postId", authenticate, deletePostLimiter, deletePost);
 
 export default router;

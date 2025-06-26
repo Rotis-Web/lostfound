@@ -63,4 +63,65 @@ async function uploadBase64ToCloudinary(
   }
 }
 
-export { uploadImageToCloudinary, uploadBase64ToCloudinary };
+async function deleteImageFromCloudinary(imageUrl: string): Promise<void> {
+  try {
+    const publicId = extractPublicIdFromUrl(imageUrl);
+
+    if (!publicId) {
+      throw new Error(`Could not extract public_id from URL: ${imageUrl}`);
+    }
+
+    const result = await cloudinary.uploader.destroy(publicId, {
+      resource_type: "image",
+    });
+
+    if (result.result !== "ok" && result.result !== "not found") {
+      throw new Error(`Failed to delete image: ${result.result}`);
+    }
+
+    console.log(`Successfully deleted image with public_id: ${publicId}`);
+  } catch (error) {
+    console.error(`Error deleting image from Cloudinary:`, error);
+    throw error;
+  }
+}
+
+function extractPublicIdFromUrl(url: string): string | null {
+  try {
+    const urlParts = url.split("/");
+
+    const uploadIndex = urlParts.findIndex((part) => part === "upload");
+
+    if (uploadIndex === -1) {
+      return null;
+    }
+
+    let pathAfterUpload = urlParts.slice(uploadIndex + 1);
+
+    if (pathAfterUpload[0] && pathAfterUpload[0].match(/^v\d+$/)) {
+      pathAfterUpload = pathAfterUpload.slice(1);
+    }
+
+    const publicIdWithExtension = pathAfterUpload.join("/");
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, "");
+
+    return publicId;
+  } catch (error) {
+    console.error("Error extracting public_id from URL:", error);
+    return null;
+  }
+}
+
+async function deleteMultipleImagesFromCloudinary(
+  imageUrls: string[]
+): Promise<void> {
+  const deletePromises = imageUrls.map((url) => deleteImageFromCloudinary(url));
+  await Promise.allSettled(deletePromises);
+}
+
+export {
+  uploadImageToCloudinary,
+  uploadBase64ToCloudinary,
+  deleteImageFromCloudinary,
+  deleteMultipleImagesFromCloudinary,
+};

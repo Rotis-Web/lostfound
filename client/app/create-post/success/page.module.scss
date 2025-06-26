@@ -52,7 +52,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  width: clamp(300px, 50%, 350px);
+  width: 300px;
   cursor: pointer;
   background: #f57a4e;
   border: none;
@@ -60,7 +60,7 @@
   font-size: 22px;
   font-weight: 600;
   text-align: center;
-  padding: 18px 0;
+  padding: 17px 0;
   color: var(--white);
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.3);
   transition: background-color 0.2s ease;

@@ -50,6 +50,19 @@ export default function ProfilePage() {
     useState<DeleteAccountErrors>({});
   const [deleteAccountLoading, setDeleteAccountLoading] = useState(false);
 
+  const isDeleteDisabled =
+    !deletePassword ||
+    !(confirmationText === "STERGE CONTUL") ||
+    !dataSecurityConfirmed ||
+    deleteAccountLoading;
+
+  const isPasswordDisabled =
+    !oldPassword ||
+    !newPassword ||
+    !confirmPassword ||
+    newPassword !== confirmPassword ||
+    passwordLoading;
+
   const handleLogout = () => {
     try {
       router.push("/");
@@ -363,7 +376,7 @@ export default function ProfilePage() {
                         <span>{passwordErrors.general}</span>
                       </div>
                     )}
-                    <button type="submit" disabled={passwordLoading}>
+                    <button type="submit" disabled={isPasswordDisabled}>
                       {passwordLoading ? "Se salvează..." : "Salvează"}
                     </button>
                   </form>
@@ -405,7 +418,7 @@ export default function ProfilePage() {
               <div
                 className={styles.settings}
                 style={{
-                  color: "red",
+                  color: "#dc2626",
                   // border: "1px solid rgba(255, 0, 0, 0.5)",
                   opacity: "0.7",
                 }}
@@ -429,10 +442,9 @@ export default function ProfilePage() {
                   }`}
                 >
                   <div className={styles.deletewarning}>
-                    <h3>Atenție!</h3>
+                    <p>&#9888;</p>
                     <p>
-                      Această acțiune va șterge definitiv contul dumneavoastră
-                      și nu poate fi anulată.
+                      Această acțiune este permanentă și nu poate fi anulată!
                     </p>
                   </div>
                   <form onSubmit={handleDeleteAccount} className={styles.form}>
@@ -476,10 +488,10 @@ export default function ProfilePage() {
                         type="text"
                         name="confirmationText"
                         id="confirmationText"
-                        placeholder="Scrieți 'STERGE CONTUL' pentru confirmare"
+                        placeholder="Tastați 'STERGE CONTUL' pentru confirmare"
                         value={confirmationText}
                         onChange={(e) => {
-                          setConfirmationText(e.target.value);
+                          setConfirmationText(e.target.value.toUpperCase());
                           setDeleteAccountErrors({
                             ...deleteAccountErrors,
                             confirmationText: undefined,
@@ -546,9 +558,9 @@ export default function ProfilePage() {
                     )}
                     <button
                       type="submit"
-                      disabled={deleteAccountLoading}
+                      disabled={isDeleteDisabled}
                       className={styles.deleteButton}
-                      style={{ backgroundColor: "rgba(255, 0, 0, 0.8)" }}
+                      style={{ backgroundColor: "#dc2626" }}
                     >
                       {deleteAccountLoading
                         ? "Se șterge..."

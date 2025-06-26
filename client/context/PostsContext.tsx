@@ -65,6 +65,11 @@ interface CreatePostResponse {
   uploadedImages: number;
 }
 
+interface DeletePostResponse {
+  code: string;
+  message: string;
+}
+
 interface PostsProviderProps {
   children: ReactNode;
 }
@@ -72,6 +77,7 @@ interface PostsProviderProps {
 interface PostsContextType {
   createPost: (postData: CreatePostData) => Promise<CreatePostResponse>;
   getUserPosts: () => Promise<void>;
+  deletePost: (postID: string) => Promise<DeletePostResponse>;
   loading: boolean;
   userPosts: Post[];
 }
@@ -176,11 +182,52 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
     }
   }, [token]);
 
+  const deletePost = useCallback(
+    async (postId: string): Promise<DeletePostResponse> => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/post/delete/${postId}`, {
+          method: "DELETE",
+          credentials: "include",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const responseData = await res.json();
+
+        if (!res.ok) {
+          const errorObj = {
+            message:
+              responseData.message ||
+              responseData.error ||
+              "Post deletion failed",
+            code: responseData.code || "UNKNOWN_ERROR",
+          };
+          throw errorObj;
+        }
+
+        setUserPosts((prevPosts) =>
+          prevPosts.filter((post) => post._id !== postId)
+        );
+
+        setLoading(false);
+        return responseData;
+      } catch (error: unknown) {
+        setLoading(false);
+        console.error("Error deleting post:", error);
+        throw error;
+      }
+    },
+    [token]
+  );
+
   return (
     <PostsContext.Provider
       value={{
         createPost,
         getUserPosts,
+        deletePost,
         loading,
         userPosts,
       }}
