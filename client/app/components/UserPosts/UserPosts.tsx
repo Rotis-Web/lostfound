@@ -11,6 +11,8 @@ import { Pagination } from "swiper/modules";
 import Image from "next/image";
 import DeletePostModal from "../DeletePostModal/DeletePostModal";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
 interface Post {
   _id: string;
@@ -58,9 +60,13 @@ export default function UserPosts() {
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
   useEffect(() => {
+    if (!user || authLoading) return router.push("/");
     getUserPosts();
-  }, [getUserPosts]);
+  }, [getUserPosts, router, user, authLoading]);
 
   const handleDeleteClick = (post: Post) => {
     setPostToDelete(post);

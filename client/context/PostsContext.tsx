@@ -79,6 +79,7 @@ interface PostsContextType {
   getUserPosts: () => Promise<void>;
   deletePost: (postID: string) => Promise<DeletePostResponse>;
   loading: boolean;
+  setUserPosts: (posts: Post[]) => void;
   userPosts: Post[];
 }
 
@@ -229,6 +230,7 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
         getUserPosts,
         deletePost,
         loading,
+        setUserPosts,
         userPosts,
       }}
     >

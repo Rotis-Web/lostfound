@@ -4,10 +4,11 @@ import styles from "./page.module.scss";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Loader from "../components/Loader/Loader";
 import UserPosts from "../components/UserPosts/UserPosts";
+import { usePosts } from "@/context/PostsContext";
 
 type PasswordErrors = {
   oldPassword?: string;
@@ -36,6 +37,7 @@ export default function ProfilePage() {
   const [passwordChangeActive, setPasswordChangeActive] = useState(false);
   const [deleteAccountActive, setDeleteAccountActive] = useState(false);
   const router = useRouter();
+  const { setUserPosts } = usePosts();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -63,12 +65,20 @@ export default function ProfilePage() {
     newPassword !== confirmPassword ||
     passwordLoading;
 
+  useEffect(() => {
+    if (!user && !loading) {
+      router.replace("/");
+    }
+  }, [user, loading, router]);
+
   const handleLogout = () => {
     try {
       router.push("/");
       setTimeout(() => {
         logout();
+        setUserPosts([]);
       }, 300);
+
       toast.success("Te-ai deconectat cu succes");
     } catch (err) {
       console.log(err);
@@ -164,7 +174,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <Loader />;
+  if (loading || !user) return <Loader />;
 
   return (
     <main className={styles.profile}>
