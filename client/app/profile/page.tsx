@@ -186,7 +186,7 @@ export default function ProfilePage() {
               <div className={styles.image}>
                 <Image
                   src={user.profileImage}
-                  alt="User Profile Icon"
+                  alt="Pictogramă de profil"
                   fill
                   sizes="100%"
                   priority
