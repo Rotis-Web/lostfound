@@ -233,7 +233,15 @@ export default function UserPosts() {
                       height={13}
                     />
                   </button>
-                  <button type="button">Încheie cazul</button>
+                  <button type="button">
+                    Caz rezolvat
+                    <Image
+                      src="/icons/check.svg"
+                      alt="Pictogramă rezolvat"
+                      width={14}
+                      height={14}
+                    />
+                  </button>
                 </div>
               </div>
             </div>
