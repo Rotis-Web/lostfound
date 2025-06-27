@@ -19,7 +19,7 @@ export default function RegisterSuccess() {
           <h1>Mulțumim pentru înregistrare!</h1>
 
           <p>Te rugăm să verifici email-ul de confirmare la adresa</p>
-          {email && <a href={`mailto:${email}`}>{email}</a>}
+          {email ? <a href={`mailto:${email}`}>{email}</a> : <p>...</p>}
           <ul>
             <li>
               Dacă nu ai primit email-ul, te rugăm sa verifici secțiunea spam.
