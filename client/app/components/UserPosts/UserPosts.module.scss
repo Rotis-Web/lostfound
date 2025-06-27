@@ -50,12 +50,8 @@
     cursor: pointer;
     font-weight: 600;
     font-size: 0.9em;
-    transition: all 0.2s ease-in-out;
     padding: 8px 10px;
     border-radius: 5px;
-    &:hover {
-      background-color: #f57a4e;
-    }
   }
 }
 .id {

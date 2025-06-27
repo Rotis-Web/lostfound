@@ -355,7 +355,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       interval = setInterval(async () => {
         const token = await refreshToken();
         if (token) accessToken.current = token;
-      }, 14 * 60 * 1000);
+      }, 58 * 60 * 1000);
     };
 
     initAuth();
