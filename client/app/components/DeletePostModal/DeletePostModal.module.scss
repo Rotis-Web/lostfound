@@ -130,6 +130,9 @@
     opacity: 0.5;
     cursor: not-allowed;
   }
+  &:active {
+    transform: scale(0.93);
+  }
 }
 .deletebutton {
   padding: 10px 20px;
@@ -151,5 +154,8 @@
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+  }
+  &:active {
+    transform: scale(0.93);
   }
 }

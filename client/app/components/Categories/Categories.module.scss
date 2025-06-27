@@ -38,7 +38,7 @@
     width: 100%;
     aspect-ratio: 1/1;
     border: 1px solid #2c3e606c;
-    border-radius: 100%;
+    border-radius: 50% 60% 50% 60% / 60% 50% 60% 50%;
   }
   .image {
     width: 55%;
@@ -51,7 +51,6 @@
     font-size: 1.1em;
     font-weight: 400;
     color: var(--blue);
-    opacity: 0.8;
   }
 }
 .category:hover .image {
@@ -78,5 +77,8 @@
     flex: 0 0 clamp(10%, 90px, 20%);
     max-width: clamp(10%, 90px, 20%);
     box-sizing: border-box;
+    .text {
+      font-size: 1em;
+    }
   }
 }

@@ -25,16 +25,20 @@
     line-height: 1.8;
   }
   button {
-    padding: 12px 15px;
+    padding: 12px 30px;
     border: none;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
     border-radius: 5px;
     color: var(--black);
-    font-weight: 500;
+    font-weight: 600;
     font-size: 1.1em;
     background: var(--yellow);
     color: white;
     cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    &:active {
+      transform: scale(0.93);
+    }
   }
   .inputbox {
     width: clamp(200px, 90%, 500px);

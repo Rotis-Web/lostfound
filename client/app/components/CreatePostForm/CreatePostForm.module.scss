@@ -323,7 +323,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
     p {
       font-size: 1.1em;
       font-weight: 600;
@@ -336,6 +336,9 @@
   }
   button:hover {
     background-color: #ff4d4d;
+  }
+  button:active {
+    transform: scale(0.93);
   }
 }
 .errorgeneral {

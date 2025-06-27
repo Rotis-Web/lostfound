@@ -39,7 +39,7 @@ export default function SuccessPage() {
             priority
           />
         </button>
-        <h3>Nu mulțumesc</h3>
+        <h3>Nu, mulțumesc</h3>
       </section>
     </main>
   );

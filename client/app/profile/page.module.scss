@@ -125,10 +125,12 @@
   padding: 10px 12px;
   cursor: pointer;
   margin-right: 10px;
-  transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out,
-    color 0.3s ease-in-out;
+  transition: transform 0.2s ease-in-out;
   img {
     margin-right: 7px;
+  }
+  &:active {
+    transform: scale(0.93);
   }
 }
 .posts_and_settings {

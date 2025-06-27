@@ -37,7 +37,6 @@
     color: var(--blue);
     opacity: 0.5;
     cursor: pointer;
-    text-decoration: underline;
   }
 }
 .image {
@@ -54,7 +53,7 @@
   gap: 8px;
   width: 300px;
   cursor: pointer;
-  background: #f57a4e;
+  background: #ff4d4d;
   border: none;
   border-radius: 5px;
   font-size: 22px;
@@ -63,11 +62,7 @@
   padding: 17px 0;
   color: var(--white);
   box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.3);
-  transition: background-color 0.2s ease;
   margin: 25px 0 15px 0;
-  &:hover {
-    background-color: #ff4d4d;
-  }
 }
 
 @media only screen and (max-width: 600px) {
