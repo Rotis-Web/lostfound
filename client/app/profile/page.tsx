@@ -2,6 +2,7 @@
 
 import styles from "./page.module.scss";
 import Image from "next/image";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -217,15 +218,17 @@ export default function ProfilePage() {
           </p>
         </div>
         <div className={styles.buttoncontainer}>
-          <button className={styles.button}>
-            <Image
-              src="/icons/add-plus.svg"
-              alt="Add Post Icon"
-              width={20}
-              height={20}
-            />
-            Adaugă postare
-          </button>{" "}
+          <Link href="/create-post">
+            <button className={styles.button}>
+              <Image
+                src="/icons/add-plus.svg"
+                alt="Add Post Icon"
+                width={20}
+                height={20}
+              />
+              Adaugă postare
+            </button>
+          </Link>
           <button
             className={styles.button}
             style={{

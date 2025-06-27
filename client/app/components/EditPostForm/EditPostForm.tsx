@@ -393,6 +393,7 @@ export default function EditPostForm() {
                       setStatus("lost");
                       setReward("");
                     }}
+                    style={{ borderRadius: "5px 0 0 5px" }}
                   >
                     Pierdut
                   </button>
@@ -403,6 +404,7 @@ export default function EditPostForm() {
                       setStatus("found");
                       setReward("");
                     }}
+                    style={{ borderRadius: "0 5px 5px 0" }}
                   >
                     Găsit
                   </button>
@@ -473,7 +475,8 @@ export default function EditPostForm() {
 
               <div className={styles.inputbox}>
                 <p>
-                  Cuvinte cheie <span className={styles.info}>(max 20)</span>
+                  Cuvinte cheie{" "}
+                  <span className={styles.info}>(maximum 20)</span>
                 </p>
                 <label htmlFor="tags" className={styles.hidden}>
                   Cuvinte cheie

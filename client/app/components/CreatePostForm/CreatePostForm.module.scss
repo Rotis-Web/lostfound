@@ -146,6 +146,7 @@
       font-size: 1em;
       font-weight: 600;
       cursor: pointer;
+      transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
       &.active {
         background: var(--blue);
         color: var(--white);

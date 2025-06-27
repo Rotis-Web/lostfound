@@ -189,14 +189,10 @@ export default function UserPosts() {
                     <p>Categorie:</p>
                     <p>{post.category}</p>
                   </div>
-                  {post.status === "lost" && (
+                  {post.status === "lost" && post.reward !== 0 && (
                     <div className={styles.box}>
                       <p>Recompensă:</p>
-                      {post.reward ? (
-                        <p>{post.reward} RON</p>
-                      ) : (
-                        <p style={{ marginLeft: "5px" }}>--</p>
-                      )}
+                      <p>{post.reward} RON</p>
                     </div>
                   )}
                   <div className={styles.box}>

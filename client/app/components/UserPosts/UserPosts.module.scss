@@ -45,7 +45,7 @@
   }
   button {
     border: none;
-    background: #f57a4e;
+    background: #ff4d4d;
     color: var(--white);
     cursor: pointer;
     font-weight: 600;
@@ -54,7 +54,7 @@
     padding: 8px 10px;
     border-radius: 5px;
     &:hover {
-      background-color: #ff4d4d;
+      background-color: #f57a4e;
     }
   }
 }
@@ -114,9 +114,6 @@
   width: 100%;
   aspect-ratio: 1/1;
   position: relative;
-}
-:global(.swiper-pagination-bullet) {
-  background-color: var(--blue) !important;
 }
 .postinfo {
   width: 100%;

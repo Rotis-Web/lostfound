@@ -9,6 +9,8 @@ export default function Loader() {
         alt="Loader Gif"
         width={200}
         height={200}
+        unoptimized
+        priority
       />
       <p>Se încarcă...</p>
     </div>
