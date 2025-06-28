@@ -19,6 +19,8 @@ export function ProfileImage() {
         height={37}
         style={{
           borderRadius: "50%",
+          objectFit: "cover",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
           ...(user ? {} : { opacity: 0.85 }),
         }}
         priority
