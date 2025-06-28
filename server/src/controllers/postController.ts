@@ -429,3 +429,56 @@ export async function editPost(req: Request, res: Response): Promise<void> {
     });
   }
 }
+
+export async function markPostSolved(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const userId = req.user?.id;
+    const { postId } = req.params;
+
+    if (!userId) {
+      res.status(401).json({
+        code: "UNAUTHORIZED",
+        message: "User not authenticated",
+      });
+      return;
+    }
+
+    if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+      res.status(400).json({
+        code: "INVALID_POST_ID",
+        message: "ID‑ul postării nu este valid",
+      });
+      return;
+    }
+
+    const updatedPost = await Post.findOneAndUpdate(
+      { _id: postId, author: userId },
+      { status: "solved", updatedAt: new Date() },
+      { new: true, select: "-__v" }
+    ).lean();
+
+    if (!updatedPost) {
+      res.status(404).json({
+        code: "POST_NOT_FOUND",
+        message:
+          "Postarea nu a fost găsită sau nu aveți permisiunea să o editați",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      code: "POST_STATUS_UPDATED",
+      message: "Postarea a fost marcată ca rezolvată",
+      post: updatedPost,
+    });
+  } catch (error) {
+    console.error("Error marking post as solved:", error);
+    res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Eroare internă de server",
+    });
+  }
+}

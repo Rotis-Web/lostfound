@@ -32,9 +32,9 @@ export const createPostSchema = z.object({
     return val;
   }, z.array(z.string().trim().min(1, "Tagurile trebuie să fie formate din cel puțin un caracter")).max(20, "Maximum 20 taguri sunt permise").optional().default([])),
 
-  status: z.enum(["found", "lost", "solved"], {
+  status: z.enum(["found", "lost"], {
     errorMap: () => ({
-      message: "Status-ul trebuie să fie 'pierdut', 'găsit' sau 'rezolvat'",
+      message: "Status-ul trebuie să fie 'pierdut' sau 'găsit'",
     }),
   }),
   name: z

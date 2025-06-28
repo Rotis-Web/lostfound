@@ -11,6 +11,7 @@ import { Pagination } from "swiper/modules";
 import Image from "next/image";
 import Link from "next/link";
 import DeletePostModal from "../DeletePostModal/DeletePostModal";
+import MarkSolvedModal from "../MarkSolvedModal/MarkSolvedModal";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -49,13 +50,21 @@ interface DeletePostResponse {
   message: string;
 }
 
+interface MarkPostSolvedResponse {
+  code: string;
+  message: string;
+  post: Post;
+}
+
 export default function UserPosts() {
-  const { userPosts, getUserPosts, deletePost, loading } = usePosts() as {
-    userPosts: Post[];
-    getUserPosts: () => void;
-    deletePost: (postId: string) => Promise<DeletePostResponse>;
-    loading: boolean;
-  };
+  const { userPosts, getUserPosts, deletePost, markPostSolved, loading } =
+    usePosts() as {
+      userPosts: Post[];
+      getUserPosts: () => void;
+      deletePost: (postId: string) => Promise<DeletePostResponse>;
+      markPostSolved: (postId: string) => Promise<MarkPostSolvedResponse>;
+      loading: boolean;
+    };
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [postToDelete, setPostToDelete] = useState<Post | null>(null);
@@ -96,6 +105,21 @@ export default function UserPosts() {
     setPostToDelete(null);
   };
 
+  const [solveOpen, setSolveOpen] = useState(false);
+  const [postSolved, setPostSolved] = useState<Post | null>(null);
+
+  const handleSolveClick = (p: Post) => {
+    setPostSolved(p);
+    setSolveOpen(true);
+  };
+
+  const confirmSolve = async () => {
+    if (!postSolved) return;
+    await markPostSolved(postSolved._id);
+    toast.success("Postarea a fost marcată ca rezolvată!");
+    setSolveOpen(false);
+  };
+
   if (userPosts.length === 0) {
     return (
       <div className={styles.emptyposts}>
@@ -123,7 +147,24 @@ export default function UserPosts() {
                 />
                 <p>{post.views.toLocaleString("ro-RO")}</p>
               </div>
-              <button type="button">Promovează</button>
+              {post.status === "solved" && (
+                <div className={styles.solved}>
+                  Caz rezolvat
+                  <Image
+                    src="/icons/white-check.svg"
+                    alt="Pictogramă rezolvat"
+                    width={16}
+                    height={16}
+                  />
+                </div>
+              )}
+              {post.promoted.isActive && post.status != "solved" ? (
+                <div className={styles.promoted}>Promovat</div>
+              ) : (
+                post.status != "solved" && (
+                  <button type="button">Promovează</button>
+                )
+              )}
             </div>
             <div className={styles.post}>
               <div className={styles.images}>
@@ -212,7 +253,10 @@ export default function UserPosts() {
                 <div className={styles.buttoncontainer}>
                   <button
                     type="button"
-                    style={{ borderRight: "1px solid #c4c4c4" }}
+                    style={{
+                      borderRight:
+                        post.status === "solved" ? "none" : "1px solid #c4c4c4",
+                    }}
                     onClick={() => handleDeleteClick(post)}
                     disabled={loading}
                     className={styles.button}
@@ -225,28 +269,38 @@ export default function UserPosts() {
                       height={14}
                     />
                   </button>
-                  <Link
-                    href={`/edit-post/${post._id}`}
-                    className={styles.button}
-                    style={{ borderRight: "1px solid #c4c4c4" }}
-                  >
-                    Editează
-                    <Image
-                      src="/icons/edit.svg"
-                      alt="Pictogramă editare"
-                      width={13}
-                      height={13}
-                    />
-                  </Link>
-                  <button type="button" className={styles.button}>
-                    Caz rezolvat
-                    <Image
-                      src="/icons/check.svg"
-                      alt="Pictogramă rezolvat"
-                      width={14}
-                      height={14}
-                    />
-                  </button>
+                  {post.status !== "solved" && (
+                    <Link
+                      href={`/edit-post/${post._id}`}
+                      className={styles.button}
+                      style={{
+                        borderRight: "1px solid #c4c4c4",
+                      }}
+                    >
+                      Editează
+                      <Image
+                        src="/icons/edit.svg"
+                        alt="Pictogramă editare"
+                        width={13}
+                        height={13}
+                      />
+                    </Link>
+                  )}
+                  {post.status !== "solved" && (
+                    <button
+                      type="button"
+                      className={styles.button}
+                      onClick={() => handleSolveClick(post)}
+                    >
+                      Caz rezolvat
+                      <Image
+                        src="/icons/check.svg"
+                        alt="Pictogramă rezolvat"
+                        width={14}
+                        height={14}
+                      />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -260,6 +314,13 @@ export default function UserPosts() {
         onConfirm={handleDeleteConfirm}
         postTitle={postToDelete?.title || ""}
         isDeleting={isDeleting}
+      />
+      <MarkSolvedModal
+        isOpen={solveOpen}
+        onClose={() => setSolveOpen(false)}
+        onConfirm={confirmSolve}
+        postTitle={postSolved?.title || ""}
+        isUpdating={loading}
       />
     </>
   );

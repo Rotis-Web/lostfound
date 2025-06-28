@@ -83,10 +83,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  opacity: 0.9;
   .id {
     color: var(--blue);
-    opacity: 0.9;
+    opacity: 0.8;
     font-weight: 600;
     padding: 3px 10px;
     border: 1px solid #2c3e604f;
@@ -207,7 +206,6 @@
   // border-radius: 5px;
   color: var(--blue);
   font-size: 1.1em;
-  opacity: 0.85;
 }
 .settingstext {
   width: 100%;
@@ -336,7 +334,6 @@
     font-size: 0.7em;
     font-weight: 500;
     color: var(--blue);
-    opacity: 0.8;
     width: 95%;
   }
 }

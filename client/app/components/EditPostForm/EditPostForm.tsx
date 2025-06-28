@@ -137,6 +137,9 @@ export default function EditPostForm() {
     try {
       const result = await getPostByID(postId);
       const p = result.post;
+      if (status === "solved") {
+        router.replace("/");
+      }
       setName(p.name);
       setEmail(p.email);
       setPhone(p.phone);
@@ -163,7 +166,7 @@ export default function EditPostForm() {
     } finally {
       setLoadingData(false);
     }
-  }, [postId, getPostByID, router]);
+  }, [postId, getPostByID, router, status]);
 
   useEffect(() => {
     getPost();

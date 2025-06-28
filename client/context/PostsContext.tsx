@@ -106,6 +106,12 @@ interface GetPostByIDResponse {
   post: Post;
 }
 
+interface MarkPostSolvedResponse {
+  code: string;
+  message: string;
+  post: Post;
+}
+
 interface PostsProviderProps {
   children: ReactNode;
 }
@@ -116,9 +122,10 @@ interface PostsContextType {
   deletePost: (postID: string) => Promise<DeletePostResponse>;
   editPost: (id: string, data: EditPostData) => Promise<EditPostResponse>;
   getPostByID: (postID: string) => Promise<GetPostByIDResponse>;
-  loading: boolean;
   setUserPosts: (posts: Post[]) => void;
+  markPostSolved: (postID: string) => Promise<MarkPostSolvedResponse>;
   userPosts: Post[];
+  loading: boolean;
 }
 
 const PostsContext = createContext<PostsContextType | undefined>(undefined);
@@ -365,6 +372,39 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
     }
   }, []);
 
+  const markPostSolved = useCallback(
+    async (postId: string): Promise<MarkPostSolvedResponse> => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/post/solve/${postId}`, {
+          method: "PATCH",
+          credentials: "include",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const responseData = await res.json();
+        if (!res.ok) {
+          const errorObj = {
+            message:
+              responseData.message ||
+              responseData.error ||
+              "Markarea postării a eșuat",
+            code: responseData.code || "UNKNOWN_ERROR",
+            errors: responseData.errors || null,
+            field: responseData.errors?.[0]?.field || null,
+          };
+          throw errorObj;
+        }
+        setUserPosts((prev) =>
+          prev.map((p) => (p._id === postId ? responseData.post : p))
+        );
+        return responseData;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
+
   return (
     <PostsContext.Provider
       value={{
@@ -373,9 +413,10 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
         deletePost,
         editPost,
         getPostByID,
-        loading,
         setUserPosts,
+        markPostSolved,
         userPosts,
+        loading,
       }}
     >
       {children}
