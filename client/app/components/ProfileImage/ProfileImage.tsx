@@ -15,8 +15,8 @@ export function ProfileImage() {
       <Image
         src={profileImage}
         alt="User Profile Icon"
-        width={37}
-        height={37}
+        width={35}
+        height={35}
         style={{
           borderRadius: "50%",
           objectFit: "cover",
