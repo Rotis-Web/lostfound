@@ -21,8 +21,8 @@ export default function Hero() {
             />
           </div>
           <h2>
-            Cea mai mare comunitate din România dedicată animalelor și
-            obiectelor pierdute
+            Animale și obiecte pierdute în România, regăsite cu ajutorul
+            comunității
           </h2>
           <div className={styles.countbox}>
             <div className={styles.image}>
