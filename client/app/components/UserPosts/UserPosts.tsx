@@ -166,6 +166,31 @@ export default function UserPosts() {
                 )
               )}
             </div>
+            {post.promoted.isActive && (
+              <div className={styles.promotedinfo}>
+                {post.promoted.expiresAt && (
+                  <p>
+                    Promovarea expiră pe{" "}
+                    {new Date(post.promoted.expiresAt).toLocaleString("ro-RO", {
+                      day: "2-digit",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                )}
+                <button type="button">
+                  Extinde promovarea{" "}
+                  <Image
+                    src="/icons/arrow-right.svg"
+                    alt="Pictogramă sageata dreapta"
+                    width={13}
+                    height={13}
+                  />
+                </button>
+              </div>
+            )}
             <div className={styles.post}>
               <div className={styles.images}>
                 <Swiper

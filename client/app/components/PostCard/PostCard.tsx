@@ -90,7 +90,9 @@ export default function PostCard({ post }: { post: Post }) {
         </div>
 
         <div className={styles.poststats}>
-          <span className={styles.views}>👁 {post.views}</span>
+          <span className={styles.views}>
+            👁 {post.views.toLocaleString("ro-RO")}
+          </span>
           <span className={styles.postid}>{post.lostfoundID}</span>
         </div>
       </div>

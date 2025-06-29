@@ -61,7 +61,7 @@
   border-radius: 5px;
   box-shadow: rgba(44, 62, 96, 0.4) 0px 0px 5px;
   position: relative;
-  animation: slideBounce 1s ease-in-out;
+  // animation: slideBounce 1s ease-in-out;
   span {
     font-size: 2.5em;
     font-weight: 700;
@@ -82,22 +82,22 @@
     left: -10;
   }
 }
-@keyframes slideBounce {
-  0% {
-    transform: translateY(80%);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(-8%);
-  }
-  80% {
-    transform: translateY(4%);
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+// @keyframes slideBounce {
+//   0% {
+//     transform: translateY(80%);
+//     opacity: 0;
+//   }
+//   60% {
+//     transform: translateY(-8%);
+//   }
+//   80% {
+//     transform: translateY(4%);
+//   }
+//   100% {
+//     transform: translateY(0);
+//     opacity: 1;
+//   }
+// }
 .input {
   width: 50%;
   display: flex;
