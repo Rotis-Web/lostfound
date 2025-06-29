@@ -482,3 +482,64 @@ export async function markPostSolved(
     });
   }
 }
+
+export async function getLatestPosts(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const limit = parseInt(req.query.limit as string) || 12;
+    const skip = parseInt(req.query.skip as string) || 0;
+
+    const promotedPosts = await Post.find({
+      status: { $ne: "solved" },
+      "promoted.isActive": true,
+      "promoted.expiresAt": { $gt: new Date() },
+    })
+      .select(
+        "title content images status category location createdAt lostfoundID promoted views lastSeen reward"
+      )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const promotedPostIds = promotedPosts.map((post) => post._id);
+
+    const regularPosts = await Post.find({
+      status: { $ne: "solved" },
+      _id: { $nin: promotedPostIds },
+      $or: [
+        { "promoted.isActive": { $ne: true } },
+        { "promoted.expiresAt": { $lte: new Date() } },
+        { promoted: { $exists: false } },
+      ],
+    })
+      .select(
+        "title content images status category location createdAt lostfoundID promoted views lastSeen reward"
+      )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const allPosts = [...promotedPosts, ...regularPosts];
+
+    const paginatedPosts = allPosts.slice(skip, skip + limit);
+
+    const totalCount = await Post.countDocuments({
+      status: { $ne: "solved" },
+    });
+
+    res.status(200).json({
+      code: "LATEST_POSTS",
+      posts: paginatedPosts,
+      count: paginatedPosts.length,
+      totalCount,
+      hasMore: skip + paginatedPosts.length < totalCount,
+      promotedCount: promotedPosts.length,
+    });
+  } catch (error) {
+    console.error("Error fetching latest posts:", error);
+    res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Eroare internă de server",
+    });
+  }
+}

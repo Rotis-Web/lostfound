@@ -7,6 +7,7 @@ import {
   getPostByID,
   editPost,
   markPostSolved,
+  getLatestPosts,
 } from "../controllers/postController";
 import { validate } from "../middleware/validate";
 import {
@@ -125,6 +126,7 @@ router.patch(
 );
 router.delete("/delete/:postId", authenticate, deletePostLimiter, deletePost);
 router.get("/user-posts", authenticate, postGeneralLimiter, getUserPosts);
+router.get("/latest", postGeneralLimiter, getLatestPosts);
 router.get("/:postId", postGeneralLimiter, getPostByID);
 
 export default router;

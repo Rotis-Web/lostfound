@@ -15,6 +15,7 @@ const appConfig = () => ({
     SECRET: getEnv("JWT_SECRET"),
     REFRESH_SECRET: getEnv("JWT_REFRESH_SECRET"),
   },
+  RESEND_API_KEY: getEnv("RESEND_API_KEY"),
   SMTP_HOST: getEnv("SMTP_HOST"),
   SMTP_PORT: getEnv("SMTP_PORT"),
   SMTP_USER: getEnv("SMTP_USER"),

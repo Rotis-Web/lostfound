@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import Loader from "../Loader/Loader";
-import { categories } from "../Categories/Categories";
+import { categories } from "../HomePage/Categories/Categories";
 import dynamic from "next/dynamic";
 import PhoneInput from "../PhoneInput/PhoneInput";
 import { usePosts } from "@/context/PostsContext";

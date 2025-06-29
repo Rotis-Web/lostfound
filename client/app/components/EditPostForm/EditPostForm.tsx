@@ -10,7 +10,7 @@ import Image from "next/image";
 import Loader from "@/app/components/Loader/Loader";
 import dynamic from "next/dynamic";
 import PhoneInput from "@/app/components/PhoneInput/PhoneInput";
-import { categories } from "@/app/components/Categories/Categories";
+import { categories } from "@/app/components/HomePage/Categories/Categories";
 
 const MapInput = dynamic(() => import("@/app/components/MapInput/MapInput"), {
   ssr: false,
@@ -137,9 +137,7 @@ export default function EditPostForm() {
     try {
       const result = await getPostByID(postId);
       const p = result.post;
-      if (status === "solved") {
-        router.replace("/");
-      }
+
       setName(p.name);
       setEmail(p.email);
       setPhone(p.phone);
@@ -166,11 +164,17 @@ export default function EditPostForm() {
     } finally {
       setLoadingData(false);
     }
-  }, [postId, getPostByID, router, status]);
+  }, [postId, getPostByID, router]);
 
   useEffect(() => {
     getPost();
   }, [getPost]);
+
+  useEffect(() => {
+    if (status === "solved") {
+      router.replace("/");
+    }
+  }, [status, router]);
 
   const validateForm = (): boolean => {
     const newErrors: FieldErrors = {};

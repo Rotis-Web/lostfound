@@ -53,7 +53,7 @@ export const categories = [
 export default function Categories() {
   return (
     <section className={styles.categories}>
-      <h1>Categorii</h1>
+      <h2>Categorii</h2>
       <div className={styles.categoriescontainer}>
         {categories.map((category) => (
           <div className={styles.category} key={category.name}>

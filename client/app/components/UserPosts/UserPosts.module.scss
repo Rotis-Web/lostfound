@@ -45,7 +45,7 @@
   }
   button {
     border: none;
-    background: #ff4d4d;
+    background: linear-gradient(135deg, #ff4d4d, #8e44ad);
     color: var(--white);
     cursor: pointer;
     font-weight: 600;
@@ -179,6 +179,14 @@
   gap: 4px;
   font-weight: 600;
   color: var(--white);
+}
+.promoted {
+  background: linear-gradient(135deg, #ff4d4d, #8e44ad);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 1em;
+  padding: 0 5px;
 }
 
 @media screen and (max-width: 700px) {

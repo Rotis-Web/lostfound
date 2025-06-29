@@ -34,6 +34,7 @@
     "node-cache": "^5.1.2",
     "nodemailer": "^7.0.3",
     "rate-limit-redis": "^4.2.1",
+    "resend": "^4.6.0",
     "uuid": "^11.1.0",
     "zod": "^3.25.56"
   },
