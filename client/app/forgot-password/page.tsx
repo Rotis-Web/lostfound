@@ -47,6 +47,7 @@ export default function ForgotPassword() {
             alt="Email icon"
             width={25}
             height={25}
+            draggable={false}
           />
           <label htmlFor="email" className={styles.hidden}>
             Email

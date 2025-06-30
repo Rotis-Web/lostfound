@@ -47,6 +47,7 @@ export default function MarkSolvedModal({
               alt="Info Icon"
               width={18}
               height={18}
+              draggable={false}
             />
             <p>Marchezi definitiv această postare ca fiind rezolvată.</p>
           </div>

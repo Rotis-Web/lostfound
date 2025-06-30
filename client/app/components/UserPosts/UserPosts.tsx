@@ -144,6 +144,7 @@ export default function UserPosts() {
                   alt="Pictogramă vizualizări"
                   width={16}
                   height={16}
+                  draggable={false}
                 />
                 <p>{post.views.toLocaleString("ro-RO")}</p>
               </div>
@@ -155,6 +156,7 @@ export default function UserPosts() {
                     alt="Pictogramă rezolvat"
                     width={16}
                     height={16}
+                    draggable={false}
                   />
                 </div>
               )}
@@ -187,6 +189,7 @@ export default function UserPosts() {
                     alt="Pictogramă sageata dreapta"
                     width={13}
                     height={13}
+                    draggable={false}
                   />
                 </button>
               </div>
@@ -224,6 +227,7 @@ export default function UserPosts() {
                       alt="Pictogramă locație"
                       width={16}
                       height={16}
+                      draggable={false}
                     />
                     <p>{post.location}</p>
                   </div>
@@ -233,6 +237,7 @@ export default function UserPosts() {
                       alt="Pictogramă calendar"
                       width={16}
                       height={16}
+                      draggable={false}
                     />
                     {post.lastSeen ? (
                       <p>
@@ -292,6 +297,7 @@ export default function UserPosts() {
                       alt="Pictogramă ștergere"
                       width={14}
                       height={14}
+                      draggable={false}
                     />
                   </button>
                   {post.status !== "solved" && (
@@ -308,6 +314,7 @@ export default function UserPosts() {
                         alt="Pictogramă editare"
                         width={13}
                         height={13}
+                        draggable={false}
                       />
                     </Link>
                   )}
@@ -323,6 +330,7 @@ export default function UserPosts() {
                         alt="Pictogramă rezolvat"
                         width={14}
                         height={14}
+                        draggable={false}
                       />
                     </button>
                   )}

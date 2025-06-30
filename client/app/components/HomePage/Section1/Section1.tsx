@@ -12,6 +12,7 @@ export default function Section1() {
             fill
             sizes="100%"
             priority
+            draggable={false}
           />
         </div>
         <div className={styles.box}>
@@ -21,6 +22,7 @@ export default function Section1() {
             fill
             sizes="100%"
             priority
+            draggable={false}
           />
         </div>
         <div className={styles.box}>
@@ -30,6 +32,7 @@ export default function Section1() {
             fill
             sizes="100%"
             priority
+            draggable={false}
           />
         </div>
       </div>

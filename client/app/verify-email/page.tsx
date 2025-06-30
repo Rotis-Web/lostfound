@@ -63,6 +63,7 @@ const VerifyPage = () => {
             width={150}
             height={150}
             priority
+            draggable={false}
           />
           <p>Se verifică tokenul...</p>
         </div>
@@ -76,6 +77,7 @@ const VerifyPage = () => {
             width={150}
             height={150}
             priority
+            draggable={false}
           />
           <p className="text-green-600">{message}</p>
         </div>
@@ -89,6 +91,7 @@ const VerifyPage = () => {
             width={150}
             height={150}
             priority
+            draggable={false}
           />
           <p className="text-red-600">{message}</p>
         </div>

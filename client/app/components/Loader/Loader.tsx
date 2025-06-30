@@ -11,6 +11,7 @@ export default function Loader() {
         height={200}
         unoptimized
         priority
+        draggable={false}
       />
       <p>Se încarcă...</p>
     </div>

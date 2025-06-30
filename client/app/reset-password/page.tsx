@@ -88,6 +88,7 @@ export default function ResetPasswordPage() {
               alt="Password icon"
               width={25}
               height={25}
+              draggable={false}
             />
             <label htmlFor="password" className={styles.hidden}>
               Parola nouă
@@ -122,6 +123,7 @@ export default function ResetPasswordPage() {
               alt="Password icon"
               width={25}
               height={25}
+              draggable={false}
             />
             <label htmlFor="confirmPassword" className={styles.hidden}>
               Confirmare parolă

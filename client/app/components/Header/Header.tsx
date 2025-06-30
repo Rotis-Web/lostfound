@@ -13,6 +13,7 @@ export default function Header() {
           width={28}
           height={28}
           style={{ opacity: 0.75 }}
+          draggable={false}
         />
         <Link href="/" className={styles.logo}>
           <Image
@@ -20,6 +21,7 @@ export default function Header() {
             alt="Logo Icon"
             width={75}
             height={45}
+            draggable={false}
           />
         </Link>
       </div>

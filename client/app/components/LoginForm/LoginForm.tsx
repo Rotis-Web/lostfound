@@ -80,6 +80,7 @@ export default function LoginForm() {
               alt="Email icon"
               width={25}
               height={25}
+              draggable={false}
             />
             <label htmlFor="email" className={styles.hidden}>
               Email
@@ -110,6 +111,7 @@ export default function LoginForm() {
               alt="Password icon"
               width={25}
               height={25}
+              draggable={false}
             />
             <label htmlFor="password" className={styles.hidden}>
               Parola
@@ -149,6 +151,7 @@ export default function LoginForm() {
                     alt="Error Icon"
                     width={15}
                     height={15}
+                    draggable={false}
                   />
                   <span>{errors.general}</span>
                 </>
@@ -171,6 +174,7 @@ export default function LoginForm() {
               alt="Google Icon"
               width={35}
               height={35}
+              draggable={false}
             />
             <p>Google</p>
           </div>
@@ -180,6 +184,7 @@ export default function LoginForm() {
               alt="Facebook Icon"
               width={45}
               height={45}
+              draggable={false}
             />
             <p>Facebook</p>
           </div>
@@ -200,6 +205,7 @@ export default function LoginForm() {
           fill
           sizes="100%"
           priority
+          draggable={false}
         />
       </div>
     </section>

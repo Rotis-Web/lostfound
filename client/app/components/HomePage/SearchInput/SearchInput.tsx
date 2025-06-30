@@ -196,6 +196,7 @@ export default function SearchInput() {
           width={25}
           height={25}
           className={styles.icon}
+          draggable={false}
         />
         {locationQuery && (
           <span
@@ -286,6 +287,7 @@ export default function SearchInput() {
           width={25}
           height={25}
           className={styles.icon}
+          draggable={false}
         />
         <label className={styles.hidden} htmlFor="period">
           Perioada

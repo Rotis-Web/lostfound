@@ -18,6 +18,7 @@ export default function Hero() {
               fill
               sizes="100%"
               priority
+              draggable={false}
             />
           </div>
           <h2>
@@ -32,6 +33,7 @@ export default function Hero() {
                 fill
                 sizes="100%"
                 priority
+                draggable={false}
               />
             </div>
             <Counter end={370} duration={3000} />
