@@ -13,11 +13,31 @@ export default function JoinCrew() {
           draggable={false}
         />
       </div>
-      <form className={styles.form}>
-        <h2>Te rugăm sa te aliniă cu comunitatea noastră</h2>
-        <p>Dacă ai nevoie de ajutor, te rugăm sa ne contactezi la adresa</p>
-        <a href="mailto:suport@lostfound.ro">suport@lostfound.ro</a>
-      </form>
+      <div className={styles.box}>
+        <h3>
+          <span className={styles.yellow}>lost</span> &{" "}
+          <span className={styles.yellow}>found</span> Crew este o echipă de
+          voluntari, iubitori de animale, oameni dornici să îi ajute pe cei
+          aflați în nevoie.
+        </h3>
+        <br></br>
+        {/* <h3>
+          Alătură-te celor peste 100 de membri ai echipei noastre și fii gata să
+          oferi ajutor!
+        </h3> */}
+        <h3>
+          Echipa noastră crește în fiecare zi, iar oameni ca tine sunt mereu
+          bineveniți să se alăture!
+        </h3>
+        <br></br>
+        <h3>
+          Vei fi notificat în momentul în care apare un anunț în zona ta.
+          Împreună putem face lumea un loc mai bun.
+        </h3>
+        <div className={styles.buttonbox}>
+          <button>Alătură-te acum</button>
+        </div>
+      </div>
     </section>
   );
 }
