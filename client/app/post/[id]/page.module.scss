@@ -87,10 +87,6 @@
     font-size: 1.3em;
     font-weight: 600;
   }
-  transition: opacity 0.2s ease-in-out;
-  &:hover {
-    opacity: 0.8;
-  }
 }
 .contact {
   width: 50%;
@@ -106,9 +102,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: opacity 0.2s ease-in-out;
+  transition: transform 0.2s ease-in-out;
   &:hover {
-    opacity: 0.8;
+    transform: scale(1.01);
   }
 }
 .content {
