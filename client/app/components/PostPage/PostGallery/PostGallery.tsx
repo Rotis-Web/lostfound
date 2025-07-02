@@ -14,28 +14,43 @@ export default function PostGallery({ images }: { images: string[] }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [mouseStart, setMouseStart] = useState<number | null>(null);
+  const [mouseEnd, setMouseEnd] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [dragStartTime, setDragStartTime] = useState<number>(0);
 
   const minSwipeDistance = 50;
+  const maxClickTime = 200;
 
   const openModal = (index: number) => {
     setActiveImageIndex(index);
     setIsModalOpen(true);
+    setIsZoomed(false);
   };
 
-  const closeModal = useCallback(() => {
+  const closeModal = () => {
     setIsModalOpen(false);
-  }, []);
+    setIsZoomed(false);
+  };
 
   const selectImage = (index: number) => {
     setActiveImageIndex(index);
+    setIsZoomed(false);
   };
+
+  const toggleZoom = useCallback(() => {
+    setIsZoomed(!isZoomed);
+  }, [isZoomed]);
 
   const nextImage = useCallback(() => {
     setActiveImageIndex((prev) => (prev + 1) % images.length);
+    setIsZoomed(false);
   }, [images.length]);
 
   const prevImage = useCallback(() => {
     setActiveImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setIsZoomed(false);
   }, [images.length]);
 
   const onTouchStart = (e: React.TouchEvent) => {
@@ -61,7 +76,56 @@ export default function PostGallery({ images }: { images: string[] }) {
     }
   };
 
-  // Keyboard navigation
+  const onMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMouseEnd(null);
+    setMouseStart(e.clientX);
+    setIsDragging(true);
+    setDragStartTime(Date.now());
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setMouseEnd(e.clientX);
+  };
+
+  const onMouseUp = useCallback(() => {
+    if (!isDragging) return;
+
+    const dragDuration = Date.now() - dragStartTime;
+    const dragDistance =
+      mouseStart && mouseEnd ? Math.abs(mouseStart - mouseEnd) : 0;
+
+    if (dragDuration < maxClickTime && dragDistance < 10) {
+      toggleZoom();
+    } else if (mouseStart && mouseEnd) {
+      const distance = mouseStart - mouseEnd;
+      const isLeftDrag = distance > minSwipeDistance;
+      const isRightDrag = distance < -minSwipeDistance;
+
+      if (isLeftDrag && !isZoomed) {
+        nextImage();
+      } else if (isRightDrag && !isZoomed) {
+        prevImage();
+      }
+    }
+
+    setIsDragging(false);
+  }, [
+    isDragging,
+    mouseStart,
+    mouseEnd,
+    dragStartTime,
+    toggleZoom,
+    nextImage,
+    prevImage,
+    isZoomed,
+  ]);
+
+  const onMouseLeave = () => {
+    setIsDragging(false);
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isModalOpen) return;
@@ -81,7 +145,31 @@ export default function PostGallery({ images }: { images: string[] }) {
 
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isModalOpen, prevImage, nextImage, closeModal]);
+  }, [isModalOpen, prevImage, nextImage]);
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (isDragging) {
+        onMouseUp();
+      }
+    };
+
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        setMouseEnd(e.clientX);
+      }
+    };
+
+    if (isDragging) {
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+    }
+
+    return () => {
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
+      document.removeEventListener("mousemove", handleGlobalMouseMove);
+    };
+  }, [isDragging, mouseStart, mouseEnd, onMouseUp]);
 
   useEffect(() => {
     if (isModalOpen) {
@@ -138,16 +226,32 @@ export default function PostGallery({ images }: { images: string[] }) {
               ×
             </button>
             <div
-              className={styles.mainimage}
+              className={`${styles.mainimage} ${isZoomed ? styles.zoomed : ""}`}
               onTouchStart={onTouchStart}
               onTouchMove={onTouchMove}
               onTouchEnd={onTouchEnd}
+              onMouseDown={onMouseDown}
+              onMouseMove={onMouseMove}
+              onMouseUp={onMouseUp}
+              onMouseLeave={onMouseLeave}
+              style={{
+                cursor: isDragging
+                  ? "grabbing"
+                  : isZoomed
+                  ? "zoom-out"
+                  : "zoom-in",
+              }}
             >
               <Image
                 src={images[activeImageIndex]}
                 alt={`Imagine ${activeImageIndex}`}
                 fill
-                sizes="100%"
+                sizes="100vw"
+                style={{
+                  objectFit: isZoomed ? "contain" : "contain",
+                  transition: "transform 0.3s ease",
+                  transform: isZoomed ? "scale(2)" : "scale(1)",
+                }}
               />
             </div>
             <div className={styles.previewstrip}>
