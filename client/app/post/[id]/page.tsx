@@ -263,6 +263,14 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       </section>
+      <section className={styles.commentswrapper}>
+        <div className={styles.commentsheader}>
+          <h2>0 Comentarii</h2>
+          <button>
+            <span>+ </span>Adaugă comentariu
+          </button>
+        </div>
+      </section>
     </main>
   );
 }
