@@ -724,6 +724,7 @@ export default function CreatePostForm() {
                             alt={category.name}
                             fill
                             sizes="100%"
+                            draggable={false}
                           />
                         </div>
                       </div>

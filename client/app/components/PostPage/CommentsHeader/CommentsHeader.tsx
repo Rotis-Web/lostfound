@@ -44,7 +44,7 @@ export default function CommentsHeader({ post }: { post: Post }) {
 
   const handleAddComment = () => {
     if (!user) {
-      toast.error("Doar utilizatorii autentificați pot adăuga comentarii");
+      toast.info("Doar utilizatorii autentificați pot adăuga comentarii");
       return;
     }
     setShowForm(true);

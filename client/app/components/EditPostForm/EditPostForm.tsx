@@ -752,6 +752,7 @@ export default function EditPostForm() {
                             alt={cat.name}
                             fill
                             sizes="100%"
+                            draggable={false}
                           />
                         </div>
                       </div>

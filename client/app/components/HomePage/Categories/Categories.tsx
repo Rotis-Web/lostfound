@@ -64,6 +64,7 @@ export default function Categories() {
                   alt={category.name}
                   fill
                   sizes="100%"
+                  draggable={false}
                 />
               </div>
             </div>
