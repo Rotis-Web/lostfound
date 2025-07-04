@@ -5,14 +5,24 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import UserLink from "../UserLink/UserLink";
 import { Post } from "@/types/Post";
+import { usePosts } from "@/context/PostsContext";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-toastify";
 
 interface Props {
   comment: Post["comments"][number];
   timeAgo: string;
 }
 
+interface deleteError {
+  message: string;
+}
+
 export default function CommentItem({ comment, timeAgo }: Props) {
+  const { deleteComment } = usePosts();
+  const { user } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -27,6 +37,20 @@ export default function CommentItem({ comment, timeAgo }: Props) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [menuRef]);
+
+  const handleCommentDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await deleteComment(comment._id);
+      toast.success(response.message || "Comentariul a fost șters cu succes");
+    } catch (err: unknown) {
+      const error = err as deleteError;
+      console.error("Error deleting comment:", error);
+      toast.error(error.message || "Eroare la ștergerea comentariului");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className={styles.comment}>
@@ -68,8 +92,33 @@ export default function CommentItem({ comment, timeAgo }: Props) {
 
         {menuOpen && (
           <div className={styles.menu}>
-            <button className={styles.menuitem}>Raportează</button>
-            <button className={styles.menuitem}>Șterge</button>
+            {(user?._id !== comment.author?._id || !user) && (
+              <button type="button" className={styles.menuitem}>
+                <Image
+                  src="/icons/report.svg"
+                  alt="Report"
+                  width={15}
+                  height={15}
+                />
+                Raportează
+              </button>
+            )}
+            {user?._id === comment.author?._id && user && (
+              <button
+                type="button"
+                className={styles.menuitem}
+                onClick={handleCommentDelete}
+                disabled={isDeleting}
+              >
+                <Image
+                  src="/icons/delete-red.svg"
+                  alt="Delete"
+                  width={15}
+                  height={15}
+                />
+                Șterge
+              </button>
+            )}
           </div>
         )}
       </div>

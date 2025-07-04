@@ -1,5 +1,5 @@
 import express from "express";
-import { createComment } from "../controllers/commentController";
+import { createComment, deleteComment } from "../controllers/commentController";
 import { validate } from "../middleware/validate";
 import { createCommentSchema } from "../utils/validators/post.validator";
 import rateLimit from "express-rate-limit";
@@ -7,7 +7,18 @@ import { authenticate } from "../middleware/authenticate";
 
 const createCommentLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
-  max: 10,
+  max: 5,
+  message: {
+    code: "TOO_MANY_REQUESTS",
+    error: "Too many requests, please try again later.",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const deleteCommentLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 5,
   message: {
     code: "TOO_MANY_REQUESTS",
     error: "Too many requests, please try again later.",
@@ -24,6 +35,13 @@ router.post(
   createCommentLimiter,
   validate(createCommentSchema),
   createComment
+);
+
+router.delete(
+  "/delete/:commentId",
+  authenticate,
+  deleteCommentLimiter,
+  deleteComment
 );
 
 export default router;

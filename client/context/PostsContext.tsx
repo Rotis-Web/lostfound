@@ -91,6 +91,10 @@ interface CreateCommentResponse {
   message?: string;
 }
 
+interface DeleteCommentResponse {
+  code: string;
+  message: string;
+}
 interface PostsProviderProps {
   children: ReactNode;
 }
@@ -108,6 +112,7 @@ interface PostsContextType {
     author: string,
     content: string
   ) => Promise<CreateCommentResponse>;
+  deleteComment: (commentId: string) => Promise<DeleteCommentResponse>;
   userPosts: Post[];
   loading: boolean;
 }
@@ -435,6 +440,39 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
     [token]
   );
 
+  const deleteComment = useCallback(
+    async (commentId: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/comment/delete/${commentId}`, {
+          method: "DELETE",
+          credentials: "include",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const responseData = await res.json();
+
+        if (!res.ok) {
+          const errorObj = {
+            message:
+              responseData.message ||
+              responseData.error ||
+              "Stergerea comentariului a eșuat",
+            code: responseData.code || "UNKNOWN_ERROR",
+            errors: responseData.errors || null,
+            field: responseData.errors?.[0]?.field || null,
+          };
+          throw errorObj;
+        }
+
+        return responseData;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
+
   return (
     <PostsContext.Provider
       value={{
@@ -446,6 +484,7 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
         setUserPosts,
         markPostSolved,
         createComment,
+        deleteComment,
         userPosts,
         loading,
       }}
