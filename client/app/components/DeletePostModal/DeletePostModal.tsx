@@ -70,7 +70,7 @@ export default function DeletePostModal({
           <div className={styles.postinfo}>
             <p>
               A fost de ajutor? Nu șterge postarea – marcheaz-o ca
-              <strong style={{ color: "var(--yellow" }}> rezolvată !</strong>
+              <strong style={{ color: "#51e188" }}> rezolvată !</strong>
             </p>
           </div>
         </div>
