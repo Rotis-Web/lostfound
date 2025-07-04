@@ -9,6 +9,7 @@ import {
 } from "react";
 import { useAuth } from "./AuthContext";
 import { Post } from "../types/Post";
+import { Comment } from "../types/Post";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -84,6 +85,12 @@ interface MarkPostSolvedResponse {
   post: Post;
 }
 
+interface CreateCommentResponse {
+  comment: Comment;
+  code?: string;
+  message?: string;
+}
+
 interface PostsProviderProps {
   children: ReactNode;
 }
@@ -96,6 +103,11 @@ interface PostsContextType {
   getPostByID: (postID: string) => Promise<GetPostByIDResponse>;
   setUserPosts: (posts: Post[]) => void;
   markPostSolved: (postID: string) => Promise<MarkPostSolvedResponse>;
+  createComment: (
+    postId: string,
+    author: string,
+    content: string
+  ) => Promise<CreateCommentResponse>;
   userPosts: Post[];
   loading: boolean;
 }
@@ -386,6 +398,43 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
     [token]
   );
 
+  const createComment = useCallback(
+    async (postId: string, content: string, user: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_URL}/comment/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({ post: postId, content, author: user }),
+        });
+
+        const responseData = await res.json();
+
+        if (!res.ok) {
+          const errorObj = {
+            message:
+              responseData.message ||
+              responseData.error ||
+              "Comentarea postării a eșuat",
+            code: responseData.code || "UNKNOWN_ERROR",
+            errors: responseData.errors || null,
+            field: responseData.errors?.[0]?.field || null,
+          };
+          throw errorObj;
+        }
+
+        return responseData;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token]
+  );
+
   return (
     <PostsContext.Provider
       value={{
@@ -396,6 +445,7 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
         getPostByID,
         setUserPosts,
         markPostSolved,
+        createComment,
         userPosts,
         loading,
       }}

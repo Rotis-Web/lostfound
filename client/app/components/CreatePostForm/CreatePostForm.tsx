@@ -133,6 +133,10 @@ export default function CreatePostForm() {
       newErrors.title = "Titlul postării este obligatoriu";
     }
 
+    if (content.trim().length > 1000) {
+      newErrors.content = "Conținutul trebuie să aibă cel mult 1000 caractere";
+    }
+
     if (!selectedCategory) {
       newErrors.category = "Categoria este obligatorie";
     }
@@ -419,6 +423,9 @@ export default function CreatePostForm() {
                   >
                     {errors.content}
                   </span>
+                  <span className={styles.charactercount}>
+                    {content.length}/1000
+                  </span>
                 </p>
                 <label htmlFor="content" className={styles.hidden}>
                   Conținutul postării
@@ -432,6 +439,7 @@ export default function CreatePostForm() {
                     setContent(e.target.value);
                     clearError("content");
                   }}
+                  maxLength={1000}
                   className={errors.content ? styles.error : ""}
                   aria-required="true"
                 />

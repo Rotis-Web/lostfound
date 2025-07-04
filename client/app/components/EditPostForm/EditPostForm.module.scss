@@ -40,7 +40,7 @@
   }
   input {
     height: 40px;
-    color: var(--blue);
+    color: #2b2b2b;
     font-size: 1em;
     width: 100%;
     padding: 13px 30px 13px 13px;
@@ -64,7 +64,7 @@
   }
   textarea {
     height: 200px;
-    color: var(--blue);
+    color: #2b2b2b;
     font-family: var(--font-geist-sans);
     font-size: 1em;
     width: 100%;
@@ -286,7 +286,7 @@
     padding: 7px 20px;
     border: 1px solid #2c3e606c;
     border-radius: 5px;
-    color: var(--blue);
+    color: #2b2b2b;
   }
 }
 
@@ -365,7 +365,16 @@
     transform: scale(0.93);
   }
 }
-
+.charactercount {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 0.7em;
+  color: #999;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2px 4px;
+  border-radius: 3px;
+}
 .errorgeneral {
   display: flex;
   align-items: center;

@@ -250,6 +250,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         confirmationText,
         dataSecurityConfirmed,
       }),
+      credentials: "include",
     });
 
     const data = await res.json();
@@ -265,6 +266,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
 
     accessToken.current = null;
+    document.cookie =
+      "refreshToken=; Max-Age=0; path=/; secure; samesite=strict";
     setUser(null);
 
     return data;

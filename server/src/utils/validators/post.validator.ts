@@ -19,18 +19,30 @@ export const createPostSchema = z.object({
     .string()
     .trim()
     .pipe(
-      z.string().max(2000, "Conținutul trebuie să aibă cel mult 2000 caractere")
+      z.string().max(1000, "Conținutul trebuie să aibă cel mult 1000 caractere")
     ),
-  tags: z.preprocess((val) => {
-    if (typeof val === "string") {
-      try {
-        return JSON.parse(val);
-      } catch {
-        return val;
+  tags: z.preprocess(
+    (val) => {
+      if (typeof val === "string") {
+        try {
+          return JSON.parse(val);
+        } catch {
+          return val;
+        }
       }
-    }
-    return val;
-  }, z.array(z.string().trim().min(1, "Tagurile trebuie să fie formate din cel puțin un caracter")).max(20, "Maximum 20 taguri sunt permise").optional().default([])),
+      return val;
+    },
+    z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(1, "Tagurile trebuie să fie formate din cel puțin un caracter")
+      )
+      .max(20, "Maximum 20 taguri sunt permise")
+      .optional()
+      .default([])
+  ),
 
   status: z.enum(["found", "lost"], {
     errorMap: () => ({
@@ -172,6 +184,35 @@ export const editPostSchema = createPostSchema
         .optional()
     ),
   });
+
+export const createCommentSchema = z.object({
+  author: z
+    .string()
+    .trim()
+    .pipe(z.string().min(1, "Autorul este obligatoriu"))
+    .pipe(
+      z.string().regex(/^[0-9a-fA-F]{24}$/, "ID-ul autorului nu este valid")
+    ),
+  post: z
+    .string()
+    .trim()
+    .pipe(z.string().min(1, "ID-ul postului este obligatoriu"))
+    .pipe(
+      z.string().regex(/^[0-9a-fA-F]{24}$/, "ID-ul postului nu este valid")
+    ),
+  content: z
+    .string()
+    .trim()
+    .pipe(z.string().min(1, "Comentariul este obligatoriu"))
+    .pipe(
+      z
+        .string()
+        .max(1000, "Comentariul trebuie sa aibă cel mult 1000 caractere")
+    )
+    .pipe(
+      z.string().min(3, "Comentariul trebuie sa aibă cel puțin 3 caractere")
+    ),
+});
 
 // export const updatePostSchema = createPostSchema
 //   .partial()

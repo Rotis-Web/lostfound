@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import PostGallery from "../../components/PostPage/PostGallery/PostGallery";
 import PostMap from "../../components/PostPage/PostMap/PostMapWrapper";
+import CommentsHeader from "@/app/components/PostPage/CommentsHeader/CommentsHeader";
 import UserLink from "@/app/components/PostPage/UserLink/UserLink";
 import Image from "next/image";
 
@@ -189,7 +190,7 @@ export default async function PostPage({ params }: PageProps) {
         <div className={styles.content}>
           <div className={styles.author}>
             <p>Postat de</p>
-            {post.author && post.author.profileImage && (
+            {post.author && post.author.profileImage ? (
               <>
                 <Image
                   src={post.author.profileImage}
@@ -199,7 +200,17 @@ export default async function PostPage({ params }: PageProps) {
                 />
                 <UserLink name={post.author.name} id={post.author._id} />
               </>
-            )}{" "}
+            ) : (
+              <>
+                <Image
+                  src={"/icons/user-icon.svg"}
+                  alt="Profile Icon"
+                  width={25}
+                  height={25}
+                />
+                <b className={styles.deleted}>Utilizator șters</b>
+              </>
+            )}
             <span>{timeAgo(post.createdAt)} </span>
           </div>{" "}
           <p className={styles.description}>
@@ -264,12 +275,48 @@ export default async function PostPage({ params }: PageProps) {
         </div>
       </section>
       <section className={styles.commentswrapper}>
-        <div className={styles.commentsheader}>
-          <h2>0 Comentarii</h2>
-          <button>
-            <span>+ </span>Adaugă comentariu
-          </button>
-        </div>
+        <CommentsHeader post={post} />
+        {post.comments.length > 0 && (
+          <div className={styles.comments}>
+            {post.comments
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((comment) => (
+                <div className={styles.comment} key={comment._id}>
+                  <div className={styles.commentinfo}>
+                    <div className={styles.author}>
+                      <Image
+                        src={
+                          comment.author?.profileImage || "/icons/user-icon.svg"
+                        }
+                        alt="Profile Icon"
+                        width={25}
+                        height={25}
+                      />
+                      {comment.author ? (
+                        <UserLink
+                          name={comment.author.name}
+                          id={comment.author._id}
+                        />
+                      ) : (
+                        <b className={styles.deleted}>Utilizator șters</b>
+                      )}
+                    </div>
+                    <p>{timeAgo(comment.createdAt)}</p>
+                  </div>
+                  <p>
+                    {comment.content} Lorem ipsum dolor sit amet consectetur
+                    adipisicing elit. Illo eius quis numquam modi, harum
+                    incidunt maiores atque velit inventore minus vel corporis
+                    recusandae magni ea! Quam et temporibus velit deleniti!
+                  </p>
+                </div>
+              ))}
+          </div>
+        )}
       </section>
     </main>
   );

@@ -1,0 +1,153 @@
+.commentsheader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  h2 {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--blue);
+    margin: 0;
+  }
+  button {
+    padding: 8px 12px;
+    border: 1px solid #f57a4e;
+    border-radius: 5px;
+    background-color: #f57a4e;
+    color: var(--white);
+    font-size: 0.8em;
+    font-weight: 600;
+    text-wrap: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out,
+      border 0.2s ease-in-out;
+
+    &:hover:not(:disabled) {
+      background-color: white;
+      color: #f57a4e;
+      border: 1px solid #f57a4e;
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    span {
+      font-size: 1.3em;
+      font-weight: 600;
+    }
+  }
+  .commentform {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    .inputcontainer {
+      position: relative;
+      width: 100%;
+      .commentinput {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.9em;
+        font-family: inherit;
+        resize: vertical;
+        min-height: 80px;
+        transition: border-color 0.2s ease-in-out;
+        line-height: 1.5;
+        color: #2b2b2b;
+        &:focus {
+          outline: none;
+          border-color: #f57a4e;
+        }
+        &.error {
+          border-color: #ff4444;
+
+          &:focus {
+            border-color: #ff4444;
+          }
+        }
+        &::placeholder {
+          color: #999;
+        }
+        &:disabled {
+          background-color: #f5f5f5;
+          cursor: not-allowed;
+        }
+      }
+      .charactercount {
+        position: absolute;
+        bottom: 8px;
+        right: 12px;
+        font-size: 0.7em;
+        color: #999;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 2px 4px;
+        border-radius: 3px;
+      }
+      .errormessage {
+        color: #ff4444;
+        font-size: 0.8em;
+        margin-top: 4px;
+        font-weight: 500;
+      }
+    }
+    .generalerror {
+      color: #ff4444;
+      font-size: 0.8em;
+      font-weight: 500;
+      padding: 8px 12px;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .buttoncontainer {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      .cancelbutton {
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: transparent;
+        color: #666;
+        font-size: 0.8em;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        &:hover:not(:disabled) {
+          background-color: #f5f5f5;
+          color: #333;
+        }
+      }
+      .submitbutton {
+        padding: 8px 16px;
+        border: 1px solid #f57a4e;
+        border-radius: 5px;
+        background-color: #f57a4e;
+        color: var(--white);
+        font-size: 0.8em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out,
+          border 0.2s ease-in-out;
+        &:hover:not(:disabled) {
+          background-color: white;
+          color: #f57a4e;
+          border: 1px solid #f57a4e;
+        }
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
+}

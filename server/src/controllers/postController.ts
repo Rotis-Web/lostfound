@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post";
+import Comment from "../models/Comment";
 import {
   uploadImageToCloudinary,
   deleteImageFromCloudinary,
@@ -192,6 +193,17 @@ export async function deletePost(req: Request, res: Response): Promise<void> {
       }
     }
 
+    if (post.comments && post.comments.length > 0) {
+      try {
+        await Comment.deleteMany({ _id: { $in: post.comments } });
+        console.log(
+          `Deleted ${post.comments.length} comments associated with post ${postId}`
+        );
+      } catch (commentError) {
+        console.error("Error deleting comments:", commentError);
+      }
+    }
+
     await Post.findByIdAndDelete(postId);
 
     res.status(200).json({
@@ -223,7 +235,16 @@ export async function getPostByID(req: Request, res: Response): Promise<void> {
       postId,
       { $inc: { views: 1 } },
       { new: true }
-    ).populate("author", "name profileImage");
+    )
+      .populate("author", "name profileImage")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "author",
+          select: "name profileImage",
+        },
+        select: "content createdAt",
+      });
 
     if (!post) {
       res.status(404).json({

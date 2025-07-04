@@ -117,6 +117,19 @@ export const deleteAccount = async (
       return;
     }
 
+    if (user.profileImage && user.profileImage.includes("res.cloudinary.com")) {
+      try {
+        await deleteImageFromCloudinary(user.profileImage);
+      } catch (cloudErr) {
+        console.error("Cloudinary deletion error:", cloudErr);
+      }
+    }
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
     // await Post.deleteMany({ userId: userId });
     // await Comment.deleteMany({ userId: userId });
 

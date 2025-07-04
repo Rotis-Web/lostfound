@@ -33,7 +33,8 @@ export interface Post {
 }
 
 export interface Comment {
-  author: string;
+  _id: string;
+  author: User;
   post: Post;
   content: string;
   createdAt: Date;
