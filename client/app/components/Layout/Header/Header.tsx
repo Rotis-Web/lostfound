@@ -1,7 +1,7 @@
 import styles from "./Header.module.scss";
 import Image from "next/image";
 import Link from "next/link";
-import { ProfileImage } from "../ProfileImage/ProfileImage";
+import { ProfileImage } from "../../UI/ProfileImage/ProfileImage";
 
 export default function Header() {
   return (

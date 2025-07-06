@@ -5,8 +5,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSearch } from "../../../context/SearchContext";
 import Image from "next/image";
-import SearchInput from "..//HomePage/SearchInput/SearchInput";
-import PostCard from "../PostCard/PostCard";
+import SearchInput from "../Inputs/SearchInput/SearchInput";
+import PostCard from "../UI/PostCard/PostCard";
 import { toast } from "react-toastify";
 
 interface SearchPageProps {

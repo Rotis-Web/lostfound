@@ -6,13 +6,15 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import Loader from "../Loader/Loader";
-import { categories } from "../HomePage/Categories/Categories";
+import { categories } from "../../UI/Categories/Categories";
 import dynamic from "next/dynamic";
-import PhoneInput from "../PhoneInput/PhoneInput";
 import { usePosts } from "@/context/PostsContext";
+import PhoneInput from "../../Inputs/PhoneInput/PhoneInput";
+import Loader from "../../Layout/Loader/Loader";
 
-const MapInput = dynamic(() => import("../MapInput/MapInput"), { ssr: false });
+const MapInput = dynamic(() => import("../../Inputs/MapInput/MapInput"), {
+  ssr: false,
+});
 
 interface LocationData {
   name: string;

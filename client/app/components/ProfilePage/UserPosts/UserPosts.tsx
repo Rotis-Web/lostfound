@@ -10,12 +10,21 @@ import "swiper/scss/pagination";
 import { Pagination } from "swiper/modules";
 import Image from "next/image";
 import Link from "next/link";
-import DeletePostModal from "../DeletePostModal/DeletePostModal";
-import MarkSolvedModal from "../MarkSolvedModal/MarkSolvedModal";
+import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Post } from "@/types/Post";
+
+const DeletePostModal = dynamic(
+  () => import("../DeletePostModal/DeletePostModal"),
+  { ssr: false }
+);
+
+const MarkSolvedModal = dynamic(
+  () => import("../MarkSolvedModal/MarkSolvedModal"),
+  { ssr: false }
+);
 
 interface DeletePostResponse {
   code: string;

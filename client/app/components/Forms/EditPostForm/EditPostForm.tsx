@@ -7,14 +7,17 @@ import { useAuth } from "@/context/AuthContext";
 import { usePosts } from "@/context/PostsContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import Loader from "@/app/components/Loader/Loader";
+import Loader from "@/app/components/Layout/Loader/Loader";
 import dynamic from "next/dynamic";
-import PhoneInput from "@/app/components/PhoneInput/PhoneInput";
-import { categories } from "@/app/components/HomePage/Categories/Categories";
+import PhoneInput from "@/app/components/Inputs/PhoneInput/PhoneInput";
+import { categories } from "@/app/components/UI/Categories/Categories";
 
-const MapInput = dynamic(() => import("@/app/components/MapInput/MapInput"), {
-  ssr: false,
-});
+const MapInput = dynamic(
+  () => import("@/app/components/Inputs/MapInput/MapInput"),
+  {
+    ssr: false,
+  }
+);
 
 interface LocationData {
   name: string;

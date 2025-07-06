@@ -1,6 +1,6 @@
 import styles from "./AnunturiPromovate.module.scss";
 import Image from "next/image";
-import PostCard from "../../PostCard/PostCard";
+import PostCard from "../../UI/PostCard/PostCard";
 import { Post } from "@/types/Post";
 
 interface ApiResponse {

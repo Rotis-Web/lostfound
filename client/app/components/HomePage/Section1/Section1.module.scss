@@ -30,6 +30,12 @@
   font-size: 1.2em;
   font-weight: 600;
   overflow: hidden;
+  img {
+    transition: transform 0.2s ease-in-out;
+  }
+  &:hover img {
+    transform: scale(1.02);
+  }
 }
 
 @media screen and (max-width: 1200px) {

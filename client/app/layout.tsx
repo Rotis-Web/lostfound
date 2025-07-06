@@ -4,7 +4,7 @@ import "./globals.scss";
 import { AuthProvider } from "@/context/AuthContext";
 import { PostsProvider } from "@/context/PostsContext";
 import { SearchProvider } from "@/context/SearchContext";
-import Header from "./components/Header/Header";
+import Header from "./components/Layout/Header/Header";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./toast.css";

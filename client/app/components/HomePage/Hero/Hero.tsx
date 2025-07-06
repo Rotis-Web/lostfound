@@ -1,7 +1,7 @@
 import styles from "./Hero.module.scss";
 import Image from "next/image";
-import Counter from "../Counter/Counter";
-import SearchInput from "../SearchInput/SearchInput";
+import Counter from "../../UI/Counter/Counter";
+import SearchInput from "../../Inputs/SearchInput/SearchInput";
 
 export default function Hero() {
   return (

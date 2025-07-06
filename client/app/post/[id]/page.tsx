@@ -3,12 +3,16 @@ import { Post } from "@/types/Post";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import React from "react";
+import dynamic from "next/dynamic";
 import PostGallery from "../../components/PostPage/PostGallery/PostGallery";
-import PostMap from "../../components/PostPage/PostMap/PostMapWrapper";
-import CommentsHeader from "@/app/components/PostPage/CommentsHeader/CommentsHeader";
-import CommentItem from "@/app/components/PostPage/CommentItem/CommentItem";
 import UserLink from "@/app/components/PostPage/UserLink/UserLink";
 import Image from "next/image";
+import CommentItem from "../../components/PostPage/CommentItem/CommentItem";
+import CommentsHeader from "@/app/components/PostPage/CommentsHeader/CommentsHeader";
+
+const PostMap = dynamic(
+  () => import("../../components/PostPage/PostMap/PostMapWrapper")
+);
 
 import {
   differenceInYears,
