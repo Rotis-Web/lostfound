@@ -6,8 +6,8 @@ interface PageProps {
   };
 }
 
-export default function SearchDynamic({ params }: PageProps) {
-  const { params: urlParams } = params;
+export default async function SearchDynamic({ params }: PageProps) {
+  const { params: urlParams } = await params;
 
   if (!urlParams || urlParams.length === 0) {
     return <SearchPage />;

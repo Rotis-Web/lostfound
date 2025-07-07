@@ -14,13 +14,12 @@
 }
 .searchheader {
   width: clamp(300px, 100%, 700px);
-  .categorytitle {
-    font-size: 2.5em;
-    color: var(--blue, #2c3e60);
-    text-align: center;
-    margin-bottom: 30px;
-    font-weight: 700;
+  .categoryheader {
+    width: 100%;
+    aspect-ratio: 16/5;
+    position: relative;
   }
+
   .searchinputwrapper {
     background: #f8f9fa;
     border-radius: 5px;
@@ -180,7 +179,7 @@
     color: white;
     border-color: var(--blue, #2c3e60);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(44, 62, 96, 0.3);
+    box-shadow: 0 2px 4px rgba(44, 62, 96, 0.3);
   }
 
   &:disabled {
@@ -232,14 +231,14 @@
     background: #f8f9fa;
     border-color: #adb5bd;
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   &.active {
     background: var(--blue, #2c3e60);
     border-color: var(--blue, #2c3e60);
     color: white;
     cursor: default;
-    box-shadow: 0 4px 12px rgba(44, 62, 96, 0.3);
+    box-shadow: 0 2px 4px rgba(44, 62, 96, 0.3);
     transform: translateY(-2px);
   }
 }

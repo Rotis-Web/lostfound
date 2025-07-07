@@ -7,6 +7,7 @@ import { useSearch } from "../../../context/SearchContext";
 import Image from "next/image";
 import SearchInput from "../Inputs/SearchInput/SearchInput";
 import PostCard from "../UI/PostCard/PostCard";
+import AdContainer from "../UI/AdContainer/AdContainer";
 import { toast } from "react-toastify";
 
 interface SearchPageProps {
@@ -55,12 +56,15 @@ export default function SearchPage({ category, page }: SearchPageProps) {
   const isInitialized = useRef(false);
   const isChangingPageRef = useRef(false);
 
-  const normalizedCategory = normalizeCategory(category);
+  const normalizedCategory = normalizeCategory(
+    decodeURIComponent(category as string)
+  );
+  console.log("Normalized category:", normalizedCategory);
 
   // Calculate pagination info
   const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
-  const hasNextPage = currentPage < totalPages;
-  const hasPrevPage = currentPage > 1;
+  // const hasNextPage = currentPage < totalPages;
+  // const hasPrevPage = currentPage > 1;
 
   console.log("SearchPage rendered with:", {
     category,
@@ -429,12 +433,19 @@ export default function SearchPage({ category, page }: SearchPageProps) {
     <main className={styles.searchpage}>
       <section className={styles.container}>
         <div className={styles.searchheader}>
-          {category && (
-            <h1 className={styles.categorytitle}>
-              Căutare în categoria: {category}
-            </h1>
-          )}
           <div className={styles.searchinputwrapper}>
+            {category && (
+              <div className={styles.categoryheader}>
+                <Image
+                  src={`/images/${category}-header.webp`}
+                  alt={`${category} header`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  draggable={false}
+                  priority
+                />{" "}
+              </div>
+            )}
             <SearchInput
               query={query}
               setQuery={setQuery}
@@ -530,32 +541,83 @@ export default function SearchPage({ category, page }: SearchPageProps) {
               </div>
 
               <div className={styles.resultscontainer}>
-                {searchResults.map((post, idx) => (
-                  <PostCard key={post._id} post={post} priority={idx < 4} />
-                ))}
+                {(() => {
+                  const items = [];
+                  const postsPerPage = 12;
+                  const isFullPage = searchResults.length === postsPerPage;
+
+                  if (isFullPage) {
+                    // For full pages (12 posts), show: 6 posts -> ad -> 6 posts -> ad
+
+                    // First 6 posts
+                    for (let i = 0; i < 6; i++) {
+                      if (searchResults[i]) {
+                        items.push(
+                          <PostCard
+                            key={searchResults[i]._id}
+                            post={searchResults[i]}
+                            priority={i < 4}
+                          />
+                        );
+                      }
+                    }
+
+                    // First ad container
+                    items.push(<AdContainer key="ad-1" />);
+
+                    // Next 6 posts
+                    for (let i = 6; i < 12; i++) {
+                      if (searchResults[i]) {
+                        items.push(
+                          <PostCard
+                            key={searchResults[i]._id}
+                            post={searchResults[i]}
+                            priority={false}
+                          />
+                        );
+                      }
+                    }
+
+                    // Second ad container
+                    items.push(<AdContainer key="ad-2" />);
+                  } else {
+                    // For non-full pages, show posts normally without ads
+                    searchResults.forEach((post, idx) => {
+                      items.push(
+                        <PostCard
+                          key={post._id}
+                          post={post}
+                          priority={idx < 4}
+                        />
+                      );
+                    });
+                  }
+
+                  return items;
+                })()}
               </div>
 
               {totalPages > 1 && (
                 <div className={styles.pagination}>
-                  <button
+                  {/* <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={!hasPrevPage || loading}
                     className={`${styles.paginationbutton} ${styles.prevnext}`}
                   >
                     ← Anterior
-                  </button>
+                  </button> */}
 
                   <div className={styles.pagenumbers}>
                     {renderPaginationButtons()}
                   </div>
 
-                  <button
+                  {/* <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={!hasNextPage || loading}
                     className={`${styles.paginationbutton} ${styles.prevnext}`}
                   >
                     Următor →
-                  </button>
+                  </button> */}
                 </div>
               )}
             </>

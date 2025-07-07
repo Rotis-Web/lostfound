@@ -1,6 +1,6 @@
 import styles from "./AnunturiPromovate.module.scss";
-import Image from "next/image";
 import PostCard from "../../UI/PostCard/PostCard";
+import AdContainer from "../../UI/AdContainer/AdContainer";
 import { Post } from "@/types/Post";
 
 interface ApiResponse {
@@ -56,14 +56,7 @@ export default async function AnunturiPromovate() {
             ))}
       </div>
 
-      <div className={styles.adcontainer}>
-        <Image
-          src="/images/publicitate.png"
-          alt="Publicitate"
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-      </div>
+      <AdContainer />
 
       <div className={styles.anunturi}>
         {secondHalf.length > 0
@@ -77,14 +70,7 @@ export default async function AnunturiPromovate() {
             ))}
       </div>
 
-      <div className={styles.adcontainer}>
-        <Image
-          src="/images/publicitate.png"
-          alt="Publicitate"
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        />
-      </div>
+      <AdContainer />
     </section>
   );
 }
