@@ -11,7 +11,9 @@ import { toast } from "react-toastify";
 
 interface SearchPageProps {
   category?: string;
+  page?: string;
 }
+
 interface SearchFilters {
   query?: string;
   category?: string;
@@ -27,11 +29,12 @@ interface SearchFilters {
 const normalizeCategory = (raw?: string) =>
   raw ? raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase() : undefined;
 
-export default function SearchPage({ category }: SearchPageProps) {
+const POSTS_PER_PAGE = 12;
+
+export default function SearchPage({ category, page }: SearchPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { searchPosts, searchResults, loading, hasMore, totalCount } =
-    useSearch();
+  const { searchPosts, searchResults, loading, totalCount } = useSearch();
 
   const [query, setQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
@@ -46,14 +49,32 @@ export default function SearchPage({ category }: SearchPageProps) {
     "found",
   ]);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const isInitialized = useRef(false);
+  const isChangingPageRef = useRef(false);
 
   const normalizedCategory = normalizeCategory(category);
 
+  // Calculate pagination info
+  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
+  const hasNextPage = currentPage < totalPages;
+  const hasPrevPage = currentPage > 1;
+
+  // DEBUG: Add logging
+  console.log("SearchPage rendered with:", {
+    category,
+    page,
+    currentPage,
+    totalPages,
+  });
+
+  // Fixed URL building function
   const updateURL = useCallback(
-    (filters: SearchFilters) => {
+    (filters: SearchFilters, pageNum: number = 1) => {
+      console.log("updateURL called with:", { filters, pageNum });
+
       const params = new URLSearchParams();
 
       if (filters.query) params.set("query", filters.query);
@@ -64,18 +85,39 @@ export default function SearchPage({ category }: SearchPageProps) {
         params.set("radius", filters.location.radius.toString());
       }
       if (filters.period) params.set("period", filters.period.toString());
-      if (filters.status && filters.status.length > 0) {
+      if (
+        filters.status &&
+        filters.status.length > 0 &&
+        filters.status.length < 2
+      ) {
         params.set("status", filters.status.join(","));
       }
 
-      const newURL = `${window.location.pathname}?${params.toString()}`;
+      // Fixed URL building logic
+      let newURL = "/search";
+
+      if (category) {
+        newURL += `/${category}`;
+      }
+
+      if (pageNum > 1) {
+        newURL += `/${pageNum}`;
+      }
+
+      if (params.toString()) {
+        newURL += `?${params.toString()}`;
+      }
+
+      console.log("Navigating to:", newURL);
       router.push(newURL, { scroll: false });
     },
-    [locationQuery, router]
+    [locationQuery, router, category]
   );
 
   const performSearch = useCallback(
-    async (shouldUpdateURL = true) => {
+    async (pageNum: number = 1, shouldUpdateURL = true) => {
+      console.log("performSearch called with:", { pageNum, shouldUpdateURL });
+
       const filters: SearchFilters = {};
 
       if (query.trim()) filters.query = query.trim();
@@ -92,15 +134,22 @@ export default function SearchPage({ category }: SearchPageProps) {
       }
       if (periodSelected) filters.period = periodSelected;
 
+      const skip = (pageNum - 1) * POSTS_PER_PAGE;
+      console.log("Search filters:", filters);
+      console.log("Skip value:", skip);
+
       try {
-        await searchPosts(filters);
+        const result = await searchPosts(filters, skip);
+        console.log("Search result:", result);
+
+        setCurrentPage(pageNum);
         if (shouldUpdateURL) {
-          updateURL(filters);
+          updateURL(filters, pageNum);
         }
       } catch (err) {
         const error = err as Error;
-        console.error("Search failed:", error);
-        toast.error(error.message || "Something went wrong. Please try again.");
+        console.error("Căutarea a eșuat:", error);
+        toast.error(error.message || "A apărut o eroare neașteptată");
       }
     },
     [
@@ -116,8 +165,17 @@ export default function SearchPage({ category }: SearchPageProps) {
     ]
   );
 
+  // Initialize from URL parameters
   useEffect(() => {
     if (isInitialized.current) return;
+
+    console.log("Initializing from URL params:", {
+      searchParams: Object.fromEntries(searchParams.entries()),
+      page,
+    });
+
+    // Prevent filter changes during initialization
+    isChangingPageRef.current = true;
 
     const urlQuery = searchParams.get("query") || "";
     const urlLocation = searchParams.get("location") || "";
@@ -127,8 +185,21 @@ export default function SearchPage({ category }: SearchPageProps) {
     const urlPeriod = searchParams.get("period");
     const urlStatus = searchParams.get("status");
 
+    // Extract page number from URL - Fixed logic
+    let pageFromUrl = 1;
+    if (page) {
+      const pageMatch = page.match(/^p?(\d+)$/);
+      if (pageMatch) {
+        pageFromUrl = parseInt(pageMatch[1]);
+      }
+    }
+    const validPage = pageFromUrl > 0 ? pageFromUrl : 1;
+
+    console.log("Parsed page from URL:", { page, pageFromUrl, validPage });
+
     setQuery(urlQuery);
     setLocationQuery(urlLocation);
+    setCurrentPage(validPage);
 
     if (urlLat && urlLon) {
       setSelectedCoords({
@@ -175,17 +246,25 @@ export default function SearchPage({ category }: SearchPageProps) {
 
       if (urlPeriod) filters.period = parseInt(urlPeriod);
 
+      const skip = (validPage - 1) * POSTS_PER_PAGE;
+
+      console.log("Initial search with:", { filters, skip, validPage });
+
       try {
-        await searchPosts(filters);
+        await searchPosts(filters, skip);
       } catch (error) {
         console.error("Initial search failed:", error);
       } finally {
         setIsInitializing(false);
+        // Allow filter changes after initialization
+        setTimeout(() => {
+          isChangingPageRef.current = false;
+        }, 100);
       }
     };
 
     performInitialSearch();
-  }, [searchParams, category, normalizedCategory, searchPosts]);
+  }, [searchParams, category, normalizedCategory, searchPosts, page]);
 
   const debouncedSearch = useCallback(() => {
     if (debounceTimeout.current) {
@@ -193,12 +272,50 @@ export default function SearchPage({ category }: SearchPageProps) {
     }
 
     debounceTimeout.current = setTimeout(() => {
-      performSearch(true);
+      console.log("Debounced search triggered");
+
+      // If we're on page 1, perform search directly
+      if (currentPage === 1) {
+        console.log("On page 1, performing direct search");
+        performSearch(1, true);
+      } else {
+        // If we're on another page, just update URL to page 1
+        // This will trigger navigation and re-initialization
+        console.log("On page", currentPage, "redirecting to page 1");
+        const filters: SearchFilters = {};
+        if (query.trim()) filters.query = query.trim();
+        if (category) filters.category = normalizedCategory;
+        if (statusFilters.length > 0 && statusFilters.length < 2) {
+          filters.status = statusFilters;
+        }
+        if (selectedCoords) {
+          filters.location = {
+            lat: selectedCoords.lat,
+            lon: selectedCoords.lon,
+            radius: distanceSelected,
+          };
+        }
+        if (periodSelected) filters.period = periodSelected;
+
+        updateURL(filters, 1);
+      }
     }, 500);
-  }, [performSearch]);
+  }, [
+    query,
+    statusFilters,
+    selectedCoords,
+    distanceSelected,
+    periodSelected,
+    currentPage,
+    performSearch,
+    updateURL,
+    category,
+    normalizedCategory,
+  ]);
 
   useEffect(() => {
-    if (isInitialized.current) {
+    if (isInitialized.current && !isChangingPageRef.current) {
+      console.log("Filter changed, triggering debounced search");
       debouncedSearch();
     }
   }, [
@@ -228,31 +345,120 @@ export default function SearchPage({ category }: SearchPageProps) {
     });
   };
 
-  const loadMore = async () => {
-    if (!loading && hasMore) {
-      const filters: SearchFilters = {};
+  const goToPage = (pageNum: number) => {
+    if (pageNum === currentPage || pageNum < 1 || pageNum > totalPages) return;
 
-      if (query.trim()) filters.query = query.trim();
-      if (category) filters.category = normalizedCategory;
-      if (statusFilters.length > 0 && statusFilters.length < 2) {
-        filters.status = statusFilters;
-      }
-      if (selectedCoords) {
-        filters.location = {
-          lat: selectedCoords.lat,
-          lon: selectedCoords.lon,
-          radius: distanceSelected,
-        };
-      }
-      if (periodSelected) filters.period = periodSelected;
+    // Build filters from the *current* UI state
+    const filters: SearchFilters = {};
+    if (query.trim()) filters.query = query.trim();
+    if (category) filters.category = normalizedCategory;
+    if (statusFilters.length > 0 && statusFilters.length < 2) {
+      filters.status = statusFilters;
+    }
+    if (selectedCoords) {
+      filters.location = {
+        lat: selectedCoords.lat,
+        lon: selectedCoords.lon,
+        radius: distanceSelected,
+      };
+    }
+    if (periodSelected) filters.period = periodSelected;
 
-      try {
-        await searchPosts(filters, searchResults.length);
-      } catch (error) {
-        console.error("Load more failed:", error);
+    // Update the URL → triggers a remount → only ONE fetch in the new page
+    updateURL(filters, pageNum);
+  };
+
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const showEllipsis = totalPages > 7;
+
+    if (showEllipsis) {
+      // Show first page
+      buttons.push(
+        <button
+          key={1}
+          onClick={() => goToPage(1)}
+          className={`${styles.pageButton} ${
+            currentPage === 1 ? styles.active : ""
+          }`}
+        >
+          1
+        </button>
+      );
+
+      // Show ellipsis if needed
+      if (currentPage > 4) {
+        buttons.push(
+          <span key="ellipsis1" className={styles.ellipsis}>
+            ...
+          </span>
+        );
+      }
+
+      // Show pages around current page
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) {
+        buttons.push(
+          <button
+            key={i}
+            onClick={() => goToPage(i)}
+            className={`${styles.pageButton} ${
+              currentPage === i ? styles.active : ""
+            }`}
+          >
+            {i}
+          </button>
+        );
+      }
+
+      // Show ellipsis if needed
+      if (currentPage < totalPages - 3) {
+        buttons.push(
+          <span key="ellipsis2" className={styles.ellipsis}>
+            ...
+          </span>
+        );
+      }
+
+      // Show last page
+      if (totalPages > 1) {
+        buttons.push(
+          <button
+            key={totalPages}
+            onClick={() => goToPage(totalPages)}
+            className={`${styles.pageButton} ${
+              currentPage === totalPages ? styles.active : ""
+            }`}
+          >
+            {totalPages}
+          </button>
+        );
+      }
+    } else {
+      // Show all pages if total pages <= 7
+      for (let i = 1; i <= totalPages; i++) {
+        buttons.push(
+          <button
+            key={i}
+            onClick={() => goToPage(i)}
+            className={`${styles.pageButton} ${
+              currentPage === i ? styles.active : ""
+            }`}
+          >
+            {i}
+          </button>
+        );
       }
     }
+
+    return buttons;
   };
+
+  // if (isInitializing || loading || !searchResults) {
+  //   return <Loader />;
+  // }
 
   return (
     <main className={styles.searchpage}>
@@ -276,7 +482,7 @@ export default function SearchPage({ category }: SearchPageProps) {
               periodSelected={periodSelected}
               setPeriodSelected={setPeriodSelected}
               hideSubmitButton={true}
-            />{" "}
+            />
             <div className={styles.statusfilters}>
               <button
                 className={`${styles.statusbutton} ${
@@ -351,6 +557,11 @@ export default function SearchPage({ category }: SearchPageProps) {
                   {totalCount === 1 && "1 rezultat"}
                   {totalCount > 1 && `${totalCount} rezultate`}
                 </h2>
+                {totalCount > 0 && (
+                  <p className={styles.pageInfo}>
+                    Pagina {currentPage} din {totalPages}
+                  </p>
+                )}
               </div>
 
               <div className={styles.resultscontainer}>
@@ -359,14 +570,26 @@ export default function SearchPage({ category }: SearchPageProps) {
                 ))}
               </div>
 
-              {hasMore && (
-                <div className={styles.loadmore}>
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
                   <button
-                    onClick={loadMore}
-                    disabled={loading}
-                    className={styles.loadmorebutton}
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={!hasPrevPage || loading}
+                    className={`${styles.paginationButton} ${styles.prevNext}`}
                   >
-                    {loading ? "Se încarcă..." : "Încarcă mai multe"}
+                    ← Anterior
+                  </button>
+
+                  <div className={styles.pageNumbers}>
+                    {renderPaginationButtons()}
+                  </div>
+
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={!hasNextPage || loading}
+                    className={`${styles.paginationButton} ${styles.prevNext}`}
+                  >
+                    Următor →
                   </button>
                 </div>
               )}

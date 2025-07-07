@@ -60,25 +60,35 @@ export default function SearchInput({
 
   const query = propQuery !== undefined ? propQuery : internalQuery;
   const setQuery = propSetQuery || setInternalQuery;
+
   const locationQuery =
     propLocationQuery !== undefined ? propLocationQuery : internalLocationQuery;
   const setLocationQuery = propSetLocationQuery || setInternalLocationQuery;
+
   const selectedCoords =
     propSelectedCoords !== undefined
       ? propSelectedCoords
       : internalSelectedCoords;
   const setSelectedCoords = propSetSelectedCoords || setInternalSelectedCoords;
+
   const distanceSelected =
     propDistanceSelected !== undefined
       ? propDistanceSelected
       : internalDistanceSelected;
   const setDistanceSelected =
     propSetDistanceSelected || setInternalDistanceSelected;
+
   const periodSelected =
     propPeriodSelected !== undefined
       ? propPeriodSelected
       : internalPeriodSelected;
   const setPeriodSelected = propSetPeriodSelected || setInternalPeriodSelected;
+
+  const [locationInput, setLocationInput] = useState(locationQuery);
+
+  useEffect(() => {
+    setLocationInput(locationQuery);
+  }, [locationQuery]);
 
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [hasSelected, setHasSelected] = useState(false);
@@ -131,7 +141,7 @@ export default function SearchInput({
 
   const fetchSuggestions = useCallback(async () => {
     if (!userHasEditedLocation.current) return;
-    if (!locationQuery || locationQuery.length <= 1) {
+    if (!locationInput || locationInput.length <= 1) {
       setSuggestions([]);
       return;
     }
@@ -139,7 +149,7 @@ export default function SearchInput({
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/geo/search?q=${encodeURIComponent(
-          locationQuery
+          locationInput
         )}&limit=10`,
         {
           method: "GET",
@@ -155,19 +165,19 @@ export default function SearchInput({
         return;
       }
 
-      const data = await res.json();
+      const data: Suggestion[] = await res.json();
       setSuggestions(data);
     } catch (err) {
       console.error("Failed to fetch location suggestions:", err);
       toast.error("Eroare la încărcarea sugestiilor de locație");
     }
-  }, [locationQuery]);
+  }, [locationInput]);
 
   useEffect(() => {
     if (hasSelected) return;
 
     const delayDebounce = setTimeout(() => {
-      if (locationQuery.length > 1) {
+      if (locationInput.length > 1) {
         fetchSuggestions();
       } else {
         setSuggestions([]);
@@ -175,7 +185,7 @@ export default function SearchInput({
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-  }, [locationQuery, fetchSuggestions, hasSelected]);
+  }, [locationInput, fetchSuggestions, hasSelected]);
 
   function highlightMatch(text: string, query: string) {
     if (!query) return text;
@@ -260,19 +270,23 @@ export default function SearchInput({
   };
 
   const handleClearLocation = () => {
+    setLocationInput("");
     setLocationQuery("");
     setSelectedCoords(null);
     setHasSelected(false);
+    setSuggestions([]);
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    setLocationQuery(suggestion.display_name);
+    setLocationQuery(suggestion.display_name); // <- committed value
+    setLocationInput(suggestion.display_name); // <- reflect in input
     setSelectedCoords({
       lat: parseFloat(suggestion.lat),
       lon: parseFloat(suggestion.lon),
     });
     setSuggestions([]);
     setHasSelected(true);
+    userHasEditedLocation.current = false;
   };
 
   const handleDistanceSelect = (distance: number) => {
@@ -346,15 +360,16 @@ export default function SearchInput({
             name="location"
             id="location"
             placeholder="În ce loc cauți?"
-            value={locationQuery}
+            value={locationInput}
             onChange={(e) => {
               userHasEditedLocation.current = true;
-              setLocationQuery(e.target.value);
+              setLocationInput(e.target.value);
               setHasSelected(false);
             }}
             style={{ paddingRight: "138px", paddingLeft: "42px" }}
             aria-label="În ce loc cauți?"
           />
+
           <ul
             className={`${styles.suggestionlist} ${
               suggestions.length && !hasSelected ? "" : styles.hidden
@@ -369,7 +384,7 @@ export default function SearchInput({
                 role="option"
                 aria-selected={false}
               >
-                {highlightMatch(suggestion.display_name, locationQuery)}
+                {highlightMatch(suggestion.display_name, locationInput)}
               </li>
             ))}
           </ul>
@@ -450,7 +465,7 @@ export default function SearchInput({
                 <ul className={styles.options} role="listbox">
                   {periodOptions.map((option: number | null) => (
                     <li
-                      key={option}
+                      key={option ?? -1}
                       onClick={() => handlePeriodSelect(option)}
                       className={`${
                         option === periodSelected ? styles.selectedoption : ""

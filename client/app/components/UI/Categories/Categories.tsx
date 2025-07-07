@@ -61,7 +61,7 @@ export default function Categories() {
       <div className={styles.categoriescontainer}>
         {categories.map((category) => (
           <Link
-            href={`/${normalizeCategoryName(category.name)}/search`}
+            href={`/search/${normalizeCategoryName(category.name)}`}
             className={styles.category}
             key={category.name}
           >

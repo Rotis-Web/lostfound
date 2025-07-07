@@ -44,7 +44,6 @@ interface SearchContextType {
   setSearchFilters: (filters: SearchFilters) => void;
   loading: boolean;
   totalCount: number;
-  hasMore: boolean;
   clearSearch: () => void;
 }
 
@@ -67,7 +66,6 @@ export const SearchProvider = ({ children }: SearchProviderProps) => {
   const [searchResults, setSearchResults] = useState<Post[]>([]);
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [hasMore, setHasMore] = useState<boolean>(false);
 
   const searchPosts = useCallback(
     async (
@@ -119,14 +117,9 @@ export const SearchProvider = ({ children }: SearchProviderProps) => {
           );
         }
 
-        if (skip === 0) {
-          setSearchResults(responseData.posts);
-        } else {
-          setSearchResults((prev) => [...prev, ...responseData.posts]);
-        }
-
+        // Always replace results for pagination (no appending)
+        setSearchResults(responseData.posts);
         setTotalCount(responseData.totalCount);
-        setHasMore(responseData.hasMore);
         setLoading(false);
 
         return responseData;
@@ -164,7 +157,6 @@ export const SearchProvider = ({ children }: SearchProviderProps) => {
     setSearchResults([]);
     setSearchFilters({});
     setTotalCount(0);
-    setHasMore(false);
   }, []);
 
   return (
@@ -177,7 +169,6 @@ export const SearchProvider = ({ children }: SearchProviderProps) => {
         setSearchFilters,
         loading,
         totalCount,
-        hasMore,
         clearSearch,
       }}
     >

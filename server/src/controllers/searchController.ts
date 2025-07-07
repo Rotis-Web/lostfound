@@ -10,12 +10,22 @@ export async function searchPosts(req: Request, res: Response) {
     const { query, category, status, lat, lon, radius, period, limit, skip } =
       req.query as unknown as SearchQuery;
 
+    console.log("Search request received:", {
+      query,
+      category,
+      status,
+      lat,
+      lon,
+      radius,
+      period,
+      limit,
+      skip,
+    });
+
     const filters: any = { status: { $ne: "solved" } };
 
     if (query) filters.$text = { $search: query };
-
     if (category) filters.category = category;
-
     if (status) filters.status = { $in: status };
 
     if (lat !== undefined && lon !== undefined && radius !== undefined) {
@@ -32,47 +42,43 @@ export async function searchPosts(req: Request, res: Response) {
       filters.createdAt = { $gte: dateThreshold };
     }
 
-    const promotedPosts = await Post.find({
-      ...filters,
-      "promoted.isActive": true,
-      "promoted.expiresAt": { $gt: new Date() },
-    })
-      .select(
-        "title content images status category location createdAt lostfoundID promoted views lastSeen reward"
-      )
-      .sort(query ? { score: { $meta: "textScore" } } : { createdAt: -1 })
-      .lean();
+    console.log("MongoDB filters:", filters);
 
-    const promotedIds = promotedPosts.map((p) => p._id);
-
-    const regularPosts = await Post.find({
-      ...filters,
-      _id: { $nin: promotedIds },
-      $or: [
-        { "promoted.isActive": { $ne: true } },
-        { "promoted.expiresAt": { $lte: new Date() } },
-        { promoted: { $exists: false } },
-      ],
-    })
-      .select(
-        "title content images status category location createdAt lostfoundID promoted views lastSeen reward"
-      )
-      .sort(query ? { score: { $meta: "textScore" } } : { createdAt: -1 })
-      .lean();
-
-    const allPosts = [...promotedPosts, ...regularPosts];
-    const paginated = allPosts.slice(skip, skip + limit);
-
+    // Get total count first
     const totalCount = await Post.countDocuments(filters);
+    console.log("Total count:", totalCount);
 
-    res.status(200).json({
+    // For simplicity, let's treat all posts equally for now
+    // You can add promoted posts logic back later once pagination works
+    const posts = await Post.find(filters)
+      .select(
+        "title content images status category location createdAt lostfoundID promoted views lastSeen reward"
+      )
+      .sort(query ? { score: { $meta: "textScore" } } : { createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    console.log("Posts found:", posts.length);
+
+    const response = {
       code: "SEARCH_RESULTS",
-      posts: paginated,
-      count: paginated.length,
+      posts,
+      count: posts.length,
       totalCount,
-      hasMore: skip + paginated.length < totalCount,
-      promotedCount: promotedPosts.length,
+      hasMore: skip + posts.length < totalCount,
+      promotedCount: 0, // Simplified for now
+    };
+
+    console.log("Response:", {
+      count: response.count,
+      totalCount: response.totalCount,
+      hasMore: response.hasMore,
+      skip,
+      limit,
     });
+
+    res.status(200).json(response);
   } catch (err) {
     console.error("Error searching posts:", err);
     res.status(500).json({
