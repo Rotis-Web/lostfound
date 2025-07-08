@@ -2,7 +2,12 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import ContactInfo from "../ContactInfo/ContactInfo";
+import dynamic from "next/dynamic";
+
+const ContactInfo = dynamic(
+  () => import("@/app/components/PostPage/ContactInfo/ContactInfo"),
+  { ssr: false }
+);
 
 interface ContactButtonProps {
   postId: string;
