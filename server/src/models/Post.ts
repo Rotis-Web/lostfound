@@ -7,6 +7,7 @@ interface PostDocument extends Document {
   content: string;
   tags?: string[];
   images: string[];
+  standardImage?: string;
   status: "found" | "lost" | "solved";
   name: string;
   email: string;
@@ -35,6 +36,7 @@ const postSchema = new Schema<PostDocument>(
     content: { type: String },
     tags: [{ type: String }],
     images: [{ type: String, required: true }],
+    standardImage: { type: String, required: false },
     status: {
       type: String,
       enum: ["found", "lost", "solved"],

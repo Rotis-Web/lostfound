@@ -28,7 +28,7 @@ const createPostLimiter = rateLimit({
   max: 93,
   message: {
     code: "TOO_MANY_POST_CREATION_ATTEMPTS",
-    message: "Prea multe postări create. Încearcă mai târziu.",
+    message: "Prea multe încercări de creare. Încearcă mai târziu.",
   },
   standardHeaders: true,
   legacyHeaders: false,

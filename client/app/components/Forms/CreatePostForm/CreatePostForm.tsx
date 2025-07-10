@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { categories } from "../../UI/Categories/Categories";
+import { standardImagesList } from "../../Utils/StandardImages";
 import dynamic from "next/dynamic";
 import { usePosts } from "@/context/PostsContext";
 import PhoneInput from "../../Inputs/PhoneInput/PhoneInput";
@@ -60,6 +61,8 @@ export default function CreatePostForm() {
   const [reward, setReward] = useState<string>("");
   const [lastSeen, setLastSeen] = useState<string>("");
   const [images, setImages] = useState<File[]>([]);
+  const [standardImage, setStandardImage] = useState<string | null>(null);
+
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [location, setLocation] = useState<LocationData | null>(null);
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -151,7 +154,7 @@ export default function CreatePostForm() {
       newErrors.category = "Categoria este obligatorie";
     }
 
-    if (images.length === 0) {
+    if (images.length === 0 && !standardImage) {
       newErrors.images = "Cel puțin o imagine este obligatorie";
     }
 
@@ -211,6 +214,7 @@ export default function CreatePostForm() {
         circleRadius: location.radius * 1000,
         reward: reward ? Number(reward) : undefined,
         images,
+        standardImage,
       };
 
       const result = await createPost(postData);
@@ -637,6 +641,7 @@ export default function CreatePostForm() {
                       }
                       if (newValidImages.length > 0) {
                         setImages((prev) => [...prev, ...newValidImages]);
+                        setStandardImage(null);
                         clearError("images");
                       }
                       e.target.value = "";
@@ -673,6 +678,44 @@ export default function CreatePostForm() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+              <div className={styles.standardImageSelection}>
+                <p>Alegeți o imagine standard:</p>
+                <div className={styles.standardImagesGrid}>
+                  {standardImagesList.map(
+                    ({ imgUrl, idx }: { imgUrl: string; idx: number }) => (
+                      <div
+                        key={idx}
+                        className={`${styles.standardImageOption} ${
+                          standardImage === imgUrl ? styles.selected : ""
+                        }`}
+                        onClick={() => {
+                          if (isFormDisabled) return;
+                          setStandardImage(imgUrl);
+                          setImages([]);
+                          clearError("images");
+                        }}
+                      >
+                        <Image
+                          src={imgUrl}
+                          alt={`Standard image ${idx + 1}`}
+                          width={100}
+                          height={100}
+                          style={{ borderRadius: "5px", cursor: "pointer" }}
+                        />
+                      </div>
+                    )
+                  )}
+                  {standardImage && (
+                    <button
+                      type="button"
+                      onClick={() => setStandardImage(null)}
+                      disabled={isFormDisabled}
+                    >
+                      Șterge imaginea standard
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

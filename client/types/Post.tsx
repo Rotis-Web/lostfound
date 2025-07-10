@@ -7,6 +7,7 @@ export interface Post {
   content: string;
   tags?: string[];
   images: string[];
+  standardImage?: string;
   status: "found" | "lost" | "solved";
   name: string;
   email: string;

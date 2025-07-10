@@ -102,6 +102,10 @@ export const createPostSchema = z.object({
     .refine((val) => !val || new Date(val) <= new Date(), {
       message: "Data nu poate fi în viitor",
     }),
+  standardImage: z
+    .string()
+    .url("Imaginea standard trebuie să fie un URL valid")
+    .optional(),
 
   location: z
     .string()

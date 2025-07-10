@@ -29,6 +29,7 @@ interface CreatePostData {
   circleRadius: number;
   reward?: number;
   images: File[];
+  standardImage?: string | null;
 }
 
 interface EditPostData extends Partial<Omit<CreatePostData, "images">> {
@@ -51,6 +52,7 @@ interface EditPostData extends Partial<Omit<CreatePostData, "images">> {
     replaceAllImages?: boolean;
     imagesToRemove?: string[];
   };
+  standardImage?: string | null;
 }
 
 interface CreatePostResponse {
@@ -156,9 +158,13 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
           formData.append("reward", postData.reward.toString());
         }
 
-        postData.images.forEach((image: File) => {
-          formData.append("images", image);
-        });
+        if (postData.standardImage) {
+          formData.append("standardImage", postData.standardImage);
+        } else {
+          postData.images.forEach((image: File) => {
+            formData.append("images", image);
+          });
+        }
 
         const res = await fetch(`${API_URL}/post/create`, {
           method: "POST",
@@ -303,9 +309,13 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
           formData.append("reward", "");
         }
 
-        postData.images?.forEach((image: File) => {
-          formData.append("images", image);
-        });
+        if (postData.standardImage) {
+          formData.append("standardImage", postData.standardImage);
+        } else {
+          postData.images?.forEach((image: File) => {
+            formData.append("images", image);
+          });
+        }
 
         if (postData.imageOperations) {
           formData.append(
@@ -335,16 +345,14 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
           throw errorObj;
         }
 
-        setUserPosts((prev) =>
-          prev.map((p) => (p._id === postId ? responseData.post : p))
-        );
+        await getUserPosts();
 
         return responseData;
       } finally {
         setLoading(false);
       }
     },
-    [token]
+    [token, getUserPosts]
   );
 
   const getPostByID = useCallback(async (postId: string) => {

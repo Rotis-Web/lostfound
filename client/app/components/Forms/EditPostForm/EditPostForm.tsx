@@ -11,6 +11,7 @@ import Loader from "@/app/components/Layout/Loader/Loader";
 import dynamic from "next/dynamic";
 import PhoneInput from "@/app/components/Inputs/PhoneInput/PhoneInput";
 import { categories } from "@/app/components/UI/Categories/Categories";
+import { standardImagesList } from "../../Utils/StandardImages";
 
 const MapInput = dynamic(
   () => import("@/app/components/Inputs/MapInput/MapInput"),
@@ -79,6 +80,7 @@ export default function EditPostForm() {
   const [newImages, setNewImages] = useState<File[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [location, setLocation] = useState<LocationData | null>(null);
+  const [standardImage, setStandardImage] = useState<string | null>(null);
 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [loadingData, setLoadingData] = useState(true);
@@ -143,7 +145,7 @@ export default function EditPostForm() {
     const valid: File[] = [];
     Array.from(files).forEach((file) => {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error(`Imaginea "${file.name}" depășește 5 MB`);
+        toast.error(`Imaginea "${file.name}" depășește 5 MB`);
         return;
       }
       if (existingImages.length + newImages.length + valid.length >= 5) {
@@ -152,7 +154,15 @@ export default function EditPostForm() {
       }
       valid.push(file);
     });
-    if (valid.length) setNewImages((prev) => [...prev, ...valid]);
+    if (valid.length) {
+      setNewImages((prev) => [...prev, ...valid]);
+
+      // IMPORTANT: When uploading new images, we need to remove the standard image
+      // This ensures only uploaded images will be used
+      if (standardImage) {
+        setStandardImage(null);
+      }
+    }
     clearError("images");
   };
 
@@ -174,7 +184,19 @@ export default function EditPostForm() {
       setLastSeen(
         p.lastSeen ? new Date(p.lastSeen).toISOString().split("T")[0] : ""
       );
-      setExistingImages(p.images || []);
+
+      // Handle standard image properly
+      const standardImg = p.standardImage || null;
+      setStandardImage(standardImg);
+
+      // If there's a standard image, don't load any regular images
+      // If there's no standard image, load the regular images
+      if (standardImg) {
+        setExistingImages([]);
+      } else {
+        setExistingImages(p.images || []);
+      }
+
       setSelectedCategory(p.category);
       setLocation({
         name: p.location,
@@ -232,7 +254,11 @@ export default function EditPostForm() {
       newErrors.category = "Categoria este obligatorie";
     }
 
-    if (existingImages.length === 0 && newImages.length === 0) {
+    if (
+      existingImages.length === 0 &&
+      newImages.length === 0 &&
+      !standardImage
+    ) {
       newErrors.images = "Cel puțin o imagine este obligatorie";
     }
 
@@ -271,6 +297,12 @@ export default function EditPostForm() {
 
     setSubmitting(true);
     try {
+      // Determine if we're using standard image or uploaded images
+      const usingStandardImage =
+        standardImage && newImages.length === 0 && existingImages.length === 0;
+      const usingUploadedImages =
+        newImages.length > 0 || existingImages.length > 0;
+
       await editPost(postId, {
         author: user._id || "",
         name,
@@ -284,6 +316,8 @@ export default function EditPostForm() {
         lastSeen: lastSeen ? new Date(lastSeen) : undefined,
         category: selectedCategory,
         location: location.name,
+        // Only send standardImage if we're using it and not uploading new images
+        standardImage: usingStandardImage ? standardImage : null,
         locationCoordinates: {
           type: "Point" as const,
           coordinates: [location.lng, location.lat] as [number, number],
@@ -292,7 +326,8 @@ export default function EditPostForm() {
         images: newImages.length ? newImages : undefined,
         imageOperations: {
           imagesToRemove: imagesToRemove,
-          replaceAllImages: false,
+          // If we're switching from standard to uploaded images, replace all
+          replaceAllImages: usingUploadedImages && !usingStandardImage,
         },
       });
       toast.success("Postarea a fost actualizată");
@@ -682,6 +717,7 @@ export default function EditPostForm() {
                       </button>
                     </div>
                   ))}
+
                   {newImages.map((file, i) => {
                     const url = URL.createObjectURL(file);
                     return (
@@ -707,6 +743,72 @@ export default function EditPostForm() {
                       </div>
                     );
                   })}
+
+                  {standardImage &&
+                    existingImages.length === 0 &&
+                    newImages.length === 0 && (
+                      <div className={styles.standardImageSelected}>
+                        <p>
+                          Imagine standard selectată. Vedeți selecția mai jos.
+                        </p>
+                      </div>
+                    )}
+                </div>
+              </div>
+              <div className={styles.standardImageSelection}>
+                <p>Alegeți o imagine standard:</p>
+                <div className={styles.standardImagesGrid}>
+                  {standardImagesList.map(
+                    ({ imgUrl, idx }: { imgUrl: string; idx: number }) => (
+                      <div
+                        key={idx}
+                        className={`${styles.standardImageOption} ${
+                          standardImage === imgUrl ? styles.selected : ""
+                        }`}
+                        onClick={() => {
+                          if (isFormDisabled) return;
+                          setStandardImage(imgUrl);
+
+                          // Add all existing images to the removal list if they exist
+                          if (existingImages.length > 0) {
+                            setImagesToRemove((prev) => [
+                              ...prev,
+                              ...existingImages,
+                            ]);
+                          }
+
+                          // Clear all uploaded images
+                          setNewImages([]);
+                          setExistingImages([]);
+
+                          clearError("images");
+                        }}
+                      >
+                        <Image
+                          src={imgUrl}
+                          alt={`Standard image ${idx + 1}`}
+                          width={100}
+                          height={100}
+                          style={{ borderRadius: "5px", cursor: "pointer" }}
+                        />
+                      </div>
+                    )
+                  )}
+                  {standardImage && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isFormDisabled) return;
+                        setStandardImage(null);
+                        // When clearing standard image, you might want to reload original images
+                        // but that would require refetching the post data
+                      }}
+                      disabled={isFormDisabled}
+                      className={styles.clearStandardImage}
+                    >
+                      Șterge imaginea standard
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
