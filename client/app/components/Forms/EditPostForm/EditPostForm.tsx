@@ -86,6 +86,9 @@ export default function EditPostForm() {
   const [loadingData, setLoadingData] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
+  const [standardImageSelectionOpen, setStandardImageSelectionOpen] =
+    useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isFormDisabled = submitting || postLoading;
@@ -156,6 +159,7 @@ export default function EditPostForm() {
     });
     if (valid.length) {
       setNewImages((prev) => [...prev, ...valid]);
+      setStandardImageSelectionOpen(false);
 
       // IMPORTANT: When uploading new images, we need to remove the standard image
       // This ensures only uploaded images will be used
@@ -170,7 +174,6 @@ export default function EditPostForm() {
     string | null
   >(null);
 
-  // Update the getPost function to track the original standard image
   const getPost = useCallback(async () => {
     if (!postId) return;
     setLoadingData(true);
@@ -190,15 +193,13 @@ export default function EditPostForm() {
         p.lastSeen ? new Date(p.lastSeen).toISOString().split("T")[0] : ""
       );
 
-      // Handle standard image properly
       const standardImg = p.standardImage || null;
       setStandardImage(standardImg);
-      setOriginalStandardImage(standardImg); // Track original
+      setOriginalStandardImage(standardImg);
 
-      // If there's a standard image, don't load any regular images
-      // If there's no standard image, load the regular images
       if (standardImg) {
         setExistingImages([]);
+        setStandardImageSelectionOpen(true);
       } else {
         setExistingImages(p.images || []);
       }
@@ -679,31 +680,42 @@ export default function EditPostForm() {
                   )}
                 </p>
                 <div className={styles.imageuploadbox}>
-                  <button
-                    type="button"
-                    className={styles.uploadbutton}
-                    onClick={() =>
-                      !isFormDisabled && fileInputRef.current?.click()
-                    }
-                    disabled={isFormDisabled}
-                  >
-                    Adaugă imagini <span>+</span>
-                  </button>
-                  <label htmlFor="images" className={styles.hidden}>
-                    Imagini
-                  </label>
-                  <input
-                    type="file"
-                    name="images"
-                    id="images"
-                    multiple
-                    accept="image/*"
-                    ref={fileInputRef}
-                    style={{ display: "none" }}
-                    onChange={(e) => handleAddImages(e.target.files)}
-                    aria-required="true"
-                    disabled={isFormDisabled}
-                  />
+                  <div className={styles.imagegrid}>
+                    <button
+                      type="button"
+                      className={styles.uploadbutton}
+                      onClick={() =>
+                        !isFormDisabled && fileInputRef.current?.click()
+                      }
+                      disabled={isFormDisabled}
+                    >
+                      Încarcă imagini <span>+</span>
+                    </button>
+                    <label htmlFor="images" className={styles.hidden}>
+                      Imagini
+                    </label>
+                    <input
+                      type="file"
+                      name="images"
+                      id="images"
+                      multiple
+                      accept="image/*"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      onChange={(e) => handleAddImages(e.target.files)}
+                      aria-required="true"
+                      disabled={isFormDisabled}
+                    />
+                    <h3>sau</h3>
+                    <button
+                      type="button"
+                      className={styles.uploadbutton}
+                      onClick={() => setStandardImageSelectionOpen(true)}
+                      disabled={isFormDisabled}
+                    >
+                      Alege o imagine
+                    </button>
+                  </div>
                 </div>
 
                 <div className={styles.imagepreviewwrapper}>
@@ -752,104 +764,68 @@ export default function EditPostForm() {
                       </div>
                     );
                   })}
+                </div>
+              </div>
+              {standardImageSelectionOpen && (
+                <div className={styles.standardImageSelection}>
+                  <div className={styles.standardimagesgrid}>
+                    {standardImagesList.map(
+                      ({ imgUrl, idx }: { imgUrl: string; idx: number }) => (
+                        <div
+                          key={idx}
+                          className={`${styles.standardimageoption} ${
+                            standardImage === imgUrl ? styles.selected : ""
+                          }`}
+                          onClick={() => {
+                            if (isFormDisabled) return;
 
-                  {standardImage &&
-                    existingImages.length === 0 &&
-                    newImages.length === 0 && (
-                      <div className={styles.standardImageSelected}>
-                        <p>
-                          Imagine standard selectată. Vedeți selecția mai jos.
-                        </p>
-                      </div>
+                            if (
+                              originalStandardImage &&
+                              standardImage !== imgUrl
+                            ) {
+                              if (originalStandardImage !== imgUrl) {
+                                setImagesToRemove((prev) => {
+                                  const newList = [...prev];
+                                  if (
+                                    !newList.includes(originalStandardImage)
+                                  ) {
+                                    newList.push(originalStandardImage);
+                                  }
+                                  return newList;
+                                });
+                              }
+                            }
+
+                            setStandardImage(imgUrl);
+
+                            if (existingImages.length > 0) {
+                              setImagesToRemove((prev) => [
+                                ...prev,
+                                ...existingImages.filter(
+                                  (img) => !prev.includes(img)
+                                ),
+                              ]);
+                            }
+
+                            setNewImages([]);
+                            setExistingImages([]);
+
+                            clearError("images");
+                          }}
+                        >
+                          <Image
+                            src={imgUrl}
+                            alt={`Standard image ${idx + 1}`}
+                            width={100}
+                            height={100}
+                            style={{ borderRadius: "5px", cursor: "pointer" }}
+                          />
+                        </div>
+                      )
                     )}
+                  </div>
                 </div>
-              </div>
-              <div className={styles.standardImageSelection}>
-                <p>Alegeți o imagine standard:</p>
-                <div className={styles.standardImagesGrid}>
-                  {standardImagesList.map(
-                    ({ imgUrl, idx }: { imgUrl: string; idx: number }) => (
-                      <div
-                        key={idx}
-                        className={`${styles.standardImageOption} ${
-                          standardImage === imgUrl ? styles.selected : ""
-                        }`}
-                        onClick={() => {
-                          if (isFormDisabled) return;
-
-                          // If we're changing from one standard image to another
-                          if (
-                            originalStandardImage &&
-                            standardImage !== imgUrl
-                          ) {
-                            // Add the old standard image to removal list if it's different
-                            if (originalStandardImage !== imgUrl) {
-                              setImagesToRemove((prev) => {
-                                const newList = [...prev];
-                                if (!newList.includes(originalStandardImage)) {
-                                  newList.push(originalStandardImage);
-                                }
-                                return newList;
-                              });
-                            }
-                          }
-
-                          setStandardImage(imgUrl);
-
-                          // Add all existing regular images to the removal list if they exist
-                          if (existingImages.length > 0) {
-                            setImagesToRemove((prev) => [
-                              ...prev,
-                              ...existingImages.filter(
-                                (img) => !prev.includes(img)
-                              ),
-                            ]);
-                          }
-
-                          // Clear all uploaded images
-                          setNewImages([]);
-                          setExistingImages([]);
-
-                          clearError("images");
-                        }}
-                      >
-                        <Image
-                          src={imgUrl}
-                          alt={`Standard image ${idx + 1}`}
-                          width={100}
-                          height={100}
-                          style={{ borderRadius: "5px", cursor: "pointer" }}
-                        />
-                      </div>
-                    )
-                  )}
-                  {standardImage && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isFormDisabled) return;
-
-                        // If we're clearing a standard image, add it to removal list
-                        if (standardImage) {
-                          setImagesToRemove((prev) => {
-                            const newList = [...prev];
-                            if (!newList.includes(standardImage)) {
-                              newList.push(standardImage);
-                            }
-                            return newList;
-                          });
-                        }
-
-                        setStandardImage(null);
-                      }}
-                      disabled={isFormDisabled}
-                      className={styles.clearStandardImage}
-                    >
-                      Șterge imaginea standard
-                    </button>
-                  )}
-                </div>
-              </div>
+              )}
             </div>
             <div className={styles.postdatabox}>
               <div className={styles.inputbox}>

@@ -68,6 +68,9 @@ export default function CreatePostForm() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
 
+  const [standardImageSelectionOpen, setStandardImageSelectionOpen] =
+    useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isFormDisabled = submitting || postLoading;
@@ -643,6 +646,7 @@ export default function CreatePostForm() {
                         if (newValidImages.length > 0) {
                           setImages((prev) => [...prev, ...newValidImages]);
                           setStandardImage(null);
+                          setStandardImageSelectionOpen(false);
                           clearError("images");
                         }
                         e.target.value = "";
@@ -654,12 +658,14 @@ export default function CreatePostForm() {
                     <button
                       type="button"
                       className={styles.uploadbutton}
+                      onClick={() => setStandardImageSelectionOpen(true)}
                       disabled={isFormDisabled}
                     >
                       Alege o imagine
                     </button>
                   </div>
                 </div>
+
                 <div className={styles.imagepreviewwrapper}>
                   {images.map((image, index) => {
                     const objectUrl = URL.createObjectURL(image);
@@ -689,44 +695,36 @@ export default function CreatePostForm() {
                     );
                   })}
                 </div>
-              </div>
-              <div className={styles.standardImageSelection}>
-                <p>Alegeți o imagine standard:</p>
-                <div className={styles.standardImagesGrid}>
-                  {standardImagesList.map(
-                    ({ imgUrl, idx }: { imgUrl: string; idx: number }) => (
-                      <div
-                        key={idx}
-                        className={`${styles.standardImageOption} ${
-                          standardImage === imgUrl ? styles.selected : ""
-                        }`}
-                        onClick={() => {
-                          if (isFormDisabled) return;
-                          setStandardImage(imgUrl);
-                          setImages([]);
-                          clearError("images");
-                        }}
-                      >
-                        <Image
-                          src={imgUrl}
-                          alt={`Standard image ${idx + 1}`}
-                          width={100}
-                          height={100}
-                          style={{ borderRadius: "5px", cursor: "pointer" }}
-                        />
-                      </div>
-                    )
-                  )}
-                  {standardImage && (
-                    <button
-                      type="button"
-                      onClick={() => setStandardImage(null)}
-                      disabled={isFormDisabled}
-                    >
-                      Șterge imaginea standard
-                    </button>
-                  )}
-                </div>
+                {standardImageSelectionOpen && (
+                  <div className={styles.standardimageselection}>
+                    <div className={styles.standardimagesgrid}>
+                      {standardImagesList.map(
+                        ({ imgUrl, idx }: { imgUrl: string; idx: number }) => (
+                          <div
+                            key={idx}
+                            className={`${styles.standardimageoption} ${
+                              standardImage === imgUrl ? styles.selected : ""
+                            }`}
+                            onClick={() => {
+                              if (isFormDisabled) return;
+                              setStandardImage(imgUrl);
+                              setImages([]);
+                              clearError("images");
+                            }}
+                          >
+                            <Image
+                              src={imgUrl}
+                              alt={`Standard image ${idx + 1}`}
+                              fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              style={{ borderRadius: "5px", cursor: "pointer" }}
+                            />
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             <div className={styles.postdatabox}>
