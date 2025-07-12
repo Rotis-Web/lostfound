@@ -431,7 +431,8 @@
   border-radius: 5px;
   overflow: hidden;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease,
+    border-radius 0.3s ease;
   cursor: pointer;
   width: 100px;
   height: 100px;
@@ -449,6 +450,7 @@
 .selected {
   border-color: var(--blue);
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
 }
 .imagegrid {
   display: flex;
