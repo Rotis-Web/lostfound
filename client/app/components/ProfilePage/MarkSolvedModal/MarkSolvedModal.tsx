@@ -77,14 +77,19 @@ export default function MarkSolvedModal({
               disabled={isUpdating}
               aria-required="false"
             />
-            {memberId && !/^#[a-zA-Z0-9]+$/.test(memberId.trim()) && (
-              <p
-                style={{ color: "#ff4444", fontSize: "12px", marginTop: "4px" }}
-              >
-                ID-ul trebuie să înceapă cu # urmat de litere și cifre (ex:
-                #12aHG)
-              </p>
-            )}
+            {memberId.length > 1 &&
+              !/^#[a-zA-Z1-9]{1,5}$/.test(memberId.trim()) && (
+                <p
+                  style={{
+                    color: "#ff4444",
+                    fontSize: "12px",
+                    marginTop: "4px",
+                  }}
+                >
+                  ID-ul trebuie să înceapă cu # urmat de litere și cifre (ex:
+                  #12aHG)
+                </p>
+              )}
           </div>
           <div className={styles.confirmationsection}>
             <label htmlFor="solveConfirmationInput">
@@ -117,7 +122,7 @@ export default function MarkSolvedModal({
           <button
             className={styles.solvebutton}
             onClick={handleConfirm}
-            disabled={isConfirmDisabled || isUpdating}
+            disabled={isConfirmDisabled || isUpdating || error !== undefined}
           >
             {isUpdating ? "Se marchează…" : "Confirmă rezolvarea"}
           </button>
