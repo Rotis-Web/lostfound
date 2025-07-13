@@ -1,6 +1,7 @@
 import { Response, Request } from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post";
+import User from "../models/User";
 import Comment from "../models/Comment";
 import {
   uploadImageToCloudinary,
@@ -518,6 +519,7 @@ export async function markPostSolved(
   try {
     const userId = req.user?.id;
     const { postId } = req.params;
+    const { memberId } = req.body;
 
     if (!userId) {
       res.status(401).json({
@@ -533,6 +535,70 @@ export async function markPostSolved(
         message: "ID‑ul postării nu este valid",
       });
       return;
+    }
+
+    if (memberId && memberId.trim()) {
+      const trimmedMemberId = memberId.trim();
+      if (!/^#[a-zA-Z0-9]+$/.test(trimmedMemberId)) {
+        res.status(400).json({
+          code: "INVALID_MEMBER_ID",
+          message:
+            "ID-ul membrului nu este valid. Trebuie să înceapă cu # urmat de litere și cifre (ex: #12aHG).",
+        });
+        return;
+      }
+    }
+
+    let badgeUpdateResult = null;
+    if (memberId && memberId.trim()) {
+      try {
+        const member = await User.findOne({ lostfoundID: memberId.trim() });
+
+        if (!member || !member._id) {
+          res.status(400).json({
+            code: "MEMBER_NOT_FOUND",
+            message: `Membrul cu ID-ul ${memberId} nu a fost găsit.`,
+          });
+          return;
+        }
+
+        if (member._id.toString() === userId) {
+          res.status(400).json({
+            code: "SELF_BADGE_NOT_ALLOWED",
+            message: "Nu vă puteți acorda insignă propriului cont.",
+          });
+          return;
+        }
+
+        const badgeUrl = "https://lostfound.ro/badgero";
+
+        if (member.badges && member.badges.includes(badgeUrl)) {
+          badgeUpdateResult = {
+            success: true,
+            message: `Membrul ${memberId} are deja insignă.`,
+          };
+        } else {
+          await User.findByIdAndUpdate(
+            member._id,
+            {
+              $push: { badges: badgeUrl },
+            },
+            { new: true }
+          );
+
+          badgeUpdateResult = {
+            success: true,
+            message: `Insignă acordată cu succes membrului ${memberId}.`,
+          };
+        }
+      } catch (badgeError) {
+        console.error("Error updating member badges:", badgeError);
+        res.status(500).json({
+          code: "BADGE_UPDATE_ERROR",
+          message: "Eroare la acordarea insignei. Încercați din nou.",
+        });
+        return;
+      }
     }
 
     const updatedPost = await Post.findOneAndUpdate(
@@ -555,11 +621,14 @@ export async function markPostSolved(
       return;
     }
 
-    res.status(200).json({
+    const response = {
       code: "POST_STATUS_UPDATED",
       message: "Postarea a fost marcată ca rezolvată",
       post: updatedPost,
-    });
+      ...(badgeUpdateResult && { badgeUpdate: badgeUpdateResult }),
+    };
+
+    res.status(200).json(response);
   } catch (error) {
     console.error("Error marking post as solved:", error);
     res.status(500).json({

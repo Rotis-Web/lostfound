@@ -35,6 +35,10 @@ interface MarkPostSolvedResponse {
   code: string;
   message: string;
   post: Post;
+  badgeUpdate?: {
+    success: boolean;
+    message: string;
+  };
 }
 
 export default function UserPosts() {
@@ -43,7 +47,10 @@ export default function UserPosts() {
       userPosts: Post[];
       getUserPosts: () => void;
       deletePost: (postId: string) => Promise<DeletePostResponse>;
-      markPostSolved: (postId: string) => Promise<MarkPostSolvedResponse>;
+      markPostSolved: (
+        postId: string,
+        memberId?: string
+      ) => Promise<MarkPostSolvedResponse>;
       loading: boolean;
     };
 
@@ -88,17 +95,46 @@ export default function UserPosts() {
 
   const [solveOpen, setSolveOpen] = useState(false);
   const [postSolved, setPostSolved] = useState<Post | null>(null);
+  const [solveError, setSolveError] = useState<string>("");
 
   const handleSolveClick = (p: Post) => {
     setPostSolved(p);
     setSolveOpen(true);
+    setSolveError("");
   };
 
-  const confirmSolve = async () => {
+  const confirmSolve = async (memberId?: string) => {
     if (!postSolved) return;
-    await markPostSolved(postSolved._id);
-    toast.success("Postarea a fost marcată ca rezolvată!");
+
+    try {
+      const response = await markPostSolved(postSolved._id, memberId);
+
+      if (response.badgeUpdate && !response.badgeUpdate.success) {
+        setSolveError(response.badgeUpdate.message);
+        return;
+      }
+
+      if (response.badgeUpdate && response.badgeUpdate.success) {
+        toast.success(`Postarea a fost marcată ca rezolvată! `);
+        toast.success(response.badgeUpdate.message);
+      } else {
+        toast.success("Postarea a fost marcată ca rezolvată!");
+      }
+
+      setSolveOpen(false);
+      setSolveError("");
+    } catch (err: unknown) {
+      const error = err as MarkPostSolvedResponse & { code?: string };
+
+      setSolveError(
+        error.message || "Eroare la marcarea postării ca rezolvată"
+      );
+    }
+  };
+
+  const handleSolveClose = () => {
     setSolveOpen(false);
+    setSolveError("");
   };
 
   if (loading)
@@ -348,10 +384,11 @@ export default function UserPosts() {
       />
       <MarkSolvedModal
         isOpen={solveOpen}
-        onClose={() => setSolveOpen(false)}
+        onClose={handleSolveClose}
         onConfirm={confirmSolve}
         postTitle={postSolved?.title || ""}
         isUpdating={loading}
+        error={solveError}
       />
     </>
   );

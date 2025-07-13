@@ -379,13 +379,20 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
   }, []);
 
   const markPostSolved = useCallback(
-    async (postId: string): Promise<MarkPostSolvedResponse> => {
+    async (
+      postId: string,
+      memberId?: string
+    ): Promise<MarkPostSolvedResponse> => {
       setLoading(true);
       try {
         const res = await fetch(`${API_URL}/post/solve/${postId}`, {
           method: "PATCH",
           credentials: "include",
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ memberId }),
         });
         const responseData = await res.json();
         if (!res.ok) {
@@ -403,7 +410,11 @@ export const PostsProvider = ({ children }: PostsProviderProps) => {
         setUserPosts((prev) =>
           prev.map((p) => (p._id === postId ? responseData.post : p))
         );
-        return responseData;
+
+        return {
+          ...responseData,
+          badgeUpdate: responseData.badgeUpdate || null,
+        };
       } finally {
         setLoading(false);
       }

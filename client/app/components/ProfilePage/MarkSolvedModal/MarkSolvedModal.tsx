@@ -7,9 +7,10 @@ import Image from "next/image";
 interface MarkSolvedModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (memberId?: string) => void;
   postTitle: string;
   isUpdating: boolean;
+  error?: string;
 }
 
 export default function MarkSolvedModal({
@@ -18,22 +19,28 @@ export default function MarkSolvedModal({
   onConfirm,
   postTitle,
   isUpdating,
+  error,
 }: MarkSolvedModalProps) {
   const [confirmationText, setConfirmationText] = useState("");
+  const [memberId, setMemberId] = useState("");
   const requiredText = "CAZ REZOLVAT";
 
   const handleConfirm = () => {
     if (confirmationText === requiredText) {
-      onConfirm();
+      onConfirm(memberId.trim() || undefined);
     }
   };
 
   const handleClose = () => {
     setConfirmationText("");
+    setMemberId("");
     onClose();
   };
 
-  const isConfirmDisabled = confirmationText !== requiredText || isUpdating;
+  const isConfirmDisabled =
+    confirmationText !== requiredText ||
+    isUpdating ||
+    (memberId && !/^#[a-zA-Z0-9]+$/.test(memberId.trim()));
 
   if (!isOpen) return null;
 
@@ -56,6 +63,30 @@ export default function MarkSolvedModal({
             <p className={styles.posttitle}>{postTitle}</p>
           </div>
           <div className={styles.confirmationsection}>
+            <label htmlFor="memberIdInput">
+              Ați fost ajutat de un membru Lost & Found? Tasțati ID-ul mai jos:
+            </label>
+            <input
+              id="memberIdInput"
+              name="memberIdInput"
+              type="text"
+              value={memberId}
+              onChange={(e) => setMemberId(e.target.value)}
+              placeholder="Ex: #12aHG"
+              className={styles.confirmationinput}
+              disabled={isUpdating}
+              aria-required="false"
+            />
+            {memberId && !/^#[a-zA-Z0-9]+$/.test(memberId.trim()) && (
+              <p
+                style={{ color: "#ff4444", fontSize: "12px", marginTop: "4px" }}
+              >
+                ID-ul trebuie să înceapă cu # urmat de litere și cifre (ex:
+                #12aHG)
+              </p>
+            )}
+          </div>
+          <div className={styles.confirmationsection}>
             <label htmlFor="solveConfirmationInput">
               Pentru a confirma tastați <strong>{requiredText}</strong> mai jos:
             </label>
@@ -73,6 +104,7 @@ export default function MarkSolvedModal({
               aria-required="true"
             />
           </div>
+          {error && <div className={styles.membererror}>{error}</div>}
         </div>
         <div className={styles.footer}>
           <button
@@ -85,7 +117,7 @@ export default function MarkSolvedModal({
           <button
             className={styles.solvebutton}
             onClick={handleConfirm}
-            disabled={isConfirmDisabled}
+            disabled={isConfirmDisabled || isUpdating}
           >
             {isUpdating ? "Se marchează…" : "Confirmă rezolvarea"}
           </button>
