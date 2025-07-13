@@ -148,7 +148,6 @@ export default function UserPosts() {
           unoptimized
           draggable={false}
         />
-        .
       </div>
     );
 
