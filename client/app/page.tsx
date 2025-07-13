@@ -14,6 +14,7 @@ const AnunturiPromovate = dynamic(
 const JoinCrew = dynamic(
   () => import("./components/HomePage/JoinCrew/JoinCrew")
 );
+const Ratings = dynamic(() => import("./components/HomePage/Ratings/Ratings"));
 export default function Home() {
   return (
     <main className={styles.home}>
@@ -22,6 +23,7 @@ export default function Home() {
       <Section1 />
       <AnunturiPromovate />
       <JoinCrew />
+      <Ratings />
     </main>
   );
 }
