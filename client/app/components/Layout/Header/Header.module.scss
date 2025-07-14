@@ -9,14 +9,8 @@
   padding: 0 15px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-.container {
-  width: clamp(300px, 100%, 1300px);
-  display: flex;
-  align-items: center;
   justify-content: space-between;
+  z-index: 10000;
 }
 .box {
   display: flex;
