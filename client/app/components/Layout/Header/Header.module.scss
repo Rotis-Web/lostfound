@@ -9,8 +9,14 @@
   padding: 0 15px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   z-index: 10000;
+}
+.container {
+  width: clamp(300px, 100%, 1300px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .box {
   display: flex;
@@ -38,7 +44,7 @@
   border-radius: 5px;
   padding: 5px 12px;
   cursor: pointer;
-  margin-right: 10px;
+  margin: 0 10px 0 20px;
   transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out,
     color 0.3s ease-in-out;
   span {
@@ -52,4 +58,29 @@
 }
 .button:active {
   transform: scale(0.93);
+}
+.links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  .link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: var(--blue);
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    &:hover {
+      transform: translateY(-1.5px);
+    }
+  }
+}
+
+@media screen and (max-width: 1300px) {
+  .links {
+    display: none;
+  }
 }

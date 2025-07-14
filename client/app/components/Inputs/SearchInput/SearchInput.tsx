@@ -484,7 +484,7 @@ export default function SearchInput({
 
         {!hideSubmitButton && (
           <button type="submit" aria-label="Caută în anunțuri">
-            Vezi {postsCount} postări
+            Caută printre anunțuri
           </button>
         )}
       </section>
