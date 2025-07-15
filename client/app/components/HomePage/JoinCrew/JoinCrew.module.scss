@@ -15,11 +15,10 @@
 .box {
   position: relative;
   width: 50%;
-  aspect-ratio: 16/9;
+  height: fit-content;
   background: var(--white);
   border-radius: 5px;
-  box-shadow: rgba(14, 30, 37, 0.1) 0px 2px 4px 0px,
-    rgba(14, 30, 37, 0.1) 0px 2px 8px 0px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -81,7 +80,5 @@
   }
   .box {
     width: 100%;
-    height: fit-content;
-    aspect-ratio: unset;
   }
 }
