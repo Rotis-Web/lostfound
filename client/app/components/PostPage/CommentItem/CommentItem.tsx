@@ -58,7 +58,7 @@ export default function CommentItem({ comment, timeAgo }: Props) {
       <div className={styles.commentinfo}>
         <div className={styles.author}>
           <Image
-            src={comment.author?.profileImage || "/icons/user-icon.svg"}
+            src={comment.author?.profileImage || "/icons/user-icon.webp"}
             alt="Profile Icon"
             width={25}
             height={25}

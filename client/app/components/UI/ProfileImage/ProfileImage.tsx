@@ -39,7 +39,7 @@ export function ProfileImage() {
     );
   }
 
-  const profileImage = user?.profileImage || "/icons/user-icon.svg";
+  const profileImage = user?.profileImage || "/icons/user-icon.webp";
 
   return (
     <Link href={user ? "/profile" : "/login"}>

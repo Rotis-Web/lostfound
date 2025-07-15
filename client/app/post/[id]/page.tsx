@@ -145,7 +145,12 @@ export default async function PostPage({ params }: PageProps) {
                 className={styles.contact}
               />
             )}
-            <ShareButton postId={post._id} className={styles.secbutton} />
+            <ShareButton
+              postId={post._id}
+              className={`${styles.secbutton} ${
+                post.status === "solved" && styles.large
+              }`}
+            />
             <button
               className={`${styles.secbutton} ${
                 post.status === "solved" && styles.large
