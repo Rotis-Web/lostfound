@@ -9,34 +9,37 @@ import { ProfileImage } from "../../UI/ProfileImage/ProfileImage";
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const checkboxRef = useRef<HTMLInputElement>(null);
+
+  const closeMenu = () => {
+    setIsOpen(false);
+  };
 
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        if (checkboxRef.current) {
-          checkboxRef.current.checked = false;
-        }
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+
+    document.addEventListener("click", handleClickOutside);
+
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
-  }, [menuRef]);
+  }, [isOpen]);
 
   return (
-    <header className={styles.header} ref={menuRef}>
+    <header className={styles.header}>
       <div className={styles.overlay}>
         <div className={styles.box}>
-          <label className={styles.hamburger}>
-            <input
-              type="checkbox"
-              id="menu"
-              ref={checkboxRef}
-              onChange={() => setIsOpen(!isOpen)}
-            />
+          <button
+            className={`${styles.hamburger} ${isOpen ? styles.active : ""}`}
+            onClick={() => setIsOpen((prev) => !prev)}
+            aria-label="Toggle menu"
+            type="button"
+          >
             <svg viewBox="0 0 32 32">
               <path
                 className={`${styles.line} ${styles.linetopbottom}`}
@@ -44,7 +47,8 @@ export default function Header() {
               ></path>
               <path className={styles.line} d="M7 16 27 16"></path>
             </svg>
-          </label>
+          </button>
+
           <Link href="/" className={styles.logo}>
             <Image
               src="/images/test-logo.webp"
@@ -118,9 +122,12 @@ export default function Header() {
         </div>
       </div>
 
-      <div className={`${styles.extendedmenu} ${isOpen ? styles.open : ""}`}>
+      <div
+        className={`${styles.extendedmenu} ${isOpen ? styles.open : ""}`}
+        ref={menuRef}
+      >
         <div className={styles.menuitem}>
-          <Link href="/" className={styles.link}>
+          <Link href="/" className={styles.link} onClick={closeMenu}>
             <Image
               src="/icons/about.svg"
               alt="About Icon"
@@ -132,7 +139,7 @@ export default function Header() {
           </Link>
         </div>
         <div className={styles.menuitem}>
-          <Link href="/" className={styles.link}>
+          <Link href="/" className={styles.link} onClick={closeMenu}>
             <Image
               src="/icons/notebook.svg"
               alt="Notebook Icon"
@@ -144,7 +151,7 @@ export default function Header() {
           </Link>
         </div>
         <div className={styles.menuitem}>
-          <Link href="/search" className={styles.link}>
+          <Link href="/search" className={styles.link} onClick={closeMenu}>
             <Image
               src="/icons/search-yellow.svg"
               alt="Yellow Search Icon"
@@ -156,7 +163,7 @@ export default function Header() {
           </Link>
         </div>
         <div className={styles.menuitem}>
-          <Link href="/search" className={styles.link}>
+          <Link href="/search" className={styles.link} onClick={closeMenu}>
             <Image
               src="/icons/yellow-heart.svg"
               alt="Yellow Heart Icon"
@@ -168,7 +175,7 @@ export default function Header() {
           </Link>
         </div>
         <div className={styles.menuitem}>
-          <Link href="/search" className={styles.link}>
+          <Link href="/search" className={styles.link} onClick={closeMenu}>
             <Image
               src="/badges/crew-badge.webp"
               alt="Lost & Found Crew Badge"

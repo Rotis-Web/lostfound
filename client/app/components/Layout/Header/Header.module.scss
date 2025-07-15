@@ -87,10 +87,8 @@
 .hamburger {
   display: none;
   cursor: pointer;
-}
-
-.hamburger input {
-  display: none;
+  background: none;
+  border: none;
 }
 
 .hamburger svg {
@@ -112,11 +110,11 @@
   stroke-dasharray: 12 63;
 }
 
-.hamburger input:checked + svg {
+.hamburger.active svg {
   transform: rotate(-45deg);
 }
 
-.hamburger input:checked + svg .linetopbottom {
+.hamburger.active svg .linetopbottom {
   stroke-dasharray: 20 300;
   stroke-dashoffset: -32.42;
 }
