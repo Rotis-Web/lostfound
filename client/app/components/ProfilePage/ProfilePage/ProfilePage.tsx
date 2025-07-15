@@ -95,6 +95,12 @@ export default function ProfilePage() {
     }
   };
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
+
   if (loading || !user) return <Loader />;
 
   return (
@@ -110,7 +116,7 @@ export default function ProfilePage() {
                     src={user.profileImage}
                     alt="Pictogramă de profil"
                     fill
-                    sizes="100%"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     priority
                     className={styles.profileimage}
                   />
@@ -129,7 +135,8 @@ export default function ProfilePage() {
                         src="/icons/edit.svg"
                         alt="Edit Icon"
                         fill
-                        sizes="100%"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        draggable={false}
                       />
                     </div>
                   </span>
@@ -166,6 +173,7 @@ export default function ProfilePage() {
                   alt="Add Post Icon"
                   width={20}
                   height={20}
+                  draggable={false}
                 />
                 Adaugă postare
               </button>
@@ -183,6 +191,7 @@ export default function ProfilePage() {
                 alt="Exit Icon"
                 width={20}
                 height={20}
+                draggable={false}
               />{" "}
               Ieși din cont
             </button>

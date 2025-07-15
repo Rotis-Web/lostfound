@@ -71,7 +71,7 @@ export default function Header() {
                 draggable={false}
               />
               Despre noi
-            </Link>{" "}
+            </Link>
             <Link href="/" className={styles.link}>
               <Image
                 src="/icons/notebook.svg"

@@ -84,31 +84,6 @@
     align-items: center;
     gap: 20px;
   }
-  .loadmore {
-    display: flex;
-    justify-content: center;
-    margin-top: 40px;
-    .loadmorebutton {
-      padding: 15px 40px;
-      background: var(--yellow);
-      color: white;
-      border: none;
-      border-radius: 25px;
-      font-size: 1.1em;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      &:hover:not(:disabled) {
-        background: #f57a4e;
-        transform: translateY(-2px);
-      }
-
-      &:disabled {
-        background: #bdc3c7;
-        cursor: not-allowed;
-      }
-    }
-  }
 }
 
 @media screen and (max-width: 1200px) {

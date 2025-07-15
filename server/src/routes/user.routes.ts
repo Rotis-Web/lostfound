@@ -2,6 +2,7 @@ import express from "express";
 import { authenticate } from "../middleware/authenticate";
 import {
   getProfile,
+  getPublicUserProfile,
   changePassword,
   deleteAccount,
   changeProfileImage,
@@ -64,6 +65,7 @@ const imageUpload = multer({
 const router = express.Router();
 
 router.get("/profile", profileLimiter, authenticate, getProfile);
+router.get("/public-profile/:id", profileLimiter, getPublicUserProfile);
 router.put(
   "/change-password",
   userLimiter,

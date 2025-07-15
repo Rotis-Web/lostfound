@@ -3,12 +3,43 @@
 import { useAuth } from "@/context/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export function ProfileImage() {
   const { user, loading } = useAuth();
-  const profileImage = user?.profileImage || "/icons/user-icon.svg";
+  const [mounted, setMounted] = useState(false);
 
-  if (loading) return <div style={{ width: 30, height: 30 }}></div>;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div
+        style={{
+          width: 35,
+          height: 35,
+          borderRadius: "50%",
+          background: "#eee",
+        }}
+      />
+    );
+  }
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          width: 35,
+          height: 35,
+          borderRadius: "50%",
+          background: "#eee",
+        }}
+      />
+    );
+  }
+
+  const profileImage = user?.profileImage || "/icons/user-icon.svg";
 
   return (
     <Link href={user ? "/profile" : "/login"}>

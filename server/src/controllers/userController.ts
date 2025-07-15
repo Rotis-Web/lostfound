@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/User";
+import Post from "../models/Post";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 import {
   uploadImageToCloudinary,
   deleteImageFromCloudinary,
@@ -18,6 +20,40 @@ export const getProfile = async (
       return;
     }
     res.json({ user });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ code: "SERVER_ERROR", message: "Could not fetch profile" });
+  }
+};
+
+export const getPublicUserProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId)
+      .select(
+        "-password -__v -email -isEmailVerified -emailVerificationToken -emailVerificationExpires -passwordResetToken -passwordResetExpires -favoritePosts"
+      )
+      .lean();
+    if (!user) {
+      res.status(404).json({ code: "NOT_FOUND", message: "User not found" });
+      return;
+    }
+    const posts = await Post.find({
+      author: new mongoose.Types.ObjectId(userId),
+    })
+      .select("-__v")
+      .lean();
+
+    const sortedPosts = posts.sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+
+    res.json({ user, posts: posts ? sortedPosts : [] });
   } catch (err) {
     console.error(err);
     res

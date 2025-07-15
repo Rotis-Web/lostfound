@@ -152,6 +152,39 @@ export async function getUserPosts(req: Request, res: Response): Promise<void> {
   }
 }
 
+export async function getPublicUserPosts(
+  req: Request,
+  res: Response
+): Promise<void> {
+  try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      res.status(404).json({
+        code: "NOT_FOUND",
+        message: "User not found",
+      });
+      return;
+    }
+
+    const posts = await Post.find({
+      author: new mongoose.Types.ObjectId(userId),
+    })
+      .select("-__v")
+      .lean();
+
+    res.status(200).json({
+      posts,
+    });
+  } catch (error) {
+    console.error("Error fetching user posts:", error);
+    res.status(500).json({
+      code: "INTERNAL_SERVER_ERROR",
+      message: "Eroare internă de server",
+    });
+  }
+}
+
 export async function deletePost(req: Request, res: Response): Promise<void> {
   try {
     const userId = req.user?.id;

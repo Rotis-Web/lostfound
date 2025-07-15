@@ -1,0 +1,97 @@
+.profile {
+  width: 100vw;
+  min-height: 100vh;
+  height: fit-content;
+  display: flex;
+  justify-content: center;
+}
+.container {
+  width: clamp(300px, 100%, 1300px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  color: var(--blue);
+}
+.profileimage {
+  position: relative;
+  width: clamp(100px, 30%, 130px);
+  aspect-ratio: 1/1;
+  transform: translateY(-50%);
+  img {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+    background-color: var(--white);
+  }
+}
+.background {
+  width: 100%;
+  height: 200px;
+  background: url("/images/user_background.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+.name {
+  width: 100%;
+  text-align: center;
+  font-size: 2em;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 20px 0;
+  color: var(--blue);
+  transform: translateY(-60px);
+}
+.membersince {
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--blue);
+  opacity: 0.8;
+  transform: translateY(-65px);
+}
+.info {
+  width: 230px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transform: translateY(-45px);
+}
+.id {
+  color: var(--blue);
+  opacity: 0.8;
+  font-weight: 600;
+  padding: 3px 10px;
+  border: 1px solid #2c3e604f;
+  border-radius: 5px;
+  position: relative;
+}
+.report {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+  color: #e03131;
+  transition: opacity 0.2s ease-in-out;
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.posts {
+  width: clamp(300px, 90%, 1300px);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin: 0 0 100px 0;
+}
+
+@media screen and (max-width: 600px) {
+  .name {
+    max-width: 18ch;
+  }
+}
