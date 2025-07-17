@@ -37,7 +37,7 @@ export default function Hero() {
               />
             </div>
             <Counter end={1291} duration={3000} />
-            <p>Cazuri fericite și încă număram!</p>
+            <p>Cazuri fericite și încă numărăm!</p>
           </div>
         </div>
         <div className={styles.input}>
