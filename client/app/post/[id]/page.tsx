@@ -11,6 +11,7 @@ import CommentItem from "../../components/PostPage/CommentItem/CommentItem";
 import CommentsHeader from "@/app/components/PostPage/CommentsHeader/CommentsHeader";
 import ContactButton from "@/app/components/PostPage/ContactButton/ContactButton";
 import ShareButton from "@/app/components/PostPage/ShareButton/ShareButton";
+import SaveButton from "@/app/components/PostPage/SaveButton/SaveButton";
 
 const PostMap = dynamic(
   () => import("../../components/PostPage/PostMap/PostMapWrapper")
@@ -151,20 +152,12 @@ export default async function PostPage({ params }: PageProps) {
                 post.status === "solved" && styles.large
               }`}
             />
-            <button
+            <SaveButton
+              postId={post._id}
               className={`${styles.secbutton} ${
                 post.status === "solved" && styles.large
               }`}
-            >
-              <Image
-                src="/icons/saved.svg"
-                alt="Saved Icon"
-                width={20}
-                height={20}
-                draggable={false}
-              />
-              <p>Salvează</p>
-            </button>
+            />
           </div>
           <div className={styles.info}>
             <div className={styles.views}>{post.views} vizualizări</div>

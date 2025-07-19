@@ -250,3 +250,75 @@ export const changeProfileImage = async (
     });
   }
 };
+
+export async function savePost(req: Request, res: Response): Promise<void> {
+  try {
+    const { postId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ message: "ID de postare invalid" });
+      return;
+    }
+
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      res.status(404).json({ message: "Utilizatorul nu a fost găsit" });
+      return;
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      res.status(404).json({ message: "Postarea nu a fost găsită" });
+      return;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user?.id,
+      { $addToSet: { favoritePosts: postId } },
+      { new: true }
+    ).select("favoritePosts");
+    res.json({
+      message: "Postarea a fost salvată cu succes",
+      favorites: updatedUser?.favoritePosts,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+export async function removePost(req: Request, res: Response): Promise<void> {
+  try {
+    const { postId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+      res.status(400).json({ message: "ID de postare invalid" });
+      return;
+    }
+
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      res.status(404).json({ message: "Utilizatorul nu a fost găsit" });
+      return;
+    }
+
+    const post = await Post.findById(postId);
+    if (!post) {
+      res.status(404).json({ message: "Postarea nu a fost găsită" });
+      return;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user?.id,
+      { $pull: { favoritePosts: postId } },
+      { new: true }
+    ).select("favoritePosts");
+    res.json({
+      message: "Postarea a fost ștearsă cu succes",
+      favorites: updatedUser?.favoritePosts,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}

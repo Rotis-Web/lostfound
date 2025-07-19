@@ -42,6 +42,8 @@ interface AuthContextType {
     confirmPassword: string
   ) => Promise<void>;
   changeProfileImage: (image: File) => Promise<void>;
+  savePost: (postId: string) => Promise<string>;
+  removeSavedPost: (postId: string) => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -352,6 +354,64 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return data.imageUrl;
   };
 
+  const savePost = async (postId: string) => {
+    if (!accessToken.current) throw new Error("Not authenticated");
+
+    const res = await fetch(`${API_URL}/user/save-post`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken.current}`,
+      },
+      body: JSON.stringify({ postId }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const err = {
+        message: data.message || data.error || "Save post failed",
+        code: data.code || "UNKNOWN_ERROR",
+        errors: data.errors || null,
+      };
+      throw err;
+    }
+
+    setUser((prev) =>
+      prev ? { ...prev, favoritePosts: data.favorites } : prev
+    );
+
+    return data.message;
+  };
+
+  const removeSavedPost = async (postId: string) => {
+    if (!accessToken.current) throw new Error("Not authenticated");
+
+    const res = await fetch(`${API_URL}/user/remove-post`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken.current}`,
+      },
+      body: JSON.stringify({ postId }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      const err = {
+        message: data.message || data.error || "Remove post failed",
+        code: data.code || "UNKNOWN_ERROR",
+        errors: data.errors || null,
+      };
+      throw err;
+    }
+
+    setUser((prev) =>
+      prev ? { ...prev, favoritePosts: data.favorites } : prev
+    );
+
+    return data.message;
+  };
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
 
@@ -394,6 +454,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         forgotPassword,
         resetPassword,
         changeProfileImage,
+        savePost,
+        removeSavedPost,
         loading,
       }}
     >

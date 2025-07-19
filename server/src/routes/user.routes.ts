@@ -6,6 +6,8 @@ import {
   changePassword,
   deleteAccount,
   changeProfileImage,
+  savePost,
+  removePost,
 } from "../controllers/userController";
 import { validate } from "../middleware/validate";
 import {
@@ -42,6 +44,17 @@ const profileLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({ sendCommand, prefix: "rl_profile:" }),
+});
+const savePostLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 30,
+  message: {
+    code: "TOO_MANY_REQUESTS",
+    error: "Prea multe cereri. İncearcă mai târziu",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: new RedisStore({ sendCommand, prefix: "rl_save_post:" }),
 });
 
 const storage = multer.memoryStorage();
@@ -87,5 +100,7 @@ router.put(
   imageUpload.single("image"),
   changeProfileImage
 );
+router.post("/save-post", savePostLimiter, authenticate, savePost);
+router.post("/remove-post", savePostLimiter, authenticate, removePost);
 
 export default router;
