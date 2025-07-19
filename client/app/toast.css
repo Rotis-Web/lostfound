@@ -1,5 +1,6 @@
 .Toastify__toast-container {
   max-width: 70vw;
+  z-index: 1000000 !important;
 }
 @media (max-width: 600px) {
   .Toastify__toast-container {

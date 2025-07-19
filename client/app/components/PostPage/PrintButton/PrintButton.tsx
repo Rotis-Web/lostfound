@@ -21,21 +21,19 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
     const contentWidth = pageWidth - margin * 2;
     const centerX = pageWidth / 2;
 
-    // Layout sections with optimized spacing for better fit
     const sections = {
-      header: { height: 30 }, // Further reduced
-      status: { height: 20 }, // Reduced
-      image: { height: 95 }, // Keep space for image
-      title: { height: 22 }, // Reduced
-      location: { height: 26 }, // Reduced
-      contact: { height: 42 }, // Reduced
-      footer: { height: 14 }, // Further reduced
-      spacing: 6, // Tighter spacing
+      header: { height: 30 },
+      status: { height: 20 },
+      image: { height: 95 },
+      title: { height: 22 },
+      location: { height: 26 },
+      contact: { height: 42 },
+      footer: { height: 14 },
+      spacing: 6,
     };
 
     let yPosition = 0;
 
-    // Status colors and text
     const getStatusColor = (status: string) => {
       switch (status) {
         case "lost":
@@ -62,7 +60,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
       }
     };
 
-    // Romanian text converter
     const romanianToAscii = (text: string): string => {
       const replacements: { [key: string]: string } = {
         ă: "a",
@@ -120,7 +117,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
       return processedText;
     };
 
-    // Helper for multiline centered text
     const addCenteredMultilineText = (
       text: string,
       y: number,
@@ -159,20 +155,17 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
     };
 
     try {
-      // SECTION 1: SMALLER HEADER
       yPosition = 0;
       pdf.setFillColor(245, 245, 240);
       pdf.rect(0, yPosition, pageWidth, 1.5, "F");
 
       const logoBase64 = await loadImageAsBase64("/images/lostfound_logo.webp");
 
-      // Calculate size and position
-      const logoWidth = 32; // adjust as needed
-      const logoHeight = 19; // adjust as needed
-      const logoX = 3; // center horizontally
-      const logoY = yPosition + 5; // a little down from top
+      const logoWidth = 32;
+      const logoHeight = 19;
+      const logoX = 3;
+      const logoY = yPosition + 5;
 
-      // Draw the logo instead of text
       pdf.addImage(logoBase64, "PNG", logoX, logoY, logoWidth, logoHeight);
 
       pdf.setFontSize(16);
@@ -181,17 +174,15 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
 
       const headerText = "www.lostfound.ro";
       const textWidth = pdf.getTextWidth(headerText);
-      const textX = pageWidth - textWidth - 10; // 10 px margin from right
-      const textY = 23; // vertically inside header (adjust as needed)
+      const textX = pageWidth - textWidth - 10;
+      const textY = 23;
       pdf.text(headerText, textX, textY);
 
       yPosition += 7;
 
-      // SECTION 2: STATUS BADGE (CENTERED, NO REWARD)
       const statusColor = getStatusColor(post.status);
       const statusText = getStatusText(post.status);
 
-      // Status badge - centered
       const badgeWidth = 60;
       const badgeHeight = 18;
       const statusX = centerX - badgeWidth / 2;
@@ -224,7 +215,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
 
           await new Promise((resolve, reject) => {
             img.onload = () => {
-              // Calculate scaling to fit image inside box (contain)
               const widthRatio = maxImageWidth / img.width;
               const heightRatio = maxImageHeight / img.height;
               const scale = Math.min(widthRatio, heightRatio);
@@ -232,12 +222,10 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
               const imageWidth = img.width * scale;
               const imageHeight = img.height * scale;
 
-              // Center the image in the box horizontally
               const x = centerX - imageWidth / 2;
-              // Y position is where you want to place image vertically
+
               const y = yPosition;
 
-              // Draw white rounded rectangle background (optional, your style)
               pdf.setFillColor(255, 255, 255);
               pdf.roundedRect(
                 x - 4,
@@ -266,7 +254,7 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
 
       // SECTION 4: TITLE
       yPosition = addCenteredMultilineText(post.title, yPosition, {
-        fontSize: 23, // Reduced from 18
+        fontSize: 23,
         fontStyle: "bold",
         color: [44, 62, 96],
         lineHeight: 10,
@@ -315,7 +303,7 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
       const contactQrBoxHeight = 38;
       const contactQrBoxY = yPosition;
 
-      const contactBoxWidth = (contentWidth - 8) / 1.8; // Adjusted spacing
+      const contactBoxWidth = (contentWidth - 8) / 1.8;
       const contactBoxX = margin;
 
       pdf.setFillColor(248, 250, 252);
@@ -369,11 +357,10 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
       );
 
       // Right side - QR Code - OPTIMIZED SIZING
-      const qrBoxWidth = contentWidth - contactBoxWidth - 8; // Remaining space
+      const qrBoxWidth = contentWidth - contactBoxWidth - 8;
       const qrBoxX = margin + contactBoxWidth + 8;
 
-      // QR Code centered in right area
-      const qrSize = 32; // Smaller QR code
+      const qrSize = 32;
       const qrX = qrBoxX + (qrBoxWidth - qrSize) / 2;
       const qrY = contactQrBoxY + 3;
 
@@ -389,7 +376,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
 
       pdf.addImage(qrCodeDataURL, "PNG", qrX, qrY, qrSize, qrSize);
 
-      // QR label - NO EMOJIS
       pdf.setFontSize(7);
       pdf.setTextColor(44, 62, 96);
       const qrLabelText = "Scaneaza pentru detalii";
@@ -430,7 +416,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
           "S"
         );
 
-        // Reward text - NO EMOJIS
         addCenteredText(`RECOMPENSA: ${post.reward} RON`, rewardBoxY + 13, {
           fontSize: 18,
           fontStyle: "bold",
@@ -440,7 +425,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
         yPosition += rewardBoxHeight + sections.spacing;
       }
 
-      // SECTION 8: SMALLER FOOTER
       const footerY = pageHeight - sections.footer.height;
 
       // Footer background
@@ -451,12 +435,11 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
       pdf.setFillColor(255, 215, 0);
       pdf.rect(0, footerY, pageWidth, 1.5, "F");
 
-      // Footer text - SMALLER
       const footerText = `lostfound.ro | ${new Date().toLocaleDateString(
         "ro-RO"
       )} | ID: ${post.lostfoundID}`;
       addCenteredText(footerText, footerY + 9.5, {
-        fontSize: 10, // Further reduced
+        fontSize: 10,
         color: [255, 255, 255],
       });
 
