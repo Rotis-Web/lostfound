@@ -66,9 +66,10 @@ export default function Header() {
               <Image
                 src="/icons/about.svg"
                 alt="About Icon"
-                width={25}
-                height={25}
+                width={20}
+                height={20}
                 draggable={false}
+                style={{ marginRight: "3px" }}
               />
               Despre noi
             </Link>
@@ -131,8 +132,8 @@ export default function Header() {
             <Image
               src="/icons/about.svg"
               alt="About Icon"
-              width={27}
-              height={27}
+              width={22}
+              height={22}
               draggable={false}
             />
             Despre noi

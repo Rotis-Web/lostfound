@@ -19,6 +19,17 @@ export default function PostCardWrapper({
 }: PostCardWrapperProps) {
   const [isHovered, setIsHovered] = useState(false);
 
+  const handleClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const clickedButton =
+      target.closest("button") || target.closest("[data-no-link]");
+
+    if (clickedButton) {
+      e.preventDefault();
+      return;
+    }
+  };
+
   return (
     <HoverContext.Provider value={isHovered}>
       <Link
@@ -26,6 +37,7 @@ export default function PostCardWrapper({
         className={styles.anunt}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
+        onClick={handleClick}
       >
         {children}
       </Link>

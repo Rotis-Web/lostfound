@@ -23,7 +23,11 @@ export default function SaveButton({
     }
   }, [user, postId]);
 
-  const handleSave = async () => {
+  const handleSave = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation();
+
     if (!user) {
       toast.info("Trebuie sa fii autentificat pentru a salva postări");
       return;
@@ -39,8 +43,15 @@ export default function SaveButton({
     }
   };
 
+  if (!user) return null;
+
   return (
-    <button className={className} onClick={handleSave}>
+    <button
+      className={className}
+      onClick={handleSave}
+      onMouseDown={(e) => e.stopPropagation()}
+      onMouseUp={(e) => e.stopPropagation()}
+    >
       <Image
         src={isSaved ? "/icons/saved.svg" : "/icons/save.svg"}
         alt="Saved Icon"
@@ -48,7 +59,6 @@ export default function SaveButton({
         height={20}
         draggable={false}
       />
-      <p>{isSaved ? "Salvată" : "Salvează"}</p>
     </button>
   );
 }

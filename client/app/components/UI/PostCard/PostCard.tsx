@@ -3,6 +3,12 @@ import Image from "next/image";
 import { Post } from "@/types/Post";
 import ImageSlider from "../ImageSlider/ImageSlider";
 import PostCardWrapper from "../../Utils/PostCardWrapper";
+import dynamic from "next/dynamic";
+
+const SaveButton = dynamic(
+  () => import("@/app/components/UI/SaveButton/SaveButton"),
+  { ssr: false }
+);
 
 function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
@@ -98,6 +104,8 @@ export default function PostCard({
           </span>
           <span className={styles.postid}>{post.lostfoundID}</span>
         </div>
+
+        <SaveButton postId={post._id} className={styles.savebutton} />
       </div>
     </PostCardWrapper>
   );
