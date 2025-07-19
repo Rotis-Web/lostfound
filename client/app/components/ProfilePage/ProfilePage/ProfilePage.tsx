@@ -31,6 +31,18 @@ const UserSettings = dynamic(() => import("../UserSettings/UserSettings"), {
 });
 const SavedPosts = dynamic(() => import("../SavedPosts/SavedPosts"), {
   ssr: false,
+  loading: () => (
+    <div className={styles.loader}>
+      <Image
+        src="/gifs/loading.gif"
+        alt="Loader Gif"
+        width={130}
+        height={130}
+        unoptimized
+        draggable={false}
+      />
+    </div>
+  ),
 });
 const ProfileImageModal = dynamic(
   () => import("../ProfileImageModal/ProfileImageModal"),

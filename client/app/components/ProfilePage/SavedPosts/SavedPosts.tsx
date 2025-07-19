@@ -23,6 +23,12 @@ export default function SavedPosts() {
     if (user) fetchSavedPosts();
   }, [user, fetchSavedPosts]);
 
+  if (savedPosts.length === 0 || !savedPosts) {
+    return (
+      <div className={styles.emptyposts}>Aici vor apărea postările salvate</div>
+    );
+  }
+
   return (
     <div className={styles.savedPosts}>
       {savedPosts.map((post) => (
