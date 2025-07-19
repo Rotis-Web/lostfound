@@ -9,10 +9,7 @@ import UserLink from "@/app/components/PostPage/UserLink/UserLink";
 import Image from "next/image";
 import CommentItem from "../../components/PostPage/CommentItem/CommentItem";
 import CommentsHeader from "@/app/components/PostPage/CommentsHeader/CommentsHeader";
-import ContactButton from "@/app/components/PostPage/ContactButton/ContactButton";
-import ShareButton from "@/app/components/PostPage/ShareButton/ShareButton";
-import SaveButton from "@/app/components/PostPage/SaveButton/SaveButton";
-import PrintButton from "@/app/components/PostPage/PrintButton/PrintButton";
+import ButtonContainer from "@/app/components/PostPage/ButtonContainer/ButtonContainer";
 
 const PostMap = dynamic(
   () => import("../../components/PostPage/PostMap/PostMapWrapper")
@@ -138,34 +135,7 @@ export default async function PostPage({ params }: PageProps) {
             <PostGallery images={post.images} />
           </div>
           <h1 className={styles.title}>{post.title}</h1>
-          <div className={styles.buttoncontainer}>
-            {post.status != "solved" && (
-              <ContactButton
-                postId={post._id}
-                email={post.email}
-                phone={post.phone}
-                className={styles.contact}
-              />
-            )}
-            <ShareButton
-              postId={post._id}
-              className={`${styles.secbutton} ${
-                post.status === "solved" && styles.large
-              }`}
-            />{" "}
-            <PrintButton
-              post={post}
-              className={`${styles.secbutton} ${
-                post.status === "solved" && styles.large
-              }`}
-            />
-            <SaveButton
-              postId={post._id}
-              className={`${styles.secbutton} ${
-                post.status === "solved" && styles.large
-              }`}
-            />
-          </div>
+          <ButtonContainer post={post} />
           <div className={styles.info}>
             <div className={styles.views}>{post.views} vizualizări</div>
             <div className={styles.report}>

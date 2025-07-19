@@ -1,0 +1,81 @@
+.buttoncontainer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.secbutton {
+  width: 19%;
+  height: 50px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--blue);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  p {
+    display: none;
+    width: 78px;
+    font-size: 1.3em;
+    font-weight: 600;
+  }
+}
+.large {
+  p {
+    display: block;
+  }
+  width: 50%;
+}
+.contact {
+  width: 65%;
+  height: 50px;
+  border: none;
+  border-radius: 5px;
+  background-color: var(--yellow);
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.2s ease-in-out;
+  &:hover {
+    transform: scale(1.01);
+  }
+}
+
+.fixed {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background-color: var(--white);
+  padding: 10px clamp(5vw, 5%, 20px);
+
+  @media (min-width: 1200px) {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .buttoncontainer {
+    gap: 8px;
+  }
+  .large {
+    p {
+      display: none;
+    }
+  }
+  .contact {
+    width: 70%;
+  }
+  .secbutton:not(.large) p {
+    display: none;
+  }
+}
