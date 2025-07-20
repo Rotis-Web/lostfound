@@ -35,7 +35,7 @@ const POSTS_PER_PAGE = 12;
 export default function SearchPage({ category, page }: SearchPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { searchPosts, searchResults, loading, totalCount } = useSearch();
+  const { searchPosts, searchResults, loading } = useSearch();
 
   const [query, setQuery] = useState("");
   const [locationQuery, setLocationQuery] = useState("");
@@ -62,7 +62,7 @@ export default function SearchPage({ category, page }: SearchPageProps) {
   console.log("Normalized category:", normalizedCategory);
 
   // Calculate pagination info
-  const totalPages = Math.ceil(totalCount / POSTS_PER_PAGE);
+  const totalPages = Math.ceil(searchResults.length / POSTS_PER_PAGE);
   // const hasNextPage = currentPage < totalPages;
   // const hasPrevPage = currentPage > 1;
 
@@ -526,14 +526,17 @@ export default function SearchPage({ category, page }: SearchPageProps) {
             <>
               <div
                 className={styles.resultsheader}
-                style={{ textAlign: totalCount === 0 ? "center" : "left" }}
+                style={{
+                  textAlign: searchResults.length === 0 ? "center" : "left",
+                }}
               >
                 <h2>
-                  {totalCount === 0 && "Nu s-au găsit rezultate"}
-                  {totalCount === 1 && "1 rezultat"}
-                  {totalCount > 1 && `${totalCount} rezultate`}
+                  {searchResults.length === 0 && <p>Nu s-au găsit rezultate</p>}
+                  {searchResults.length === 1 && "1 rezultat"}
+                  {searchResults.length > 1 &&
+                    `${searchResults.length} rezultate`}
                 </h2>
-                {totalCount > 0 && (
+                {searchResults.length > 0 && (
                   <p className={styles.pageinfo}>
                     Pagina {currentPage} din {totalPages}
                   </p>

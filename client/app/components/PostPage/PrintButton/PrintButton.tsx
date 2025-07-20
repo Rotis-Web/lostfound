@@ -156,8 +156,6 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
 
     try {
       yPosition = 0;
-      pdf.setFillColor(245, 245, 240);
-      pdf.rect(0, yPosition, pageWidth, 1.5, "F");
 
       const logoBase64 = await loadImageAsBase64("/images/lostfound_logo.webp");
 
