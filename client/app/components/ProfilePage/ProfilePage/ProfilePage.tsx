@@ -144,6 +144,7 @@ export default function ProfilePage() {
                       if (e.key === "Enter" || e.key === " ")
                         handleAvatarClick();
                     }}
+                    title="Modifică imaginea de profil"
                   >
                     <div className={styles.changeimg}>
                       <Image

@@ -29,7 +29,7 @@ const ContactButton: React.FC<ContactButtonProps> = ({
 
   return (
     <>
-      <button className={className} onClick={handleContactClick}>
+      <button className={className} onClick={handleContactClick} type="button">
         <Image
           src="/icons/phone.svg"
           alt="Phone Icon"

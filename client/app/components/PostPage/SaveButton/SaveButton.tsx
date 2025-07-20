@@ -40,7 +40,11 @@ export default function SaveButton({
   };
 
   return (
-    <button className={className} onClick={handleSave}>
+    <button
+      className={className}
+      onClick={handleSave}
+      title={`${isSaved ? "Șterge" : "Salvează"} postarea`}
+    >
       <Image
         src={isSaved ? "/icons/saved.svg" : "/icons/save.svg"}
         alt="Saved Icon"

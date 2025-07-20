@@ -64,7 +64,7 @@ export default function PostsSlider({
         {posts.length > 0
           ? posts.map((post) => (
               <SwiperSlide key={post._id} className={styles.slide}>
-                <PostCard post={post} />
+                <PostCard post={post} priority={true} />
               </SwiperSlide>
             ))
           : Array.from({ length: 6 }, (_, i) => (

@@ -115,7 +115,11 @@ export default function Header() {
             </Link>
           </div>
           <Link href="/create-post">
-            <button className={styles.button}>
+            <button
+              className={styles.button}
+              type="button"
+              title="Adaugă o postare"
+            >
               <span>+ </span> Postează
             </button>
           </Link>

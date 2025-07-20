@@ -51,6 +51,7 @@ export default function SaveButton({
       onClick={handleSave}
       onMouseDown={(e) => e.stopPropagation()}
       onMouseUp={(e) => e.stopPropagation()}
+      title={`${isSaved ? "Șterge" : "Salvează"} postarea`}
     >
       <Image
         src={isSaved ? "/icons/saved.svg" : "/icons/save.svg"}

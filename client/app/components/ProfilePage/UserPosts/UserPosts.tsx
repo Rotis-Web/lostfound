@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { Post } from "@/types/Post";
+import PrintButton from "../../PostPage/PrintButton/PrintButton";
 
 const DeletePostModal = dynamic(
   () => import("../DeletePostModal/DeletePostModal"),
@@ -226,6 +227,8 @@ export default function UserPosts() {
               </div>
             )}
             <div className={styles.post}>
+              {" "}
+              <PrintButton post={post} className={styles.printbutton} />
               <Link href={`/post/${post._id}`} className={styles.images}>
                 <Swiper
                   modules={[Pagination]}
@@ -251,6 +254,7 @@ export default function UserPosts() {
               </Link>
               <div className={styles.postinfo}>
                 <div className={styles.postcontent}>
+                  <div className={styles.box} key={post._id}></div>
                   <Link href={`/post/${post._id}`}>
                     <h2>{post.title}</h2>
                   </Link>
@@ -323,6 +327,7 @@ export default function UserPosts() {
                     onClick={() => handleDeleteClick(post)}
                     disabled={loading}
                     className={styles.button}
+                    title="Șterge postarea"
                   >
                     Șterge
                     <Image
@@ -340,6 +345,7 @@ export default function UserPosts() {
                       style={{
                         borderRight: "1px solid #c4c4c4",
                       }}
+                      title="Editează postarea"
                     >
                       Editează
                       <Image
@@ -356,6 +362,8 @@ export default function UserPosts() {
                       type="button"
                       className={styles.button}
                       onClick={() => handleSolveClick(post)}
+                      title="Marchează postarea ca fiind rezolvată"
+                      disabled={loading}
                     >
                       Caz rezolvat
                       <Image

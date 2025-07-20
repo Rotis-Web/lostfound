@@ -69,6 +69,7 @@
   display: flex;
   color: var(--blue);
   overflow: hidden;
+  position: relative;
 }
 .infobox {
   display: flex;
@@ -226,6 +227,32 @@
     font-size: 1em;
     text-wrap: nowrap;
     margin-left: 20px;
+  }
+}
+.printbutton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  border: none;
+  border-radius: 5px;
+  background: var(--blue);
+  p {
+    display: none;
+  }
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.8em;
+  text-wrap: nowrap;
+  transition: all 0.2s ease-in-out;
+  padding: 10px;
+  z-index: 999;
+  &:hover {
+    transform: translateY(-1px);
   }
 }
 

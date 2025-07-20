@@ -33,7 +33,11 @@ export default function ShareButton({
   };
 
   return (
-    <button className={className} onClick={handleShare}>
+    <button
+      className={className}
+      onClick={handleShare}
+      title="Distribuie postarea"
+    >
       <Image
         src="/icons/share.svg"
         alt="Share Icon"
