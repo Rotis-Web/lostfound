@@ -6,8 +6,7 @@ import PostCardWrapper from "../../Utils/PostCardWrapper";
 import dynamic from "next/dynamic";
 
 const SaveButton = dynamic(
-  () => import("@/app/components/UI/SaveButton/SaveButton"),
-  { ssr: false }
+  () => import("@/app/components/UI/SaveButton/SaveButton")
 );
 
 function truncateText(text: string, maxLength: number): string {
