@@ -603,7 +603,7 @@ export async function markPostSolved(
           return;
         }
 
-        const badgeUrl = "https://lostfound.ro/badgero";
+        const badgeUrl = "/badges/helper-badge.webp";
 
         if (member.badges && member.badges.includes(badgeUrl)) {
           badgeUpdateResult = {

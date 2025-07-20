@@ -181,6 +181,30 @@ export default function ProfilePage() {
                 : ""}
             </p>
           </div>
+          {user.badges.length > 0 && (
+            <div className={styles.badges}>
+              {user.badges.map((badge, index) => (
+                <div
+                  className={styles.badge}
+                  key={index}
+                  title={
+                    badge.includes("crew")
+                      ? "Membru Crew"
+                      : "Ajutător de nădejde"
+                  }
+                >
+                  <Image
+                    src={badge}
+                    alt="Badge Icon"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    draggable={false}
+                    priority
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           <div className={styles.buttoncontainer}>
             <Link href="/create-post">
               <button className={styles.button}>
