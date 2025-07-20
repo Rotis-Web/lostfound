@@ -26,9 +26,9 @@ export default function Home() {
       <Categories />
       <Section1 />
       <AnunturiPromovate />
-      <JoinCrew />
-      <Ratings />
       <Section2 />
+      <Ratings />
+      <JoinCrew />
     </main>
   );
 }

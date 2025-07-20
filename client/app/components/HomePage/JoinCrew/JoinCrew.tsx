@@ -35,7 +35,7 @@ export default function JoinCrew() {
           Împreună putem face lumea un loc mai bun.
         </h3>
         <div className={styles.buttonbox}>
-          <button>Alătură-te acum</button>
+          <button>Alătură-te echipei</button>
         </div>
       </div>
     </section>

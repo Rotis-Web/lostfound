@@ -5,21 +5,20 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin-bottom: 100px;
 }
 .container {
   width: 100%;
   height: fit-content;
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
+  gap: 5 0px;
   padding: 15px 0;
 }
 .box {
   width: 50%;
   aspect-ratio: 16/9;
-  padding-left: 90px;
+  padding-left: 40px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -55,7 +54,7 @@
   }
 }
 .info {
-  width: 50%;
+  width: 48%;
   box-shadow: rgba(14, 30, 37, 0.1) 0px 2px 4px 0px,
     rgba(14, 30, 37, 0.1) 0px 2px 8px 0px;
   padding: 40px 10px;
@@ -69,7 +68,7 @@
 .heading {
   width: 100%;
   text-align: center;
-  font-size: 1.4em;
+  font-size: 1.5em;
   font-weight: 800;
   color: var(--blue);
   margin-bottom: 12px;
