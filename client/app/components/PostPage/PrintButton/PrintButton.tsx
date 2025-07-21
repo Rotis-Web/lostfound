@@ -329,7 +329,7 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
       pdf.setFontSize(13);
       pdf.setTextColor(44, 62, 96);
 
-      const contactName = romanianToAscii(post.author?.name || "Utilizator");
+      const contactName = romanianToAscii(post.name || "Utilizator");
       const contactEmail = post.email || "email@example.com";
       const contactPhone = post.phone || "+40 XXX XXX XXX";
 
@@ -441,7 +441,7 @@ const PrintButton: React.FC<PrintButtonProps> = ({ post, className }) => {
         color: [255, 255, 255],
       });
 
-      pdf.save(`post-${post.lostfoundID}.pdf`);
+      pdf.save(`postare-${post.lostfoundID}.pdf`);
 
       toast.success("PDF generat cu succes!");
     } catch (error) {
