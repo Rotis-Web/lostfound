@@ -13,7 +13,7 @@ export default function Hero() {
         <div className={styles.text}>
           <div className={styles.slogan}>
             <Image
-              src="/images/slogan.webp"
+              src="/images/slogan-text.webp"
               alt="Logo Icon"
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
