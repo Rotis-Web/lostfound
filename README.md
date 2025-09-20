@@ -1,6 +1,6 @@
 # 🔍 Lost & Found - Obiecte și Animale Pierdute
 
- <img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1758395029/Copy_of_Untitled_1_s0pji1.png">
+ <img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1758395029/Copy_of_Untitled_1_s0pji1.png" alt="Banner" width="100%">
 
 **Lost & Found** este o platformă online care ajută oamenii să își regăsească obiectele și animalele pierdute. Utilizatorii pot posta anunțuri cu geolocalizare, pot căuta după nume, locație sau perioadă, se pot contacta pentru a se ajuta reciproc și de asemenea pot printa afișe cu anunțurile publicate.
 
