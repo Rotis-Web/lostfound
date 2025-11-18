@@ -3,6 +3,7 @@ import { config } from "./config/app.config";
 import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import { handleMulterError } from "./middleware/errorHandler";
@@ -16,10 +17,33 @@ dotenv.config();
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+      },
+    },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+  })
+);
+app.use(mongoSanitize());
 
 app.use(morgan("dev"));
-app.use(cors({ origin: config.FRONTEND_URL, credentials: true }));
+app.use(
+  cors({
+    origin: config.FRONTEND_URL,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
