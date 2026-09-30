@@ -1,0 +1,44 @@
+name: security
+
+# One filesystem scan covers the two things most likely to actually hurt: a
+# dependency with a known CVE, and a secret that reached the tree.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Advisories are published after code is written, so a scan that only runs on
+  # push goes stale the moment you stop committing.
+  schedule:
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scan:
+    name: dependencies and secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: trivy
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          # vuln reads both package-lock.json files; secret looks for keys and
+          # tokens that should never have been committed.
+          scanners: vuln,secret
+          severity: CRITICAL,HIGH
+          # A finding with no released fix is not something this build can act
+          # on, and failing on it only teaches people to ignore the job.
+          ignore-unfixed: true
+          exit-code: "1"

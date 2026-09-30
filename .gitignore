@@ -1,0 +1,19 @@
+# Root-level ignores. client/ and server/ each carry their own for the build
+# artifacts and dependencies specific to them.
+
+# IDE and local agent config
+.idea/
+.vscode/
+*.iml
+.claude/
+
+# Local secrets — the templates are committed, the real values never are
+.env
+.env.local
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Local notes, never committed
+HANDOFF.md

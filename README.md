@@ -1,589 +1,448 @@
-# 🔍 Lost & Found - Reuniting People with Lost Items & Pets
-
-<img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1758395029/Copy_of_Untitled_1_s0pji1.png" alt="Lost & Found Banner" width="100%">
-
-**Lost & Found** is a full-stack web application designed to help users recover lost items and pets through intelligent geolocation-based matching. The platform combines real-time mapping, advanced search algorithms, and secure user authentication to create a comprehensive lost-and-found ecosystem.
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-- [Preview](#preview)
-- [Core Features](#core-features)
-- [Technical Architecture](#technical-architecture)
-- [API Documentation](#api-documentation)
-- [Security Implementation](#security-implementation)
-- [Performance Optimizations](#performance-optimizations)
-- [Technical Challenges](#technical-challenges)
-- [Mobile Responsive Design](#mobile-responsive-design)
-- [Installation](#installation)
-- [Environment Configuration](#environment-configuration)
-- [Design Philosophy](#design-philosophy)
-
-## Project Overview
-
-This application addresses the challenge of efficiently connecting people who have lost items with those who have found them. By leveraging geospatial indexing and caching strategies, the platform delivers fast, location-aware search results while maintaining data security and system reliability.
-
-**Key Technical Highlights:**
-- Geospatial queries with MongoDB 2dsphere indexes
-- Redis-backed rate limiting and caching
-- JWT-based authentication with refresh token rotation
-- Automated image optimization via Cloudinary CDN
-- XSS protection through input sanitization with express-mongo-sanitize
-- Comprehensive input validation using Zod schemas
-
-## Preview
-
-<div align="center">
-  <img src="https://rotis-web.vercel.app/_next/image?url=%2Fimages%2Fprojects%2FLostFound%2Flostfound-1.webp&w=3840&q=90" alt="Post Page" width="49%">
-  <img src="https://rotis-web.vercel.app/_next/image?url=%2Fimages%2Fprojects%2FLostFound%2Flostfound-2.webp&w=3840&q=90" alt="Create Post" width="49%">
-</div>
-
-<div align="center">
-  <img src="https://rotis-web.vercel.app/_next/image?url=%2Fimages%2Fprojects%2FLostFound%2Flostfound-3.webp&w=3840&q=90" alt="Dashboard" width="49%">
-  <img src="https://rotis-web.vercel.app/_next/image?url=%2Fimages%2Fprojects%2FLostFound%2Flostfound-5.webp&w=3840&q=90" alt="Homepage" width="49%">
-</div>
-
-## Core Features
-
-### Geospatial Posting & Discovery
-Users can create posts with precise coordinates using Leaflet.js integration and OpenStreetMap's Nominatim API. The system implements MongoDB geospatial indexes for efficient radius-based queries, enabling users to discover nearby lost/found items within customizable distance ranges.
-
-### Advanced Search & Filtering
-Multi-parameter search functionality includes text matching, date ranges, categories, and location-based filtering. Search queries are optimized through Redis caching with intelligent TTL management (1-hour expiration), reducing external API calls and improving response times.
-
-### Printable Flyer Generator
-Automated generation of professional PDF flyers with QR codes linking back to the online post. Templates are optimized for A4 printing and include customizable layouts that adapt to different item types.
-
-### User Management System
-Secure authentication flow with JWT tokens (access + refresh), email verification, and password recovery. User profiles maintain posting history with dashboard analytics for tracking active and resolved posts. Users can bookmark posts for later reference and manage their saved collections.
-
-### Comment System
-Real-time commenting functionality allows users to ask questions, provide updates, or coordinate meetups directly on posts. Comments are rate-limited to prevent spam and support threaded discussions.
-
-## Technical Architecture
-
-### Technology Stack
-
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![Express.js](https://img.shields.io/badge/Express.js-404D59?style=for-the-badge&logo=express&logoColor=white)
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
-![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=Cloudinary&logoColor=white)
-![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white)
-![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white)
-![Context-API](https://img.shields.io/badge/Context--Api-000000?style=for-the-badge&logo=react)
-
-**Frontend:**
-- Next.js 14 with App Router
-- TypeScript for type safety
-- SCSS Modules for component-scoped styling
-- Leaflet.js for interactive maps
-- React Context API for state management
-
-**Backend:**
-- Express.js with TypeScript
-- Mongoose ODM for MongoDB interactions
-- Redis for session storage and caching
-- Helmet.js for security headers
-- Morgan for request logging
-- express-mongo-sanitize for NoSQL injection prevention
-- Zod for schema validation
-
-**Infrastructure:**
-- MongoDB Atlas for database hosting
-- Redis Cloud for caching layer
-- Cloudinary for image CDN
-- Vercel for frontend deployment
-- Railway/Render for backend deployment
-
-## API Documentation
-
-### Base URL
-```
-Production: https://api.lostfound.ro/api/v1
-Development: http://localhost:8000/api/v1
-```
-
-### Authentication Routes (`/auth`)
-
-| Method | Endpoint | Rate Limit | Description |
-|--------|----------|------------|-------------|
-| POST | `/register` | 5/10min | Create new user account with email verification |
-| POST | `/login` | 10/5min | Authenticate user and issue JWT tokens |
-| POST | `/logout` | - | Invalidate refresh token and clear cookies |
-| POST | `/refresh-token` | - | Generate new access token using refresh token |
-| POST | `/verify-email` | 10/min | Confirm email address with verification code |
-| POST | `/forgot-password` | 10/min | Request password reset email |
-| POST | `/reset-password` | 10/min | Reset password using token from email |
-
-**Authentication Flow:**
-1. User registers → Email verification sent
-2. User verifies email → Account activated
-3. User logs in → Access token (15min) + Refresh token (7d) issued
-4. Access token expires → Client requests new token using refresh token
-5. Refresh token expires → User must log in again
-
-### Post Management Routes (`/post`)
-
-| Method | Endpoint | Auth | Rate Limit | Description |
-|--------|----------|------|------------|-------------|
-| POST | `/create` | ✓ | 93/10min | Create new lost/found post with images |
-| GET | `/:postId` | - | 30/min | Retrieve single post by ID |
-| PUT | `/edit/:postId` | ✓ | 20/5min | Update post details and images |
-| PATCH | `/solve/:postId` | ✓ | 30/min | Mark post as resolved |
-| DELETE | `/delete/:postId` | ✓ | 10/5min | Delete user's own post |
-| GET | `/user-posts` | ✓ | 30/min | Get all posts by authenticated user |
-| GET | `/latest` | - | 30/min | Fetch recent posts with pagination |
-
-**Post Creation Example:**
-```typescript
-POST /api/v1/post/create
-Content-Type: multipart/form-data
-Authorization: Bearer {access_token}
-
-{
-  title: "Lost Black Labrador",
-  description: "Last seen near Central Park",
-  category: "pet",
-  type: "lost",
-  location: {
-    lat: 44.4268,
-    lon: 26.1025,
-    display_name: "Bucharest, Romania"
-  },
-  contactInfo: {
-    phone: "+40123456789",
-    email: "contact@example.com"
-  },
-  images: [File, File] // Max 5 images, 5MB each
-}
-```
-
-### User Management Routes (`/user`)
-
-| Method | Endpoint | Auth | Rate Limit | Description |
-|--------|----------|------|------------|-------------|
-| GET | `/profile` | ✓ | 30/min | Get authenticated user's profile |
-| GET | `/public-profile/:id` | - | 30/min | View public user profile |
-| PUT | `/change-password` | ✓ | 2/min | Update user password |
-| PUT | `/change-profile-image` | ✓ | 2/min | Upload new profile picture |
-| DELETE | `/delete-account` | ✓ | 2/min | Permanently delete user account |
-| GET | `/saved-posts` | ✓ | - | Retrieve user's bookmarked posts |
-| POST | `/save-post` | ✓ | 30/min | Bookmark a post |
-| POST | `/remove-post` | ✓ | 30/min | Remove post from bookmarks |
-
-### Geocoding Routes (`/geo`)
-
-| Method | Endpoint | Rate Limit | Description |
-|--------|----------|------------|-------------|
-| GET | `/search?q={query}&limit={n}` | 60/min | Forward geocoding (address → coordinates) |
-| GET | `/reverse?lat={lat}&lon={lon}` | 60/min | Reverse geocoding (coordinates → address) |
-| GET | `/health` | - | Service health check |
-
-**Geocoding Features:**
-- Results cached in Redis for 1 hour
-- Country-specific to Romania (countrycodes=ro)
-- Coordinate validation: lat ∈ [43.5, 48.3], lon ∈ [20.2, 29.7]
-- Automatic language localization (Romanian)
-- Deduplicated results with importance scoring
-
-### Comment Routes (`/comment`)
-
-| Method | Endpoint | Auth | Rate Limit | Description |
-|--------|----------|------|-------------|-------------|
-| POST | `/create` | ✓ | 5/min | Add comment to post |
-| DELETE | `/delete/:commentId` | ✓ | 5/min | Delete own comment |
-
-### Search Routes (`/search`)
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/posts?q={query}&category={cat}&location={loc}&radius={km}&dateFrom={date}&dateTo={date}` | Advanced post search |
-
-**Search Parameters:**
-- `q`: Text search in title/description
-- `category`: Filter by category (pet, electronics, documents, etc.)
-- `location`: Center point for radius search
-- `radius`: Search radius in kilometers
-- `dateFrom`/`dateTo`: Filter by posting date range
-
-## Security Implementation
-
-### Input Validation & Sanitization
-
-**Zod Schema Validation** - All incoming requests are validated against TypeScript-first schemas before reaching controllers. This ensures type safety and catches malformed data early in the request lifecycle.
-
-```typescript
-// Example: Post creation schema
-const createPostSchema = z.object({
-  title: z.string().min(3).max(100),
-  description: z.string().min(10).max(2000),
-  category: z.enum(['pet', 'electronics', 'documents', 'jewelry', 'other']),
-  type: z.enum(['lost', 'found']),
-  location: z.object({
-    lat: z.number().min(43.5).max(48.3),
-    lon: z.number().min(20.2).max(29.7),
-    display_name: z.string()
-  })
-});
-```
-
-**NoSQL Injection Prevention** - `express-mongo-sanitize` middleware strips out `$` and `.` characters from user input, preventing MongoDB operator injection attacks. This protects against malicious queries that attempt to manipulate database operations.
-
-```typescript
-// Sanitization applied globally to all routes
-app.use(mongoSanitize());
-
-// Example attack prevented:
-// { "email": { "$gt": "" } } → { "email": "" }
-```
-
-### Rate Limiting Architecture
-
-Redis-backed rate limiting prevents abuse and ensures fair resource allocation. Different endpoints have tiered limits based on their resource intensity:
-
-| Endpoint Type | Window | Limit | Rationale |
-|---------------|--------|-------|-----------|
-| Registration | 10 min | 5 | Prevent bot account creation |
-| Login | 5 min | 10 | Balance security vs. user experience |
-| Post Creation | 10 min | 93 | Allow legitimate use while preventing spam |
-| Image Upload | 5 min | 115 | Protect storage and bandwidth |
-| Geocoding | 1 min | 60 | Respect external API fair use |
-| Comments | 1 min | 5 | Prevent spam without hindering discussion |
-| Profile Updates | 1 min | 2 | Critical operations need strict limits |
-
-Rate limit state is stored in Redis with key prefixes (`rl_register:`, `rl_login:`, etc.) for namespace isolation. The system returns standardized error responses with retry-after headers compliant with RFC 6585.
-
-### Authentication & Authorization
-
-**JWT Token Strategy:**
-- **Access Tokens**: Short-lived (15 minutes), contain user ID and role
-- **Refresh Tokens**: Long-lived (7 days), stored in httpOnly cookies
-- **Token Rotation**: Each refresh generates new token pair, old tokens invalidated
-- **Signature Algorithm**: HS256 with secrets ≥32 characters
-
-**Cookie Security:**
-```typescript
-res.cookie('refreshToken', token, {
-  httpOnly: true,      // Prevent XSS access
-  secure: true,        // HTTPS only in production
-  sameSite: 'strict',  // CSRF protection
-  maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
-});
-```
-
-**Password Security:**
-- bcrypt hashing with salt rounds = 12
-- Minimum 8 characters with complexity requirements
-- Passwords never logged or returned in responses
-- Secure password reset with time-limited tokens
-
-### HTTP Security Headers (Helmet.js)
-
-```typescript
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https://res.cloudinary.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'"], // Next.js requirement
-    }
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true
-  }
-}));
-```
-
-Enabled protections include CSP, HSTS, X-Frame-Options, X-Content-Type-Options, and Referrer-Policy.
-
-### File Upload Security
-
-**Multer Configuration:**
-- Memory storage (no disk writes in development)
-- MIME type validation before processing
-- Size limits: 5MB per file, max 5 files per request
-- Allowed formats: JPEG, JPG, PNG, WebP only
-- Error handling for malformed uploads
-
-**Cloudinary Integration:**
-- Automatic format optimization (WebP conversion)
-- Lazy transformation for responsive images
-- Signed upload URLs prevent unauthorized uploads
-- CDN delivery reduces origin server load
-
-### CORS Policy
-
-```typescript
-app.use(cors({
-  origin: process.env.FRONTEND_URL,  // Whitelist specific origin
-  credentials: true,                  // Allow cookies
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-```
-
-Strict CORS configuration prevents cross-origin attacks while enabling authenticated requests from the frontend.
-
-## Performance Optimizations
-
-### Caching Strategy
-
-**Redis Caching Layer:**
-- Geocoding responses: 1-hour TTL (key: `search:{query}:{limit}`)
-- Reverse geocoding: 1-hour TTL (key: `reverse:{lat}:{lon}`)
-- Rate limit counters: Sliding window with automatic expiration
-- Session tokens: TTL matches JWT expiration
-
-Cache hit rate monitoring shows ~75% cache hits for geocoding queries, reducing external API calls and improving response times from ~800ms to ~15ms.
-
-### Database Indexing
-
-**MongoDB Indexes:**
-```javascript
-// Geospatial index for location queries
-postSchema.index({ location: '2dsphere' });
-
-// Compound index for filtered searches
-postSchema.index({ category: 1, type: 1, createdAt: -1 });
-
-// Text index for full-text search
-postSchema.index({ title: 'text', description: 'text' });
-
-// User lookup optimization
-postSchema.index({ userId: 1, status: 1 });
-```
-
-Query performance benchmarks show 95th percentile latency under 50ms for indexed queries vs. 2000ms+ for full collection scans.
-
-### Image Optimization Pipeline
-
-**Cloudinary Transformations:**
-- Automatic WebP conversion with fallback to original format
-- Responsive image variants (thumbnail, medium, full)
-- Lazy loading with low-quality image placeholders (LQIP)
-- CDN edge caching for global delivery
-
-**Optimization Results:**
-- Average image size: 2.3MB → 180KB (WebP)
-- Page load time: 4.2s → 1.8s
-- Bandwidth savings: ~92%
-
-### Frontend Optimizations
-
-**Next.js Features:**
-- Automatic code splitting per route
-- Server-side rendering for SEO and initial load performance
-- Static generation for public pages
-- Image component with built-in lazy loading
-- Font optimization with Geist preloading
-
-**Bundle Analysis:**
-- Initial JS bundle: 142KB gzipped
-- First Contentful Paint: ~1.2s
-- Time to Interactive: ~2.3s
-- Lighthouse Performance Score: 94/100
-
-## Technical Challenges
-
-### Geospatial Accuracy & Validation
-
-**Challenge**: Ensuring coordinates are valid and fall within Romania's boundaries while handling edge cases like users near borders or coordinates from external sources.
-
-**Solution**: Implemented strict Zod validation with min/max constraints on latitude (43.5-48.3°N) and longitude (20.2-29.7°E). Added fallback mechanisms when Nominatim API fails—system gracefully degrades to displaying raw coordinates rather than throwing errors.
-
-```typescript
-const reverseSchema = z.object({
-  lat: z.coerce.number().min(43.5).max(48.3),
-  lon: z.coerce.number().min(20.2).max(29.7)
-});
-
-// Fallback response on API failure
-catch (error) {
-  res.json({
-    display_name: `${lat.toFixed(5)}, ${lon.toFixed(5)}`,
-    address: {},
-    lat, lon
-  });
-}
-```
-
-### Concurrent Update Conflicts
-
-**Challenge**: Race conditions when multiple users interact with the same post simultaneously (editing, commenting, marking resolved).
-
-**Solution**: Leveraged MongoDB's atomic update operators (`$set`, `$push`, `$inc`) and implemented optimistic locking with version fields. Critical operations use transactions to ensure data consistency.
-
-```typescript
-// Atomic operation prevents race conditions
-await Post.findByIdAndUpdate(
-  postId,
-  { $set: { status: 'solved', solvedAt: new Date() } },
-  { new: true, runValidators: true }
-);
-```
-
-### External API Resilience
-
-**Challenge**: Nominatim API rate limits (1 request/second) and occasional timeouts causing user-facing errors.
-
-**Solution**: Three-layered approach:
-1. **Redis caching** with 1-hour TTL reduces API calls by ~75%
-2. **Timeout configuration** (5s) prevents hanging requests
-3. **Graceful degradation** returns partial data instead of failing
-
-Rate limiting on the geocoding endpoint (60/min) ensures compliance with Nominatim's usage policy while accommodating legitimate user activity.
-
-### Scalability & Resource Management
-
-**Challenge**: As user base grows, managing database connections, Redis connections, and memory usage becomes critical.
-
-**Solution**:
-- MongoDB connection pooling (min: 10, max: 50 connections)
-- Redis connection reuse with single client instance
-- Image uploads limited to 5MB to prevent memory exhaustion
-- Rate limiting prevents resource starvation from malicious actors
-- Horizontal scaling strategy with load balancer-ready stateless design
-
-### Search Performance at Scale
-
-**Challenge**: Text search across thousands of posts with multiple filters (location, category, date) must remain fast.
-
-**Solution**: Implemented compound indexes covering common query patterns and MongoDB aggregation pipeline for complex searches. Future optimization plan includes Elasticsearch integration for full-text search once post volume exceeds 100K records.
-
-## Mobile Responsive Design
-
-<div align="center">
-  <img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1758396413/localhost_3000__iPhone_XR_zmjobt.png" alt="Mobile Homepage" width="32%">
-  <img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1758396413/localhost_3000__iPhone_XR_2_n2645d.png" alt="Mobile Post" width="32%">
-  <img src="https://res.cloudinary.com/dqyq1oiwi/image/upload/v1758396634/localhost_3000__iPhone_XR_3_cxnbtp.png" alt="Mobile Map" width="32%">
-</div>
-
-Fully responsive design with touch-optimized map controls, collapsible filters, and mobile-first form layouts. CSS Grid and Flexbox ensure consistent layouts across devices. Breakpoints at 768px and 1024px accommodate tablets and desktops.
-
-## Installation
-
-### Prerequisites
-- Node.js 18+ and npm
-- MongoDB 5.0+
-- Redis 6.0+
-- Cloudinary account (free tier sufficient)
-
-### Setup Instructions
-
-```bash
-# Clone repository
-git clone https://github.com/Rotis-Web/lostfound.git
-cd lostfound
-
-# Install frontend dependencies
-cd client
-npm install
-
-# Install backend dependencies
-cd ../server
-npm install
-
-# Start MongoDB and Redis (if running locally)
-# macOS with Homebrew:
-brew services start mongodb-community
-brew services start redis
-
-# Run development servers
-npm run dev:all
-# This starts both frontend (port 3000) and backend (port 8000)
-```
-
-## Environment Configuration
-
-### Frontend Configuration
-
-Create `client/.env.local`:
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-```
-
-### Backend Configuration
-
-Create `server/.env`:
-```bash
-# Server
-PORT=8000
-NODE_ENV=development
-
-# Database
-MONGO_URI=mongodb://localhost:27017/lostfound
-# Production: mongodb+srv://username:password@cluster.mongodb.net/lostfound
-
-# Redis
-REDIS_URL=redis://localhost:6379
-# Production: redis://username:password@host:port
-
-# Application URLs
-APP_ORIGIN=http://localhost:8000
-FRONTEND_URL=http://localhost:3000
-
-# JWT Configuration (generate random 32+ char strings)
-JWT_SECRET=your_secure_secret_min_32_chars_use_openssl_rand
-JWT_EXPIRES_IN=15m
-JWT_REFRESH_SECRET=your_refresh_secret_different_from_above
-JWT_REFRESH_EXPIRES_IN=7d
-
-# Cloudinary (sign up at cloudinary.com)
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-
-# Email
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_specific_password
-```
-
-**Generating Secure Secrets:**
-```bash
-# Use OpenSSL to generate random secrets
-openssl rand -base64 32
-```
-
-## Design Philosophy
-
-The interface prioritizes clarity and accessibility with a warm color palette that conveys hope and urgency. The design system balances vibrant accent colors with professional neutrals to create an approachable yet trustworthy aesthetic.
-
-### Color Palette
-
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Yellow Primary | `#ffd700` | CTAs, highlights - conveys energy and optimism |
-| Dark Blue | `#2c3e60` | Headers, text - inspires trust and professionalism |
-| Orange Accent | `#f57a4e` | Important buttons, alerts - draws attention |
-| Green Success | `#51e188` | Success messages, resolved posts |
-| Red Alert | `#ff4444` | Error states, urgent actions |
-| Neutral Gray | `#9ca3af` | Secondary text, borders, disabled states |
-
-### Typography
-
-- **Font Family**: Geist Sans - Modern, highly legible sans-serif optimized for UI
-- **Heading Scale**: 2.5rem / 2rem / 1.5rem / 1.25rem / 1rem
-- **Body Text**: 1rem (16px) with 1.5 line height for optimal readability
-- **Code/Monospace**: Geist Mono for technical content
+# 🔍 Lost & Found
+
+**Lost & Found** is a Romanian platform for lost and found items and pets. Someone
+who has lost a wallet, a phone or a dog publishes a post with photographs, a
+description, contact details and the place it was last seen; the place is a point
+on a map with a radius around it rather than a line of text, so anyone searching
+the area finds it. Whoever finds the item searches by location, category and
+period, comments on the post, calls the owner, and the post is marked solved.
+
+The repository holds both halves of the product: a **Next.js 15** web application
+under `client/` and an **Express 5** REST API under `server/`, backed by MongoDB,
+Redis and Cloudinary. Both are TypeScript end to end.
+
+User-facing copy is Romanian — the audience is Romanian, and the API's error
+messages are written to be shown to a visitor as they arrive. Code, comments and
+identifiers are English.
+
+<p align="center">
+  <img
+    src="docs/images/banner.webp"
+    alt="Lost &amp; Found — reuniting people with lost items and pets. Built with Next.js, Express, MongoDB and Redis."
+    width="100%"
+  />
+</p>
 
 ---
 
-<div align="center">
-  <p>Built to reunite people with what matters most</p>
-  
-  ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)
-  ![Next.js](https://img.shields.io/badge/Next.js-000000?style=flat-square&logo=next.js&logoColor=white)
-  ![Express](https://img.shields.io/badge/Express.js-404D59?style=flat-square&logo=express)
-  ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
-  ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat-square&logo=redis&logoColor=white)
-  
-  <p><strong>License:</strong> MIT | <strong>Developer:</strong> Alexandru Rotar</p>
-</div>
+## ✨ Features
+
+**Posts anchored to a place, not an address.** A post carries a title,
+description, up to five photographs, a category, tags, contact details, an
+optional reward and an optional last-seen date. Its location is a GeoJSON point
+with a radius, chosen on a Leaflet map or typed as an address and geocoded. The
+radius is what makes a vague memory usable: "somewhere around the park" becomes a
+circle a searcher can match against.
+
+**Search by area, category and period.** `GET /search` combines a MongoDB text
+search over title, content and tags with a `$geoWithin` / `$centerSphere` filter,
+a category filter, a lost/found filter and a cutoff in months. When the text index
+returns nothing the query falls back to a case-insensitive regex over title and
+content — a text index tokenises, so a partial word or a diacritic-stripped
+spelling misses it where a regex still finds the post.
+
+**Geocoding proxied and cached.** Address lookup and reverse lookup go through
+`/geo`, not from the browser to Nominatim. The proxy constrains results to Romania
+(`countrycodes=ro`), rejects coordinates outside the country's bounding box, sends
+the `User-Agent` Nominatim's usage policy requires, times out after five seconds,
+and caches both directions in Redis for an hour. When the upstream fails, a
+reverse lookup degrades to the raw coordinates rather than erroring — a map pin
+with no street name is still a usable pin.
+
+**Printable flyer with a QR code.** Any post renders to an A4 PDF in the browser —
+photograph, status, title, location, contact details, and a QR code pointing back
+at the post. Generation is entirely client-side with jsPDF and `qrcode`, so
+printing a flyer costs the server nothing.
+
+**Accounts with verified email.** Registration sends a verification link; the
+account cannot sign in until it is confirmed. Password reset works the same way on
+a ten-minute token. Both tokens are stored as SHA-256 hashes, so the database never
+holds a usable one. Passwords are bcrypt-hashed in a Mongoose pre-save hook.
+
+**Saved posts, profiles and public pages.** A member bookmarks posts, keeps a
+profile with a bio and an avatar, reviews their own posts from a dashboard, marks
+one solved, and has a public page others can reach from any post they wrote.
+Avatars fall back to a generated `ui-avatars.com` image, so no account is faceless.
+
+**Comments.** Signed-in members comment on a post to ask a question or add a
+sighting. A comment can be deleted only by its author, enforced by comparing the
+stored author against the token's subject.
+
+**Human-readable identifiers.** Users and posts each get a `#XXXXX` short ID on
+first save, unique by retry against the collection. It is what a flyer prints and
+what someone reads out over the phone; the ObjectId stays internal.
+
+<p align="center">
+  <br />
+  <img
+    src="docs/images/ui.webp"
+    alt="Lost &amp; Found on a phone and a laptop: a post for a lost French bulldog in Oradea with its contact buttons, reward and map, and the posting form with its status toggle, category picker, tags and radius selector."
+    width="100%"
+  />
+</p>
+
+---
+
+## 🧭 Scope
+
+Three things are modelled in the schema and honoured at read time, but have no
+write path yet. They are listed here so the gap is explicit rather than
+discovered.
+
+| Area | Modelled as | Implemented today |
+| ---- | ----------- | ----------------- |
+| **Promoted posts** | `promoted.isActive`, `promoted.expiresAt` on `Post` | Ranking respects them: `/post/latest` returns live promotions first and search sorts on them. No endpoint activates a promotion and no payment is integrated, so the field is only ever set by hand. The "Promovează postarea" button shown after publishing is a placeholder. |
+| **Roles** | `role: "user" \| "admin"` on `User` | No route reads it. There is no moderation surface; a post is removable only by its author. |
+| **Badges** | `badges: string[]` on `User` | Stored and returned, never awarded. |
+
+`RESEND_API_KEY` is read at startup and the `resend` package is installed, but all
+mail is sent over SMTP through Nodemailer. The variable is required by the config
+loader and otherwise unused; see [`server/.env.example`](server/.env.example).
+
+---
+
+## 🧱 Architecture
+
+```
+client/                   Next.js 15 App Router, React 19, TypeScript, SCSS modules
+  app/                    routes, in Romanian: /search, /post/[id], /create-post, /profile
+    components/           grouped by surface: HomePage/, PostPage/, ProfilePage/, Forms/, UI/
+  context/                AuthContext, PostsContext, SearchContext — the client-side data seam
+  types/                  the Post and User shapes shared across components
+  middleware.ts           first-render routing only: signed-out off /profile, signed-in off /login
+
+server/                   Express 5 REST API, TypeScript, packaged by layer
+  src/routes/             one router per resource, each owning its own rate limits
+  src/controllers/        request handling and persistence
+  src/models/             Mongoose schemas and indexes: User, Post, Comment
+  src/middleware/         authenticate, validate (body), validateQuery, multer error handling
+  src/utils/validators/   Zod schemas — the single definition of what a valid request is
+  src/utils/              Cloudinary upload and deletion, JWT issuance, env access
+  src/services/           transactional email
+  src/config/             the env-backed config object, MongoDB and Redis connections
+```
+
+The browser talks only to the API. Nominatim, Cloudinary and SMTP are reached from
+the server, never from the page — which is what allows the geocoding cache, the
+upload allowlist and the rate limits to be enforced at all.
+
+| Dependency | Purpose |
+| ---------- | ------- |
+| **MongoDB** | System of record. A 2dsphere index serves radius queries, a text index serves search, and compound indexes cover the category/status/recency listing. |
+| **Redis** | Rate-limit counters, keyed by prefix per bucket, and the geocoding cache. |
+| **Cloudinary** | Image storage and transformation. Uploads are bounded to 1200×1200 with automatic format and quality. |
+| **Nominatim** | Forward and reverse geocoding, proxied and cached by the API. |
+| **SMTP** | Verification and password-reset mail, over Nodemailer. |
+
+### Request path
+
+Every write passes the same three steps before a controller sees it:
+`authenticate` resolves the Bearer token to a user id, a Redis-backed rate limiter
+charges the caller's budget, and `validate(schema)` replaces `req.body` with the
+parsed result of a Zod schema. A controller therefore never checks a token, never
+re-validates a field, and never sees a shape the schema did not permit.
+
+Ownership is enforced by scoping the query rather than by comparing after the
+fact: editing, deleting and solving a post all look it up as
+`{ _id: postId, author: userId }`, so a post belonging to someone else is
+indistinguishable from one that does not exist.
+
+---
+
+## 🛠️ Tech stack
+
+![Next.js](https://img.shields.io/badge/Next%20js%2015-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React%2019-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![SASS](https://img.shields.io/badge/SASS-hotpink.svg?style=for-the-badge&logo=SASS&logoColor=white)
+![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=leaflet&logoColor=white)
+
+![Express](https://img.shields.io/badge/Express%205-404D59?style=for-the-badge&logo=express&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node%20js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)
+![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-000000?style=for-the-badge&logo=zod&logoColor=3068B7)
+![Cloudinary](https://img.shields.io/badge/Cloudinary-3448C5?style=for-the-badge&logo=Cloudinary&logoColor=white)
+
+Also in use: Helmet for response headers, `express-mongo-sanitize` against
+operator injection, `express-rate-limit` over `rate-limit-redis` for distributed
+budgets, Multer with memory storage for uploads, bcrypt for password hashing,
+Nodemailer for transactional mail, and Morgan for request logging. On the client:
+react-leaflet over OpenStreetMap tiles, Swiper for galleries, jsPDF and `qrcode`
+for the flyer, date-fns for relative dates, and react-toastify for feedback.
+
+---
+
+## 🚀 Local setup
+
+Requires Node.js 20 or newer, a MongoDB database and a Redis instance. A
+Cloudinary account and an SMTP mailbox are needed for uploads and mail; both are
+free at the tier this uses.
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/Rotis-Web/lostfound.git
+cd lostfound
+npm --prefix server install
+npm --prefix client install
+```
+
+### 2. Configure the API
+
+```bash
+cp server/.env.example server/.env
+```
+
+Every value in the template is a placeholder. The two JWT secrets must differ from
+each other and must carry real entropy:
+
+```bash
+openssl rand -base64 48
+```
+
+`REDIS_URL` is expected to be a TLS endpoint — the client is constructed with TLS
+enabled unconditionally, which suits a managed instance (Upstash, Redis Cloud) and
+not a plain local container. See [Troubleshooting](#-troubleshooting) to run Redis
+locally.
+
+### 3. Configure the web application
+
+```bash
+cp client/.env.example client/.env.local
+```
+
+`NEXT_PUBLIC_API_URL` must include the API's base path —
+`http://localhost:8000/api/v1` against a local server.
+
+### 4. Run both halves
+
+```bash
+npm --prefix server run dev    # http://localhost:8000, nodemon over ts-node
+npm --prefix client run dev    # http://localhost:3000, next dev --turbopack
+```
+
+Mongoose creates the indexes on first connection, so there is no migration step
+and no seed data: the first account you register is the first row.
+
+### Production build
+
+```bash
+npm --prefix server run build && npm --prefix server start
+npm --prefix client run build && npm --prefix client start
+```
+
+---
+
+## ⚙️ Configuration
+
+The API reads its configuration through `getEnv`, which throws at startup when a
+variable has no value and no default — a missing secret fails the process rather
+than the first request that needs it. The template is
+[`server/.env.example`](server/.env.example).
+
+| Variable | Required | Purpose |
+| -------- | -------- | ------- |
+| `MONGO_URI` | yes | System of record |
+| `REDIS_URL` | yes | Rate-limit counters and the geocoding cache; TLS endpoint |
+| `JWT_SECRET` | yes | HMAC key for access tokens |
+| `JWT_REFRESH_SECRET` | yes | HMAC key for refresh tokens; must differ from the above |
+| `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | yes | Image storage |
+| `SMTP_HOST` / `_PORT` / `_USER` / `_PASS` | yes | Outbound mail |
+| `FROM_EMAIL` / `FROM_NAME` | yes | Sender identity on verification and reset mail |
+| `RESEND_API_KEY` | yes | Read at startup, unused by the code — see [Scope](#-scope) |
+| `NODE_ENV` | no | `development`. `production` adds `Secure` to the refresh cookie |
+| `PORT` | no | `8000` |
+| `BASE_PATH` | no | `/api/v1` |
+| `FRONTEND_URL` | no | `http://localhost:3000`. The sole permitted CORS origin, and the base for links in mail |
+| `APP_ORIGIN` | no | `localhost` |
+
+The web application reads one variable, from `client/.env.local`
+([template](client/.env.example)):
+
+| Variable | Purpose |
+| -------- | ------- |
+| `NEXT_PUBLIC_API_URL` | API origin **including** the base path, e.g. `http://localhost:8000/api/v1` |
+
+---
+
+## 📡 API
+
+Served under `BASE_PATH`, `/api/v1` by default. Every limit below is per IP. The
+buckets are held in Redis and so are shared across processes, except the two
+comment buckets, which use the in-memory store and reset on restart.
+
+### Authentication — `/auth`
+
+| Method | Endpoint | Rate limit | Description |
+| ------ | -------- | ---------- | ----------- |
+| `POST` | `/register` | 5 / 10 min | Create an account and send the verification mail |
+| `POST` | `/login` | 10 / 5 min | Returns an access token in the body, sets the refresh cookie |
+| `POST` | `/logout` | — | Clears the refresh cookie |
+| `POST` | `/refresh-token` | — | Exchanges the refresh cookie for a new access token |
+| `POST` | `/verify-email` | — | Confirms an address from the emailed token |
+| `POST` | `/forgot-password` | 10 / min | Sends a reset link |
+| `POST` | `/reset-password` | 10 / min | Sets a new password from the emailed token |
+
+Sign-in is refused with `EMAIL_NOT_VERIFIED` until the address is confirmed.
+
+### Posts — `/post`
+
+| Method | Endpoint | Auth | Rate limit | Description |
+| ------ | -------- | ---- | ---------- | ----------- |
+| `POST` | `/create` | ✓ | 93 / 10 min | Create a post with up to 5 images |
+| `PUT` | `/edit/:postId` | ✓ | 20 / 5 min | Update fields, add or remove images |
+| `PATCH` | `/solve/:postId` | ✓ | 30 / min | Mark solved, optionally crediting a member by `#ID` |
+| `DELETE` | `/delete/:postId` | ✓ | 10 / 5 min | Delete a post and its Cloudinary images |
+| `GET` | `/user-posts` | ✓ | 30 / min | The caller's own posts |
+| `GET` | `/latest` | — | 30 / min | Recent posts, live promotions first |
+| `GET` | `/:postId` | — | 30 / min | One post with its author and comments; increments `views` |
+
+Uploads additionally draw on a shared image budget of 115 / 5 min.
+
+### Search — `/search`
+
+| Method | Endpoint | Rate limit | Description |
+| ------ | -------- | ---------- | ----------- |
+| `GET` | `/` | 60 / min | Filtered search over unsolved posts |
+| `GET` | `/categories` | 60 / min | Distinct categories currently in use |
+
+| Parameter | Type | Notes |
+| --------- | ---- | ----- |
+| `query` | string | ≤ 100 characters; text index, with a regex fallback |
+| `category` | string | Exact match |
+| `status` | `lost` \| `found` | Comma-separated input, but exactly one value survives validation |
+| `lat`, `lon`, `radius` | number | All three or none; radius in kilometres |
+| `period` | integer | Months back from today |
+| `skip`, `limit` | integer | `limit` defaults to 12, capped at 50 |
+
+The response carries `posts`, `count`, `totalCount`, `hasMore` and `promotedCount`.
+
+### Users — `/user`
+
+| Method | Endpoint | Auth | Rate limit | Description |
+| ------ | -------- | ---- | ---------- | ----------- |
+| `GET` | `/profile` | ✓ | 30 / min | The caller's profile |
+| `GET` | `/public-profile/:id` | — | 30 / min | Another member's public page |
+| `PUT` | `/change-password` | ✓ | 2 / min | Requires the current password |
+| `PUT` | `/change-profile-image` | ✓ | 2 / min | One image |
+| `DELETE` | `/delete-account` | ✓ | 2 / min | Requires the password and the typed phrase `STERGE CONTUL` |
+| `GET` | `/saved-posts` | ✓ | — | Bookmarked posts |
+| `POST` | `/save-post` | ✓ | 30 / min | Bookmark a post |
+| `POST` | `/remove-post` | ✓ | 30 / min | Remove a bookmark |
+
+### Comments — `/comment`
+
+| Method | Endpoint | Auth | Rate limit | Description |
+| ------ | -------- | ---- | ---------- | ----------- |
+| `POST` | `/create` | ✓ | 5 / min | 3–1000 characters |
+| `DELETE` | `/delete/:commentId` | ✓ | 5 / min | Author only |
+
+### Geocoding — `/geo`
+
+The whole router is limited to 60 requests per minute, which is what keeps the
+application inside Nominatim's usage policy.
+
+| Method | Endpoint | Description |
+| ------ | -------- | ----------- |
+| `GET` | `/search?q=&limit=` | Address → coordinates, Romania only, `limit` capped at 20 |
+| `GET` | `/reverse?lat=&lon=` | Coordinates → address; rejects points outside Romania's bounding box |
+| `GET` | `/health` | Liveness |
+
+Both lookups are cached in Redis for an hour and return only the fields the client
+needs, rather than passing Nominatim's response through.
+
+---
+
+## 🔒 Security
+
+- **Access tokens never touch storage.** The client keeps the access token in a
+  React ref — memory only, gone on reload, out of reach of any script that reads
+  `localStorage`. It is re-obtained from the refresh cookie on mount.
+- **The refresh cookie is `HttpOnly` and `SameSite=Strict`,** and `Secure` when
+  `NODE_ENV=production`. Combined with a CORS policy naming a single origin, no
+  third-party page can drive the API as a signed-in member.
+- **Ownership is a query constraint, not a comparison.** Post edits, deletions and
+  status changes are scoped by `author` in the lookup itself, so there is no branch
+  in which a missing check leaks another member's post.
+- **Every write is validated by a Zod schema** before the controller runs, and the
+  parsed result replaces the request body. Query strings go through the same
+  mechanism in `validateQuery`.
+- **Operator injection is stripped globally** by `express-mongo-sanitize`, so a
+  body such as `{ "email": { "$gt": "" } }` cannot reach a Mongoose query as an
+  operator.
+- **Rate limits are per route and mostly distributed.** Fifteen buckets sized to
+  the cost of the operation — 2 per minute for a password change, 5 per ten
+  minutes for registration, 60 per minute for the geocoding proxy. Thirteen of
+  them carry their own Redis key prefix and so hold across processes; the two on
+  comments use the in-memory store.
+- **Uploads are constrained before they leave the process.** Memory storage, 5 MB
+  per file, at most 5 files, and a MIME allowlist of JPEG, PNG and WebP. Cloudinary
+  then re-encodes within a 1200×1200 bound with automatic format.
+- **Emailed tokens are stored hashed.** Verification and reset tokens are 32 random
+  bytes; only their SHA-256 digest is persisted, with a 24-hour and a 10-minute
+  expiry respectively. A database dump yields no usable link.
+- **Passwords are bcrypt-hashed in a pre-save hook,** so no code path can write a
+  plaintext password, and the field is stripped from every response.
+- **Response headers** come from Helmet: a Content Security Policy naming
+  Cloudinary as the only remote image source, and HSTS with a one-year max-age,
+  subdomains and preload.
+
+Two gaps, stated rather than implied. Refresh tokens are not rotated and there is
+no server-side revocation list, so a stolen refresh token stays valid for its seven
+days. And the captcha guarding contact details on a post is client-side only — the
+post payload already contains them, so it deters casual scraping and nothing more.
+Vulnerability reports are handled through [SECURITY.md](SECURITY.md).
+
+---
+
+## 🩺 Troubleshooting
+
+| ⚠️ Problem | 🛠️ Resolution |
+| ---------- | ------------- |
+| 🔌 `[Redis error]` on startup against a local Redis | The client in `server/src/config/redis.ts` sets `tls: {}` unconditionally, and a plain local container speaks no TLS. Use a managed `rediss://` endpoint, or drop that option while developing locally. |
+| 🗝️ `Missing environment variable: X` at startup | `getEnv` throws for any variable with no value and no default. Fill it in `server/.env`; the full list is in `server/.env.example`. |
+| 🚪 Every API call answers 403 `FORBIDDEN` | The access token is expired or signed with a different key. `JWT_SECRET` must match the one the token was issued with, and must differ from `JWT_REFRESH_SECRET`. |
+| 🌐 The browser reports a CORS failure | `FRONTEND_URL` is the only origin the API accepts, and credentials are required. It must match the web application's origin exactly, scheme and port included. |
+| 🧭 The web app loads but every request 404s | `NEXT_PUBLIC_API_URL` must include the base path: `http://localhost:8000/api/v1`, not `http://localhost:8000`. |
+| 📭 Registration succeeds but no mail arrives | SMTP failures are logged and swallowed so registration still returns 201. Check the server log, and that `SMTP_*` and `FROM_EMAIL` are set. |
+| 🖼️ Uploads fail with "Doar fișierele imagine sunt permise" | The allowlist is JPEG, PNG and WebP, 5 MB each, 5 per post. Anything else is rejected by Multer before the controller runs. |
+| 📍 A search with coordinates returns nothing | `lat`, `lon` and `radius` must be sent together — validation rejects a partial triple — and the radius is kilometres, not metres. |
+| 🗺️ Geocoding returns raw coordinates instead of a street | Nominatim timed out or rate-limited; reverse lookup degrades to coordinates by design. It is also Romania-only, and rejects points outside the country's bounding box. |
+| 🔁 Port already in use: 3000 or 8000 | Stop the process holding it, or set `PORT` for the API and pass `-p` to `next dev`. |
+
+---
+
+## 📚 Documentation
+
+- [`client/README.md`](client/README.md) — the web application, its routes and the context layer
+- [`server/README.md`](server/README.md) — the API, its request path, schema and indexes
+- [`CONTRIBUTING.md`](CONTRIBUTING.md) — setup, the checks CI runs, pull-request guidelines
+- [`SECURITY.md`](SECURITY.md) — vulnerability reporting and scope
+
+---
+
+## 📐 Conventions
+
+User-facing copy is Romanian; code, comments and identifiers are English. The Zod
+schemas in `server/src/utils/validators/` are the single definition of a valid
+request — a controller never re-checks a field. Rate limits live beside the routes
+they protect, not in a central table, so adding a route means deciding its budget.
+Coordinates are GeoJSON `[longitude, latitude]` everywhere, in that order, because
+that is what a 2dsphere index requires.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, the
+checks CI runs, and pull-request guidelines. For security issues, please follow
+[SECURITY.md](SECURITY.md) rather than opening a public issue.
+
+---
+
+## 📄 License
+
+Released under the [MIT License](LICENSE).

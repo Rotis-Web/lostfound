@@ -1,12 +1,15 @@
 {
-  "name": "client",
+  "name": "lostfound-client",
   "version": "0.1.0",
   "private": true,
+  "description": "Lost & Found web application — Next.js App Router",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@types/leaflet": "^1.9.18",
