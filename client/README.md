@@ -124,6 +124,23 @@ anywhere else will not render through `next/image`.
 accompanying `contentSecurityPolicy` on the image config sets `script-src 'none'`
 and `sandbox`. Neither should be removed without the other.
 
+## Dependency overrides
+
+`package.json` carries an `overrides` block, which exists only to lift two
+transitive packages that their parents hold on vulnerable versions:
+
+- **`postcss`** — `next` depends on exactly `8.4.31`, which has an advisory. The
+  override moves it into the 8.5 line, and `nanoid` follows, since it is pulled
+  in by postcss rather than pinned anywhere.
+- **`micromatch` → `picomatch`** — scoped deliberately. Two picomatch trees
+  exist: `micromatch` wants `^2.3.1`, which is the vulnerable one, while
+  `tinyglobby` wants `^4.0.2`. A blanket override would drag tinyglobby down two
+  majors, so only micromatch's copy is raised, to `2.3.2`.
+
+Both should be removed once the parents ship the fixed versions themselves.
+Check before adding to this block: an override silently changes a package every
+other dependency also resolves, and nothing warns you when it stops being needed.
+
 ## Conventions
 
 User-facing copy is Romanian, including what the API returns: error messages
