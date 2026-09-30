@@ -1,0 +1,86 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: nothing here needs write access to the repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  server:
+    name: API — typecheck and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+
+      # `npm ci` fails rather than silently resolving something new, so CI
+      # installs exactly what the lockfile pins.
+      - name: install
+        run: npm ci
+
+      - name: typecheck
+        run: npm run typecheck
+
+      # The API is deployed as compiled output, so a tsc that type-checks but
+      # cannot emit still breaks the deployment.
+      - name: build
+        run: npm run build
+
+  client:
+    name: Web — typecheck, lint and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+
+      - name: install
+        run: npm ci
+
+      - name: typecheck
+        run: npm run typecheck
+
+      # Zero warnings: one is either worth fixing or worth silencing at its line
+      # with a reason. Leaving one standing spends the budget that would have
+      # made the next one visible.
+      - name: lint
+        run: npm run lint
+
+      # Catches what tsc cannot — a server/client boundary crossed, a bad route
+      # export, a component that only fails when it is actually rendered.
+      - name: build
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
+          # The build only needs this to be a well-formed URL; no request is
+          # made at build time, and the real value is supplied at deploy.
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1

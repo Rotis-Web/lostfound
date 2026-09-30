@@ -1,2 +1,24 @@
-# Auto detect text files and perform LF normalization
+# Normalize text files to LF in the repository regardless of each contributor's
+# core.autocrlf setting, so Windows checkouts don't produce line-ending churn.
 * text=auto
+
+# CRLF breaks these outright.
+*.sh text eol=lf
+
+# Windows scripts are the exception: cmd.exe needs CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binary assets: never translate line endings, never diff as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+
+# Generated: collapse in pull-request diffs.
+package-lock.json linguist-generated=true
