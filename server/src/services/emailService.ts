@@ -1,5 +1,4 @@
-import nodemailer from "nodemailer";
-import SMTPTransport from "nodemailer/lib/smtp-transport";
+import nodemailer, { type Transporter } from "nodemailer";
 import { config } from "../config/app.config";
 
 interface EmailOptions {
@@ -10,7 +9,7 @@ interface EmailOptions {
 }
 
 class EmailService {
-  private transporter: nodemailer.Transporter;
+  private transporter: Transporter;
 
   constructor() {
     this.transporter = nodemailer.createTransport({
@@ -21,7 +20,7 @@ class EmailService {
         user: config.SMTP_USER,
         pass: config.SMTP_PASS,
       },
-    } as SMTPTransport.Options);
+    });
   }
 
   async sendEmail(options: EmailOptions): Promise<void> {
