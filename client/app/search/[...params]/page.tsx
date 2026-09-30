@@ -1,9 +1,7 @@
 import SearchPage from "../../components/SearchPage/SearchPage";
 
 interface PageProps {
-  params: {
-    params: string[];
-  };
+  params: Promise<{ params: string[] }>;
 }
 
 export default async function SearchDynamic({ params }: PageProps) {

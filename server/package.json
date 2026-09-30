@@ -1,17 +1,17 @@
 {
-  "name": "server",
+  "name": "lostfound-server",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.ts",
+  "description": "Lost & Found REST API — Express, MongoDB, Redis, Cloudinary",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "start": "node dist/server.ts",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts"
+    "start": "node dist/server.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec ts-node src/server.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Alexandru Rotar",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@types/morgan": "^1.9.10",

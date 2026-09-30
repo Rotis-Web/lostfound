@@ -1,17 +1,11 @@
 "use client";
 
 import styles from "./page.module.scss";
-import { useEffect, useState } from "react";
 import Image from "next/image";
 
+// CreatePostForm leaves the new post's ID in sessionStorage under
+// "createdPostID"; nothing on this page links to it yet.
 export default function SuccessPage() {
-  const [postID, setPostID] = useState<string | null>(null);
-
-  useEffect(() => {
-    const id = sessionStorage.getItem("createdPostID");
-    setPostID(id);
-  }, []);
-
   return (
     <main className={styles.successpage}>
       <section className={styles.container}>
